@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     "corsheaders",
     # local apps
     "user.apps.UserConfig",
+    "authentication.apps.AuthenticationConfig",
+    "organization.apps.OrganizationConfig",
+    "student.apps.StudentConfig",
 ]
 
 MIDDLEWARE = [
@@ -148,7 +151,7 @@ REST_FRAMEWORK = {
 
 # Spectacular configs
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Generation Next Fashion",
+    "TITLE": "Coaching Management System",
     "DESCRIPTION": "Your project description",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
@@ -171,3 +174,5 @@ SIMPLE_JWT = {
 
 # cors headers
 CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS")
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

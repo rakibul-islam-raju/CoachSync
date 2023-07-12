@@ -8,9 +8,11 @@ from utilities.models import BaseModel
 class Student(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     classs = models.ForeignKey(
-        Classs, on_delete=models.SET_NULL, related_name="students"
+        Classs, on_delete=models.SET_NULL, null=True, related_name="students"
     )
-    batch = models.ForeignKey(Batch, on_delete=models.SET_NULL, related_name="students")
+    batch = models.ForeignKey(
+        Batch, on_delete=models.SET_NULL, null=True, related_name="students"
+    )
     contact_no = models.CharField(max_length=11)
     emergency_contact_no = models.CharField(max_length=11)
     date_of_birth = models.DateField()
@@ -36,7 +38,11 @@ class Enroll(BaseModel):
     discount_amount = models.PositiveIntegerField(default=0)
     paid_amount = models.PositiveIntegerField(default=0)
     reference_by = models.ForeignKey(
-        User, on_delete=models.SET_NULL, related_name="references"
+        User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="references",
     )
 
     objects = models.Manager()

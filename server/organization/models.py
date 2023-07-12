@@ -18,7 +18,7 @@ class Subject(BaseModel):
 
 
 class Teacher(BaseModel):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="teachers")
 
     objects = models.Manager()
 
@@ -45,7 +45,7 @@ class Classs(BaseModel):
 class Batch(BaseModel):
     name = models.CharField(max_length=30)
     code = models.CharField(max_length=6, blank=True, null=True)
-    classs = models.ForeignKey(Classs, on_delete=models.SET_NULL)
+    classs = models.ForeignKey(Classs, on_delete=models.CASCADE)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
     fee = models.PositiveIntegerField(blank=True, null=True)

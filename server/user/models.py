@@ -4,14 +4,25 @@ from django.db import models
 
 from .managers import CustomUserManager
 
+ROLES = (
+    ("A", "Admin"),
+    ("AS", "Admin Staff"),
+    ("OA", "Organization Admin"),
+    ("OS", "Organization Staff"),
+    ("S", "student"),
+    ("T", "student"),
+)
+
 
 class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     email = models.EmailField(unique=True)
+    phone = models.EmailField(unique=True, blank=True, null=True)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+    role = models.CharField(choices=ROLES, max_length=2, null=True)
     password = models.CharField(max_length=128, blank=True, null=True)
     password_reset_token = models.CharField(max_length=100, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -23,6 +34,14 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+    def save(self, *args, **kwargs):
+        if not self.role and self.is_staff:
+            self.role = "AS"
+        elif not self.role and self.is_superuser:
+            self.role = "A"
+
+        super(User, self).save(*args, **kwargs)
 
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
