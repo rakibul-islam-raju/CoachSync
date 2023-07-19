@@ -10,7 +10,7 @@ ROLES = (
     ("OA", "Organization Admin"),
     ("OS", "Organization Staff"),
     ("S", "student"),
-    ("T", "student"),
+    ("T", "teacher"),
 )
 
 
@@ -18,13 +18,14 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     email = models.EmailField(unique=True)
-    phone = models.EmailField(unique=True, blank=True, null=True)
+    phone = models.CharField(max_length=11, unique=True, blank=True, null=True)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     role = models.CharField(choices=ROLES, max_length=2, null=True)
     password = models.CharField(max_length=128, blank=True, null=True)
     password_reset_token = models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     objects = CustomUserManager()

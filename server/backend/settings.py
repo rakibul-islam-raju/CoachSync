@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "django_filters",
     "corsheaders",
+    # "django_celery_results",
     # local apps
     "user.apps.UserConfig",
     "authentication.apps.AuthenticationConfig",
@@ -176,3 +177,13 @@ SIMPLE_JWT = {
 CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS")
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# CELERY SETTINGS
+CELERY_BROKER_URL = "redis://127.0.0.1:6379"
+CELERY_ACCEPT_CONTENT = {"application/json"}
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TASK_SERIALIZER = "json"
+CELERY_TIMEZONE = "Asia/Dhaka"
+CELERY_RESULT_BACKEND = "django-db"
+
+FRONTEND_BASE_URL = "http://localhost:3000"

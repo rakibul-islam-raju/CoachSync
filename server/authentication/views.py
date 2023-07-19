@@ -1,7 +1,6 @@
 import random
 import string
 from django.conf import settings
-from django.core.mail import send_mail
 from django.utils.html import strip_tags
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
@@ -26,6 +25,7 @@ from .serializers import (
 
 from user.models import User
 from user.permissions import IsSuperUser
+from utilities.utils import send_email
 
 
 class LoginView(TokenObtainPairView):
@@ -72,21 +72,19 @@ class UserCreateView(generics.CreateAPIView):
             user.save()
 
             # email content
-            subject = "Set your password"
             to_email = email
             reset_url = f"{settings.FRONTEND_BASE_URL}/set-password/{token}"
             html_content = render_to_string(
                 "set_password_email.html", {"reset_url": reset_url, "user": user}
             )
+            plain_message = strip_tags(html_content)
 
             # send email to set password
-            plain_message = strip_tags(html_content)
-            send_mail(
-                subject,
-                plain_message,
-                settings.DEFAULT_FROM_EMAIL,
-                [to_email],
-                html_message=html_content,
+            send_email(
+                subject="Set your password",
+                plain_message=plain_message,
+                to_email=[to_email],
+                html_content=html_content,
             )
 
             headers = self.get_success_headers(serializer.data)
@@ -113,21 +111,19 @@ class ForgetPasswordView(APIView):
             user.save()
 
             # email content
-            subject = "Set your password"
             to_email = email
             reset_url = f"{settings.FRONTEND_BASE_URL}/set-password/{token}"
             html_content = render_to_string(
                 "set_password_email.html", {"reset_url": reset_url, "user": user}
             )
+            plain_message = strip_tags(html_content)
 
             # send email to set password
-            plain_message = strip_tags(html_content)
-            send_mail(
-                subject,
-                plain_message,
-                settings.DEFAULT_FROM_EMAIL,
-                [to_email],
-                html_message=html_content,
+            send_email.delay(
+                subject="Set your password",
+                plain_message=plain_message,
+                to_email=[to_email],
+                html_content=html_content,
             )
 
             headers = self.get_success_headers(serializer.data)
