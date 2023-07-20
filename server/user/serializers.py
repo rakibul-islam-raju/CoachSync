@@ -34,3 +34,14 @@ class UserSerializer(serializers.ModelSerializer):
             "updated_at",
             "last_login",
         ]
+
+
+class StudentUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+        ]

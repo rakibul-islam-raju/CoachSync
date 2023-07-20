@@ -8,11 +8,11 @@ from student.models import Student
 
 
 # create student
-@receiver(post_save, sender=User)
-def create_student(sender, instance, created, **kwargs):
-    if instance.role == "S":
-        if created:
-            Student.objects.create(user=instance)
+# @receiver(post_save, sender=User)
+# def create_student(sender, instance, created, **kwargs):
+#     if instance.role == "S":
+#         if created:
+#             Student.objects.create(user=instance)
 
 
 # create teacher

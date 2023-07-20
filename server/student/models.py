@@ -4,6 +4,17 @@ from user.models import User
 from organization.models import Classs, Batch
 from utilities.models import BaseModel
 
+BLOOD_GROUPS = (
+    ("A+", "A+"),
+    ("A-", "A-"),
+    ("B+", "B+"),
+    ("B-", "B-"),
+    ("O+", "O+"),
+    ("O-", "O-"),
+    ("AB+", "AB+"),
+    ("AB-", "AB-"),
+)
+
 
 class Student(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -13,12 +24,13 @@ class Student(BaseModel):
     batch = models.ForeignKey(
         Batch, on_delete=models.SET_NULL, null=True, related_name="students"
     )
-    contact_no = models.CharField(max_length=11)
-    emergency_contact_no = models.CharField(max_length=11)
-    date_of_birth = models.DateField()
-    blood_group = models.CharField(max_length=3, blank=True, null=True)
-    address = models.TextField()
-    description = models.TextField()
+    emergency_contact_no = models.CharField(max_length=11, null=True)
+    date_of_birth = models.DateField(null=True)
+    blood_group = models.CharField(
+        max_length=3, choices=BLOOD_GROUPS, blank=True, null=True
+    )
+    address = models.TextField(null=True)
+    description = models.TextField(null=True)
 
     objects = models.Manager()
 
@@ -26,7 +38,7 @@ class Student(BaseModel):
         ordering = ["-id"]
 
     def __str__(self):
-        return self.user
+        return self.user.email
 
 
 class Enroll(BaseModel):

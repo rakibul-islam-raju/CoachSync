@@ -49,7 +49,7 @@ class Batch(BaseModel):
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
     fee = models.PositiveIntegerField(blank=True, null=True)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
 
     objects = models.Manager()
 

@@ -18,7 +18,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=11, unique=True, blank=True, null=True)
+    phone = models.CharField(max_length=11, unique=True)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -32,6 +32,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name"]
+
+    class Meta:
+        ordering = ["-id"]
 
     def __str__(self):
         return self.email

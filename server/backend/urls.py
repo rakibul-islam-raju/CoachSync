@@ -21,7 +21,9 @@ urlpatterns = [
     # users
     path("api/v1/users/", include("user.urls")),
     # organization
-    path("api/v1/organization/", include("organization.urls")),
+    path("api/v1/organizations/", include("organization.urls")),
+    # students
+    path("api/v1/students/", include("student.urls")),
 ]
 
 if settings.DEBUG:
