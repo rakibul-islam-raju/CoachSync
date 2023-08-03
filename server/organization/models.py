@@ -99,9 +99,9 @@ class Schedule(BaseModel):
         Teacher, on_delete=models.SET_NULL, blank=True, null=True
     )
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
-    duration = models.PositiveBigIntegerField()
-    duration = models.PositiveBigIntegerField()
-    time = models.DateTimeField()
+    duration = models.PositiveIntegerField()
+    date = models.DateField()
+    time = models.TimeField()
     exam = models.ForeignKey(Exam, models.SET_NULL, blank=True, null=True)
 
     class Meta:

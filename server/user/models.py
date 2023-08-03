@@ -22,7 +22,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
-    role = models.CharField(choices=ROLES, max_length=2, null=True)
+    role = models.CharField(choices=ROLES, max_length=2, blank=True, null=True)
     password = models.CharField(max_length=128, blank=True, null=True)
     password_reset_token = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

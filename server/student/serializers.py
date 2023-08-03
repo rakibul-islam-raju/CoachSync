@@ -2,12 +2,12 @@ from rest_framework import serializers
 
 from .models import Student
 
-from user.serializers import UserSerializer, StudentUserSerializer
+from user.serializers import UserSerializer, ExtendedUserSerializer
 from user.models import User
 
 
 class StudentSerializer(serializers.ModelSerializer):
-    user = StudentUserSerializer()
+    user = ExtendedUserSerializer()
 
     class Meta:
         model = Student
@@ -15,7 +15,7 @@ class StudentSerializer(serializers.ModelSerializer):
 
 
 class CreateStudentSerializer(serializers.ModelSerializer):
-    user = StudentUserSerializer()
+    user = ExtendedUserSerializer()
 
     class Meta:
         model = Student
@@ -35,7 +35,6 @@ class CreateStudentSerializer(serializers.ModelSerializer):
             new_student = Student.objects.create(user=new_user, **validated_data)
         except Exception as e:
             # If an exception occurs during Student creation, rollback the transaction
-            # This will undo the User creation as well, keeping the database consistent
             new_user.delete()
             raise e
 
@@ -43,7 +42,7 @@ class CreateStudentSerializer(serializers.ModelSerializer):
 
 
 class EditStudentSerializer(serializers.ModelSerializer):
-    user = StudentUserSerializer()
+    user = ExtendedUserSerializer()
 
     class Meta:
         model = Student
@@ -57,7 +56,7 @@ class EditStudentSerializer(serializers.ModelSerializer):
         if "user" in validated_data:
             user_data = validated_data.pop("user")
             user_data["role"] = "S"
-            user_serializer = StudentUserSerializer(
+            user_serializer = ExtendedUserSerializer(
                 instance.user, data=user_data, partial=True
             )
             user_serializer.is_valid(raise_exception=True)

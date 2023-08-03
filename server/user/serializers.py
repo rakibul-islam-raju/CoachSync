@@ -11,7 +11,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
             "last_name",
             "email",
             "phone",
-            "role",
+            # "role",
             "is_staff",
             "is_superuser",
         ]
@@ -36,7 +36,7 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
 
-class StudentUserSerializer(serializers.ModelSerializer):
+class ExtendedUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
