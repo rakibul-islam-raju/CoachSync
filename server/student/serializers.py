@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from .models import Student
 
-from user.serializers import UserSerializer, ExtendedUserSerializer
+from user.serializers import ExtendedUserSerializer
 from user.models import User
 
 

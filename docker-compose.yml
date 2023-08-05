@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:latest
+    container_name: coaching_db
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=coaching_management
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    networks:
+      - coaching_management
+
+  api:
+    container_name: coaching_api
+    build:
+      context: server
+      dockerfile: ./django.Dockerfile
+    env_file:
+      - ./server/.env
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./server:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - coaching_management
+
+  web:
+    container_name: coaching_web
+    build:
+      context: client
+      dockerfile: ./node.Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client:/app
+    networks:
+      - coaching_management
+
+networks:
+  coaching_management:
