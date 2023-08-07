@@ -8,6 +8,7 @@ type FormInputProps = {
 	control: any;
 	label: string;
 	type: string;
+	placeholder?: string;
 	inputProps?: InputProps;
 };
 
@@ -16,6 +17,7 @@ export const FormInputText = ({
 	control,
 	label,
 	type,
+	placeholder,
 	inputProps,
 }: FormInputProps) => {
 	return (
@@ -30,6 +32,7 @@ export const FormInputText = ({
 					value={value}
 					label={label}
 					type={type}
+					placeholder={placeholder}
 					InputProps={inputProps}
 				/>
 			)}

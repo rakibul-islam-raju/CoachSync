@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { LoginFormValues, loginSchema } from "./components/LoginSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,12 +12,11 @@ import {
 	Stack,
 	Typography,
 } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 import { FormInputText } from "../../components/forms/FormInputText";
 import { CustomButton } from "../../components/CustomButton";
-import { useState } from "react";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import { Link as RouterLink } from "react-router-dom";
 
 export default function Login() {
 	const [showPass, setShowPass] = useState(false);
@@ -40,7 +40,7 @@ export default function Login() {
 	//   }, [isSuccess, navigate]);
 
 	return (
-		<Box component={"form"} onSubmit={handleSubmit(onSubmit)}>
+		<Box component={"form"} onSubmit={handleSubmit(onSubmit)} noValidate>
 			<Typography variant="h4" gutterBottom>
 				Login
 			</Typography>
@@ -51,6 +51,7 @@ export default function Login() {
 						name="email"
 						type="email"
 						control={control}
+						placeholder="Enter Email Address"
 						label="Email Address"
 					/>
 				</FormControl>
@@ -60,10 +61,14 @@ export default function Login() {
 						type={showPass ? "text" : "password"}
 						control={control}
 						label="Password"
+						placeholder="Enter Password"
 						inputProps={{
 							endAdornment: (
 								<InputAdornment position="end">
-									<IconButton onClick={() => setShowPass((prev) => !prev)}>
+									<IconButton
+										onClick={() => setShowPass((prev) => !prev)}
+										data-testid="visibility-button"
+									>
 										{showPass ? <VisibilityOffIcon /> : <VisibilityIcon />}
 									</IconButton>
 								</InputAdornment>
