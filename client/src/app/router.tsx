@@ -1,9 +1,9 @@
 import { createBrowserRouter } from "react-router-dom";
-import RootLayout from "../components/layouts/RootLayout";
-import Dashboard from "../pages/Dashboard";
+import RootLayout from "../components/layouts/RootLayout/RootLayout";
+import Dashboard from "../pages/Dashboard/Dashboard";
 import AuthLayout from "../components/layouts/AuthLayout";
-import Login from "../pages/Login";
-import ForgetPassword from "../pages/ForgetPassword";
+import Login from "../pages/Login/Login";
+import ForgetPassword from "../pages/ForgetPassword/ForgetPassword";
 
 export const router = createBrowserRouter([
 	{

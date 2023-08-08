@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import * as React from "react";
-import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles";
+import { styled, Theme, CSSObject } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
@@ -12,7 +12,6 @@ import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -22,58 +21,9 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
-import ScheduleIcon from "@mui/icons-material/Schedule";
-import SupervisedUserCircleIcon from "@mui/icons-material/SupervisedUserCircle";
-import PeopleIcon from "@mui/icons-material/People";
-import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-import Diversity3Icon from "@mui/icons-material/Diversity3";
-import ViewModuleIcon from "@mui/icons-material/ViewModule";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import { drawerWidth } from "../../config";
 
-type Menu = {
-	icon: React.ReactNode;
-	label: string;
-	path: string;
-};
-
-const MAIN_MENUS: Menu[] = [
-	{
-		icon: <DashboardIcon />,
-		label: "Dashboard",
-		path: "/",
-	},
-	{
-		icon: <ScheduleIcon />,
-		label: "Schedule",
-		path: "/schedules",
-	},
-	{
-		icon: <PeopleIcon />,
-		label: "Student",
-		path: "/students",
-	},
-	{
-		icon: <PeopleAltIcon />,
-		label: "Teacher",
-		path: "/teachers",
-	},
-	{
-		icon: <Diversity3Icon />,
-		label: "Batch",
-		path: "/batches",
-	},
-	{
-		icon: <ViewModuleIcon />,
-		label: "Class",
-		path: "/classes",
-	},
-	{
-		icon: <SupervisedUserCircleIcon />,
-		label: "Employe",
-		path: "/employes",
-	},
-];
+import { drawerWidth } from "../../../config";
+import { IMenu, MAIN_MENUS } from "./constants";
 
 const openedMixin = (theme: Theme): CSSObject => ({
 	width: drawerWidth,
@@ -145,8 +95,7 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 export default function RootLayout() {
-	const theme = useTheme();
-	const [open, setOpen] = React.useState(false);
+	const [open, setOpen] = React.useState(true);
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
 	const handleDrawerOpen = () => {
@@ -184,6 +133,7 @@ export default function RootLayout() {
 
 	const renderMenu = (
 		<Menu
+			data-testid="user-menu"
 			anchorEl={anchorEl}
 			anchorOrigin={{
 				vertical: "bottom",
@@ -295,6 +245,7 @@ export default function RootLayout() {
 							</Badge>
 						</IconButton>
 						<IconButton
+							data-testid="account-menu-button"
 							size="large"
 							edge="end"
 							aria-label="account of current user"
@@ -322,19 +273,24 @@ export default function RootLayout() {
 			</AppBar>
 			{renderMobileMenu}
 			{renderMenu}
-			<Drawer variant="permanent" open={open}>
+			<Drawer
+				variant="permanent"
+				open={open}
+				role="presentation"
+				data-testid="nav-drawer"
+			>
 				<DrawerHeader>
-					<IconButton onClick={handleDrawerClose}>
-						{theme.direction === "rtl" ? (
-							<ChevronRightIcon />
-						) : (
-							<ChevronLeftIcon />
-						)}
+					<IconButton
+						onClick={handleDrawerClose}
+						aria-label="close-menu"
+						data-testid="close-menu"
+					>
+						{open && <ChevronLeftIcon />}
 					</IconButton>
 				</DrawerHeader>
 				<Divider />
 				<List>
-					{MAIN_MENUS.map((item, index) => (
+					{MAIN_MENUS.map((item: IMenu, index) => (
 						<ListItem key={index} disablePadding sx={{ display: "block" }}>
 							<ListItemButton
 								sx={{

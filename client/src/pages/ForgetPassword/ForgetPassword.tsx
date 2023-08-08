@@ -7,14 +7,17 @@ import {
 	Stack,
 	Typography,
 } from "@mui/material";
-import { CustomButton } from "../../components/CustomButton";
+import { CustomButton } from "../../components/CustomButton/CustomButton";
 import { Link as RouterLink } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { FormInputText } from "../../components/forms/FormInputText";
 
 const schema = z.object({
-	email: z.string({ required_error: "Email is required" }).email(),
+	email: z
+		.string({ required_error: "Email is required" })
+		.email()
+		.nonempty("Email is required"),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -38,7 +41,7 @@ export default function ForgetPassword() {
 	// 	}
 	//   }, [isSuccess, navigate]);
 	return (
-		<Box component={"form"} onSubmit={handleSubmit(onSubmit)}>
+		<Box component={"form"} onSubmit={handleSubmit(onSubmit)} noValidate>
 			<Typography variant="h4" gutterBottom>
 				Reset Password
 			</Typography>
@@ -50,6 +53,7 @@ export default function ForgetPassword() {
 						type="email"
 						control={control}
 						label="Email Address"
+						placeholder="Enter Email Address"
 					/>
 				</FormControl>
 

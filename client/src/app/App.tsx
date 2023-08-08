@@ -4,6 +4,8 @@ import { router } from "./router";
 import BigSpinner from "../components/BigSpinner";
 import { CssBaseline } from "@mui/material";
 import { theme } from "./theme";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 
 function App() {
 	return (
@@ -12,6 +14,8 @@ function App() {
 			<ThemeProvider theme={theme}>
 				<RouterProvider router={router} fallbackElement={<BigSpinner />} />
 			</ThemeProvider>
+
+			<ToastContainer />
 		</>
 	);
 }
