@@ -4,28 +4,43 @@ import Dashboard from "../pages/Dashboard/Dashboard";
 import AuthLayout from "../components/layouts/AuthLayout";
 import Login from "../pages/Login/Login";
 import ForgetPassword from "../pages/ForgetPassword/ForgetPassword";
+import ProtectedLayout from "../components/layouts/ProtectedLayout/ProtectedLayout";
+import PublicLayout from "../components/layouts/PublicLayout/PublicLayout";
 
 export const router = createBrowserRouter([
+	// protected routes
 	{
-		path: "/",
-		element: <RootLayout />,
+		element: <ProtectedLayout />,
 		children: [
 			{
-				index: true,
-				element: <Dashboard />,
+				path: "/",
+				element: <RootLayout />,
+				children: [
+					{
+						index: true,
+						element: <Dashboard />,
+					},
+				],
 			},
 		],
 	},
+
+	// public routes
 	{
-		element: <AuthLayout />,
+		element: <PublicLayout />,
 		children: [
 			{
-				path: "login",
-				element: <Login />,
-			},
-			{
-				path: "/reset-password",
-				element: <ForgetPassword />,
+				element: <AuthLayout />,
+				children: [
+					{
+						path: "login",
+						element: <Login />,
+					},
+					{
+						path: "/reset-password",
+						element: <ForgetPassword />,
+					},
+				],
 			},
 		],
 	},

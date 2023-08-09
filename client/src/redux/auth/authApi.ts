@@ -1,5 +1,5 @@
 import { apiSlice } from "../api/apiSlice";
-import { ILoginReqData, ILoginResData } from "./auth.types";
+import { ILoginReqData, ILoginResData } from "./auth.type";
 import { userLoggedIn } from "./authSlice";
 
 export const authApi = apiSlice.injectEndpoints({

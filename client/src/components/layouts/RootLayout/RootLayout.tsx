@@ -21,7 +21,6 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
-
 import { drawerWidth } from "../../../config";
 import { IMenu, MAIN_MENUS } from "./constants";
 
@@ -204,6 +203,7 @@ export default function RootLayout() {
 			</MenuItem>
 		</Menu>
 	);
+
 	return (
 		<Box sx={{ display: "flex" }}>
 			<CssBaseline />
