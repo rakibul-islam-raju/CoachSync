@@ -4,14 +4,17 @@ import React from "react";
 
 interface IErrorDisplayProps {
 	error: any;
+	severity?: "error" | "warning";
 }
 
-const ErrorDisplay: React.FC<IErrorDisplayProps> = ({ error }) => {
-	console.log("error =>", error);
-
-	let errorMessage = "";
-
-	if (error?.data?.detail) {
+const ErrorDisplay: React.FC<IErrorDisplayProps> = ({
+	error,
+	severity = "error",
+}) => {
+	let errorMessage: string = "";
+	if (typeof error === "string") {
+		errorMessage = error;
+	} else if (error?.data?.detail) {
 		errorMessage = error.data.detail;
 	} else if (error?.data?.non_field_errors) {
 		errorMessage = error.data.non_field_errors;
@@ -28,7 +31,7 @@ const ErrorDisplay: React.FC<IErrorDisplayProps> = ({ error }) => {
 	}
 
 	return (
-		<Alert severity="error">
+		<Alert severity={severity}>
 			<AlertTitle>{errorMessage}</AlertTitle>
 		</Alert>
 	);

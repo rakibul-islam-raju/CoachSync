@@ -6,6 +6,7 @@ import Login from "../pages/Login/Login";
 import ForgetPassword from "../pages/ForgetPassword/ForgetPassword";
 import ProtectedLayout from "../components/layouts/ProtectedLayout/ProtectedLayout";
 import PublicLayout from "../components/layouts/PublicLayout/PublicLayout";
+import Class from "../pages/Class/Class";
 
 export const router = createBrowserRouter([
 	// protected routes
@@ -19,6 +20,10 @@ export const router = createBrowserRouter([
 					{
 						index: true,
 						element: <Dashboard />,
+					},
+					{
+						path: "classes",
+						element: <Class />,
 					},
 				],
 			},

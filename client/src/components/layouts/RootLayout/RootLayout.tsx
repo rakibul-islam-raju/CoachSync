@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import * as React from "react";
 import { styled, Theme, CSSObject } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -94,6 +94,8 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 export default function RootLayout() {
+	const navigate = useNavigate();
+
 	const [open, setOpen] = React.useState(true);
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
@@ -298,6 +300,7 @@ export default function RootLayout() {
 									justifyContent: open ? "initial" : "center",
 									px: 2.5,
 								}}
+								onClick={() => navigate(item.path)}
 							>
 								<ListItemIcon
 									sx={{

@@ -1,3 +1,17 @@
+interface IPaginatedData<T> {
+	count: number;
+	next: string | null;
+	previous: string | null;
+	results: T;
+}
+
+interface IEntityGenericProps {
+	is_active: boolean;
+	created_by: number;
+	created_at: string;
+	updated_at: string;
+}
+
 interface IUser {
 	id: number;
 	first_name: string;
