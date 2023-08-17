@@ -84,6 +84,12 @@ class ClasssListCreateView(ListCreateAPIView):
     queryset = Classs.objects.all()
     serializer_class = ClasssSerializer
     permission_classes = [IsOrgStaff]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_fields = ["is_active"]
+    search_fields = [
+        "name",
+        "numeric",
+    ]
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
