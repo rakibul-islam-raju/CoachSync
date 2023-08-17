@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FC, useEffect, useState } from "react";
 import { useGetClassesQuery } from "../../../../redux/class/classApi";
 import Loader from "../../../../components/Loader";
@@ -6,39 +7,49 @@ import { formatDateTime } from "../../../../utils/formatDateTime";
 import { IClass } from "../../../../redux/class/class.type";
 import CustomTable from "../../../../components/CustomTable/CustomTable";
 import { ITableColumn } from "../../../../components/CustomTable/customTable.types";
-import { ButtonGroup } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import { CustomButton } from "../../../../components/CustomButton/CustomButton";
+import { useAppDispatch, useAppSelector } from "../../../../redux/hook";
+import { selectClass } from "../../../../redux/class/classSlice";
 
 const columns: ITableColumn[] = [
 	{
-		name: "ID",
-		accessor: (rowData) => rowData.id,
-	},
-	{
 		name: "Name",
 		accessor: (rowData) => rowData.name,
+		type: "string",
 	},
 	{
 		name: "Numeric",
 		accessor: (rowData) => rowData.numeric,
+		type: "number",
 	},
 	{
 		name: "Created At",
 		accessor: (rowData) => rowData.created_at,
+		type: "string",
 	},
 	{
 		name: "Updated At",
 		accessor: (rowData) => rowData.updated_at,
+		type: "string",
+	},
+	{
+		name: "Active",
+		accessor: (rowData) => rowData.is_active,
+		type: "boolean",
 	},
 ];
 
 const ClassTable: FC = () => {
+	const dispatch = useAppDispatch();
+	const { params } = useAppSelector((state) => state.class);
+
 	const { data, isLoading, isError, error, isSuccess } =
-		useGetClassesQuery(undefined);
+		useGetClassesQuery(params);
 
 	const [rows, setRows] = useState<IClass[]>([]);
+
+	const handleSelect = (data: IClass, action: "edit" | "delete") => {
+		dispatch(selectClass({ data, action }));
+	};
 
 	useEffect(() => {
 		if (data) {
@@ -51,17 +62,6 @@ const ClassTable: FC = () => {
 		}
 	}, [isSuccess, data]);
 
-	const actionBtns = (
-		<ButtonGroup size="small" variant="outlined">
-			<CustomButton color="primary">
-				<EditIcon />
-			</CustomButton>
-			<CustomButton color="error">
-				<DeleteOutlineIcon />
-			</CustomButton>
-		</ButtonGroup>
-	);
-
 	return isLoading ? (
 		<Loader />
 	) : isError ? (
@@ -69,7 +69,13 @@ const ClassTable: FC = () => {
 	) : rows?.length === 0 ? (
 		<ErrorDisplay severity="warning" error={"No Data found"} />
 	) : (
-		<CustomTable columns={columns} rows={rows} actionBtns={actionBtns} />
+		<CustomTable
+			columns={columns}
+			rows={rows}
+			handleSelectRow={handleSelect}
+			editButton
+			deleteButton
+		/>
 	);
 };
 

@@ -1,14 +1,21 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
+/* eslint-disable no-empty */
+
 import { apiSlice } from "../api/apiSlice";
-import { IClass, IClassCreateReqData, IClassUpdateReqData } from "./class.type";
+import {
+	IClass,
+	IClassCreateReqData,
+	IClassParams,
+	IClassUpdateReqData,
+} from "./class.type";
+import { selectClass } from "./classSlice";
 
 export const classApi = apiSlice.injectEndpoints({
 	endpoints: (builder) => ({
-		getClasses: builder.query<IPaginatedData<IClass[]>, undefined>({
-			query: () => ({
+		getClasses: builder.query<IPaginatedData<IClass[]>, IClassParams>({
+			query: (params) => ({
 				url: `organizations/classes`,
+				params,
 			}),
-			// providesTags: ["Class"],
 			providesTags: (result) => {
 				if (result) {
 					return [
@@ -26,13 +33,17 @@ export const classApi = apiSlice.injectEndpoints({
 				method: "POST",
 				body: data,
 			}),
-			async onQueryStarted(_data, { dispatch, queryFulfilled }) {
+
+			// pessimistically update cache
+			async onQueryStarted(_data, { dispatch, queryFulfilled, getState }) {
+				const param = getState().class.params;
+
 				try {
 					const { data } = await queryFulfilled;
 					dispatch(
 						classApi.util.updateQueryData(
 							"getClasses",
-							undefined,
+							param,
 							(draftClasses: IPaginatedData<IClass[]> | undefined) => {
 								if (draftClasses) {
 									draftClasses.results.unshift({ ...data });
@@ -40,25 +51,28 @@ export const classApi = apiSlice.injectEndpoints({
 							}
 						)
 					);
-				} catch {
-					// dispatch(classApi.util.invalidateTags(["Class"]));
-				}
+				} catch {}
 			},
 		}),
 
 		updateClass: builder.mutation<IClass, IClassUpdateReqData>({
 			query: ({ id, data }: IClassUpdateReqData) => ({
 				url: `organizations/classes/${id}`,
-				method: "POST",
+				method: "PATCH",
 				body: data,
 			}),
-			async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+
+			// pessimistically update cache
+			async onQueryStarted({ id }, { dispatch, queryFulfilled, getState }) {
+				const param = getState().class.params;
+
 				try {
 					const { data } = await queryFulfilled;
+
 					dispatch(
 						classApi.util.updateQueryData(
 							"getClasses",
-							undefined,
+							param,
 							(draftClasses: IPaginatedData<IClass[]> | undefined) => {
 								if (draftClasses) {
 									const updatedClassIndex = draftClasses.results.findIndex(
@@ -69,9 +83,10 @@ export const classApi = apiSlice.injectEndpoints({
 							}
 						)
 					);
-				} catch {
-					// dispatch(classApi.util.invalidateTags(["Class"]));
-				}
+				} catch {}
+
+				// clear seletecd item from state
+				dispatch(selectClass({ data: null, action: null }));
 			},
 		}),
 
@@ -80,24 +95,39 @@ export const classApi = apiSlice.injectEndpoints({
 				url: `organizations/classes/${id}`,
 				method: "DELETE",
 			}),
-			async onQueryStarted(id, { dispatch, queryFulfilled }) {
+
+			// pessimistically update cache
+			async onQueryStarted(id, { dispatch, queryFulfilled, getState }) {
+				const param = getState().class.params;
+
 				try {
 					await queryFulfilled;
 					dispatch(
 						classApi.util.updateQueryData(
 							"getClasses",
-							undefined,
+							param,
 							(draftClasses: IPaginatedData<IClass[]> | undefined) => {
 								if (draftClasses) {
-									draftClasses.results.filter((item) => item.id !== id);
+									draftClasses.results = draftClasses.results.filter(
+										(item) => Number(item.id) !== id
+									);
 								}
 							}
 						)
 					);
-				} catch {
-					// dispatch(classApi.util.invalidateTags(["Class"]));
-				}
+				} catch {}
+
+				// clear seletecd item from state
+				dispatch(selectClass({ data: null, action: null }));
 			},
+		}),
+
+		searchClass: builder.query<IPaginatedData<IClass[]>, undefined>({
+			query: (params) => ({
+				url: `organizations/classes`,
+				params,
+			}),
+			providesTags: ["ClassSearch"],
 		}),
 	}),
 });

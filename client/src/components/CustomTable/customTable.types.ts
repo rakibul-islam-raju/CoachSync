@@ -2,4 +2,5 @@
 export interface ITableColumn {
 	name: string;
 	accessor: (rowData: any) => any;
+	type: "string" | "date" | "number" | "boolean";
 }

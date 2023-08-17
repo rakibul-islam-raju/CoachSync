@@ -17,3 +17,10 @@ export interface IClassUpdateReqData {
 		is_Active?: boolean;
 	};
 }
+
+export interface IClassParams {
+	limit: number;
+	offset: number;
+	search?: string;
+	is_active?: boolean;
+}
