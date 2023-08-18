@@ -44,6 +44,11 @@ export const MAIN_MENUS: IMenu[] = [
 		path: "/classes",
 	},
 	{
+		icon: <ViewModuleIcon />,
+		label: "Subject",
+		path: "/subjects",
+	},
+	{
 		icon: <SupervisedUserCircleIcon />,
 		label: "Employe",
 		path: "/employes",

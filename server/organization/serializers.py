@@ -6,16 +6,13 @@ from user.serializers import ExtendedUserSerializer
 from .models import Subject, Teacher, Classs, Batch, ExamType, Exam, Schedule
 
 
-class SubjectCerateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Subject
-        fields = ["name", "code"]
-
-
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
         fields = "__all__"
+        extra_kwargs = {
+            "created_by": {"read_only": True},
+        }
 
 
 class TeacherSerializer(serializers.ModelSerializer):

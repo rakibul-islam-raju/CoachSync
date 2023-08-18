@@ -7,6 +7,7 @@ import ForgetPassword from "../pages/ForgetPassword/ForgetPassword";
 import ProtectedLayout from "../components/layouts/ProtectedLayout/ProtectedLayout";
 import PublicLayout from "../components/layouts/PublicLayout/PublicLayout";
 import Class from "../pages/Class/Class";
+import Subject from "../pages/Subject/Subject";
 
 export const router = createBrowserRouter([
 	// protected routes
@@ -24,6 +25,10 @@ export const router = createBrowserRouter([
 					{
 						path: "classes",
 						element: <Class />,
+					},
+					{
+						path: "subjects",
+						element: <Subject />,
 					},
 				],
 			},

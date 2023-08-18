@@ -100,6 +100,8 @@ export const apiSlice = createApi({
 		"Schedule",
 		"Teacher",
 		"Student",
+		"Subject",
+		"SubjectSearch",
 	],
 	endpoints: () => ({}),
 });

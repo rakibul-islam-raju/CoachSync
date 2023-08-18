@@ -11,7 +11,6 @@ from user.permissions import IsOrgStaff
 
 from .models import Subject, Teacher, Classs, Batch, ExamType, Exam, Schedule
 from .serializers import (
-    SubjectCerateSerializer,
     SubjectSerializer,
     TeacherSerializer,
     TeacherCreateSerializer,
@@ -30,11 +29,7 @@ from .serializers import (
 class SubjectListCreateView(ListCreateAPIView):
     queryset = Subject.objects.all()
     permission_classes = [IsOrgStaff]
-
-    def get_serializer_class(self):
-        if self.request.method == "POST":
-            return SubjectCerateSerializer
-        return SubjectSerializer
+    serializer_class = SubjectSerializer
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -43,11 +38,7 @@ class SubjectListCreateView(ListCreateAPIView):
 class SubjectDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Subject.objects.all()
     permission_classes = [IsOrgStaff]
-
-    def get_serializer_class(self):
-        if self.request.method == "PATCH" or self.request.method == "PUT":
-            return SubjectCerateSerializer
-        return SubjectSerializer
+    serializer_class = SubjectSerializer
 
 
 class TeacherListCreateView(ListCreateAPIView):

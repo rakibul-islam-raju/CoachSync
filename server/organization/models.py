@@ -6,7 +6,7 @@ from utilities.models import BaseModel
 
 class Subject(BaseModel):
     name = models.CharField(max_length=30)
-    code = models.CharField(max_length=16)
+    code = models.CharField(max_length=16, unique=True)
 
     objects = models.Manager()
 
@@ -30,8 +30,9 @@ class Teacher(BaseModel):
 
 
 class Classs(BaseModel):
+    # TODO: name should be unique (case insensative)
     name = models.CharField(max_length=20)
-    numeric = models.IntegerField()
+    numeric = models.IntegerField(unique=True)
 
     objects = models.Manager()
 
