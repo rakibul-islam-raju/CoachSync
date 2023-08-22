@@ -1,3 +1,5 @@
+/* eslint-disable no-empty */
+
 import { apiSlice } from "../api/apiSlice";
 import {
 	ISubject,
@@ -5,7 +7,6 @@ import {
 	ISubjectParams,
 	ISubjectUpdateReqData,
 } from "./subject.type";
-import { selectSubject } from "./subjectSlice";
 
 export const subjectApi = apiSlice.injectEndpoints({
 	endpoints: (builder) => ({
@@ -85,9 +86,6 @@ export const subjectApi = apiSlice.injectEndpoints({
 						)
 					);
 				} catch {}
-
-				// clear seletecd item from state
-				dispatch(selectSubject({ data: null, action: null }));
 			},
 		}),
 
@@ -117,9 +115,6 @@ export const subjectApi = apiSlice.injectEndpoints({
 						)
 					);
 				} catch {}
-
-				// clear seletecd item from state
-				dispatch(selectSubject({ data: null, action: null }));
 			},
 		}),
 

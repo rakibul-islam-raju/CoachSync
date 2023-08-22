@@ -1,4 +1,4 @@
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -30,6 +30,13 @@ class SubjectListCreateView(ListCreateAPIView):
     queryset = Subject.objects.all()
     permission_classes = [IsOrgStaff]
     serializer_class = SubjectSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ["name", "code", "is_active"]
+    search_fields = [
+        "name",
+        "code",
+    ]
+    ordering_fields = ["name", "code", "created_at", "updated_at"]
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -75,12 +82,13 @@ class ClasssListCreateView(ListCreateAPIView):
     queryset = Classs.objects.all()
     serializer_class = ClasssSerializer
     permission_classes = [IsOrgStaff]
-    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["is_active"]
     search_fields = [
         "name",
         "numeric",
     ]
+    ordering_fields = ["name", "numeric", "created_at", "updated_at"]
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)

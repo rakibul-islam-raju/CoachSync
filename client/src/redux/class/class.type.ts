@@ -23,4 +23,5 @@ export interface IClassParams {
 	offset: number;
 	search?: string;
 	is_active?: boolean;
+	ordering?: string;
 }

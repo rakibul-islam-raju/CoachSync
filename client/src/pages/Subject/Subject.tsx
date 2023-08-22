@@ -12,14 +12,10 @@ import PageContainer from "../../components/PageContainer/PageContainer";
 import { useEffect, useState } from "react";
 import Modal from "../../components/Modal/Modal";
 import { useAppDispatch, useAppSelector } from "../../redux/hook";
-import ConfirmDialogue from "../../components/ConfirmDialogue/ConfirmDialogue";
-import ErrorDisplay from "../../components/ErrorDisplay/ErrorDisplay";
-import { toast } from "react-toastify";
 import { useDebounce } from "../../hooks/useDebounce";
-import { useDeleteSubjectMutation } from "../../redux/subject/subjectApi";
-import { selectSubject, setSearchTerm } from "../../redux/subject/subjectSlice";
-import SubjectTable from "./components/SubjectTable/SubjectTable";
+import { setSearchTerm } from "../../redux/subject/subjectSlice";
 import SubjectForm from "./components/SubjectForm/SubjectForm";
+import SubjectTable from "./components/SubjectTable/SubjectTable";
 
 const breadCrumbList = [
 	{
@@ -35,15 +31,10 @@ const breadCrumbList = [
 export default function Subject() {
 	const dispatch = useAppDispatch();
 
-	const { selectedItem, action, params } = useAppSelector(
-		(state) => state.subject
-	);
-
-	const [deleteSubject, { isError, isSuccess, error }] =
-		useDeleteSubjectMutation();
+	const { search } = useAppSelector((state) => state.subject);
 
 	const [createSub, setCreateSub] = useState<boolean>(false);
-	const [searchText, setSearchText] = useState<string>(params.search ?? "");
+	const [searchText, setSearchText] = useState<string>(search ?? "");
 
 	// get debounced search term
 	const debouncedSearchTerm = useDebounce(searchText, 500);
@@ -52,19 +43,6 @@ export default function Subject() {
 
 	const handleCloseCreateModal = () => setCreateSub(false);
 
-	const handleCloseEditModal = () =>
-		dispatch(selectSubject({ data: null, action: null }));
-
-	const handleDelete = () => {
-		if (selectedItem) deleteSubject(selectedItem?.id);
-	};
-
-	useEffect(() => {
-		if (isSuccess) {
-			toast.success("Subject successfully deleted");
-		}
-	}, [isSuccess]);
-
 	useEffect(() => {
 		dispatch(setSearchTerm(debouncedSearchTerm));
 	}, [debouncedSearchTerm, dispatch]);
@@ -72,8 +50,6 @@ export default function Subject() {
 	return (
 		<>
 			<CustomBreadcrumb list={breadCrumbList} />
-
-			{isError && <ErrorDisplay error={error} />}
 
 			<PageContainer>
 				<Stack
@@ -121,36 +97,6 @@ export default function Subject() {
 					onCancel={handleCloseCreateModal}
 					maxWidth="sm"
 					fullWidth
-				/>
-			)}
-
-			{/* edit modal */}
-			{selectedItem && action === "edit" && (
-				<Modal
-					open={action === "edit"}
-					onClose={handleCloseEditModal}
-					title="Edit Subject"
-					content={
-						<SubjectForm
-							defaultData={selectedItem}
-							onClose={handleCloseCreateModal}
-						/>
-					}
-					onConfirm={handleCloseCreateModal}
-					onCancel={handleCloseCreateModal}
-					maxWidth="sm"
-					fullWidth
-				/>
-			)}
-
-			{/* delete dialogue */}
-			{selectedItem && action === "delete" && (
-				<ConfirmDialogue
-					open={action === "delete"}
-					title="Delete Subject"
-					message={"Are you want to delete this subject?"}
-					handleSubmit={handleDelete}
-					handleClose={handleCloseEditModal}
 				/>
 			)}
 		</>

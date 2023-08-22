@@ -34,7 +34,7 @@ const ConfirmDialogue: FC<ConfirmDialogueProps> = ({
 		>
 			<DialogTitle id={title}>{title}</DialogTitle>
 			{message && (
-				<DialogContent>
+				<DialogContent dividers>
 					<DialogContentText id="alert-dialog-description">
 						{message}
 					</DialogContentText>

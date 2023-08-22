@@ -7,7 +7,6 @@ import {
 	IClassParams,
 	IClassUpdateReqData,
 } from "./class.type";
-import { selectClass } from "./classSlice";
 
 export const classApi = apiSlice.injectEndpoints({
 	endpoints: (builder) => ({
@@ -84,9 +83,6 @@ export const classApi = apiSlice.injectEndpoints({
 						)
 					);
 				} catch {}
-
-				// clear seletecd item from state
-				dispatch(selectClass({ data: null, action: null }));
 			},
 		}),
 
@@ -116,9 +112,6 @@ export const classApi = apiSlice.injectEndpoints({
 						)
 					);
 				} catch {}
-
-				// clear seletecd item from state
-				dispatch(selectClass({ data: null, action: null }));
 			},
 		}),
 

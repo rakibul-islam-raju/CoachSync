@@ -14,11 +14,7 @@ import { useEffect, useState } from "react";
 import Modal from "../../components/Modal/Modal";
 import ClassForm from "./components/ClassForm/ClassForm";
 import { useAppDispatch, useAppSelector } from "../../redux/hook";
-import { selectClass, setSearchTerm } from "../../redux/class/classSlice";
-import ConfirmDialogue from "../../components/ConfirmDialogue/ConfirmDialogue";
-import { useDeleteClassMutation } from "../../redux/class/classApi";
-import ErrorDisplay from "../../components/ErrorDisplay/ErrorDisplay";
-import { toast } from "react-toastify";
+import { setSearchTerm } from "../../redux/class/classSlice";
 import { useDebounce } from "../../hooks/useDebounce";
 
 const breadCrumbList = [
@@ -35,14 +31,10 @@ const breadCrumbList = [
 export default function Class() {
 	const dispatch = useAppDispatch();
 
-	const { selectedItem, action, params } = useAppSelector(
-		(state) => state.class
-	);
-
-	const [deleteClass, { isError, isSuccess, error }] = useDeleteClassMutation();
+	const { search } = useAppSelector((state) => state.class);
 
 	const [createClass, setCreateClass] = useState<boolean>(false);
-	const [searchText, setSearchText] = useState<string>(params.search ?? "");
+	const [searchText, setSearchText] = useState<string>(search ?? "");
 
 	// get debounced search term
 	const debouncedSearchTerm = useDebounce(searchText, 500);
@@ -51,19 +43,6 @@ export default function Class() {
 
 	const handleCloseCreateModal = () => setCreateClass(false);
 
-	const handleCloseEditModal = () =>
-		dispatch(selectClass({ data: null, action: null }));
-
-	const handleDelete = () => {
-		if (selectedItem) deleteClass(selectedItem?.id);
-	};
-
-	useEffect(() => {
-		if (isSuccess) {
-			toast.success("Class successfully deleted");
-		}
-	}, [isSuccess]);
-
 	useEffect(() => {
 		dispatch(setSearchTerm(debouncedSearchTerm));
 	}, [debouncedSearchTerm, dispatch]);
@@ -71,8 +50,6 @@ export default function Class() {
 	return (
 		<>
 			<CustomBreadcrumb list={breadCrumbList} />
-
-			{isError && <ErrorDisplay error={error} />}
 
 			<PageContainer>
 				<Stack
@@ -120,36 +97,6 @@ export default function Class() {
 					onCancel={handleCloseCreateModal}
 					maxWidth="sm"
 					fullWidth
-				/>
-			)}
-
-			{/* edit modal */}
-			{selectedItem && action === "edit" && (
-				<Modal
-					open={action === "edit"}
-					onClose={handleCloseEditModal}
-					title="Edit Class"
-					content={
-						<ClassForm
-							defaultData={selectedItem}
-							onClose={handleCloseCreateModal}
-						/>
-					}
-					onConfirm={handleCloseCreateModal}
-					onCancel={handleCloseCreateModal}
-					maxWidth="sm"
-					fullWidth
-				/>
-			)}
-
-			{/* delete dialogue */}
-			{selectedItem && action === "delete" && (
-				<ConfirmDialogue
-					open={action === "delete"}
-					title="Delete Class"
-					message={"Are you want to delete this class?"}
-					handleSubmit={handleDelete}
-					handleClose={handleCloseEditModal}
 				/>
 			)}
 		</>
