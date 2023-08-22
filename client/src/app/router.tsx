@@ -10,48 +10,48 @@ import Class from "../pages/Class/Class";
 import Subject from "../pages/Subject/Subject";
 
 export const router = createBrowserRouter([
-	// protected routes
-	{
-		element: <ProtectedLayout />,
-		children: [
-			{
-				path: "/",
-				element: <RootLayout />,
-				children: [
-					{
-						index: true,
-						element: <Dashboard />,
-					},
-					{
-						path: "classes",
-						element: <Class />,
-					},
-					{
-						path: "subjects",
-						element: <Subject />,
-					},
-				],
-			},
-		],
-	},
+  // protected routes
+  {
+    element: <ProtectedLayout />,
+    children: [
+      {
+        path: "/",
+        element: <RootLayout />,
+        children: [
+          {
+            index: true,
+            element: <Dashboard />,
+          },
+          {
+            path: "classes",
+            element: <Class />,
+          },
+          {
+            path: "subjects",
+            element: <Subject />,
+          },
+        ],
+      },
+    ],
+  },
 
-	// public routes
-	{
-		element: <PublicLayout />,
-		children: [
-			{
-				element: <AuthLayout />,
-				children: [
-					{
-						path: "login",
-						element: <Login />,
-					},
-					{
-						path: "/reset-password",
-						element: <ForgetPassword />,
-					},
-				],
-			},
-		],
-	},
+  // public routes
+  {
+    element: <PublicLayout />,
+    children: [
+      {
+        element: <AuthLayout />,
+        children: [
+          {
+            path: "login",
+            element: <Login />,
+          },
+          {
+            path: "/reset-password",
+            element: <ForgetPassword />,
+          },
+        ],
+      },
+    ],
+  },
 ]);

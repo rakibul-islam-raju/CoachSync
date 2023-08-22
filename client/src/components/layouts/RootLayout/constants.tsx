@@ -7,50 +7,50 @@ import ViewModuleIcon from "@mui/icons-material/ViewModule";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 
 export type IMenu = {
-	icon: React.ReactNode;
-	label: string;
-	path: string;
+  icon: React.ReactNode;
+  label: string;
+  path: string;
 };
 
 export const MAIN_MENUS: IMenu[] = [
-	{
-		icon: <DashboardIcon />,
-		label: "Dashboard",
-		path: "/",
-	},
-	{
-		icon: <ScheduleIcon />,
-		label: "Schedule",
-		path: "/schedules",
-	},
-	{
-		icon: <PeopleIcon />,
-		label: "Student",
-		path: "/students",
-	},
-	{
-		icon: <PeopleAltIcon />,
-		label: "Teacher",
-		path: "/teachers",
-	},
-	{
-		icon: <Diversity3Icon />,
-		label: "Batch",
-		path: "/batches",
-	},
-	{
-		icon: <ViewModuleIcon />,
-		label: "Class",
-		path: "/classes",
-	},
-	{
-		icon: <ViewModuleIcon />,
-		label: "Subject",
-		path: "/subjects",
-	},
-	{
-		icon: <SupervisedUserCircleIcon />,
-		label: "Employe",
-		path: "/employes",
-	},
+  {
+    icon: <DashboardIcon />,
+    label: "Dashboard",
+    path: "/",
+  },
+  {
+    icon: <ScheduleIcon />,
+    label: "Schedule",
+    path: "/schedules",
+  },
+  {
+    icon: <PeopleIcon />,
+    label: "Student",
+    path: "/students",
+  },
+  {
+    icon: <PeopleAltIcon />,
+    label: "Teacher",
+    path: "/teachers",
+  },
+  {
+    icon: <Diversity3Icon />,
+    label: "Batch",
+    path: "/batches",
+  },
+  {
+    icon: <ViewModuleIcon />,
+    label: "Class",
+    path: "/classes",
+  },
+  {
+    icon: <ViewModuleIcon />,
+    label: "Subject",
+    path: "/subjects",
+  },
+  {
+    icon: <SupervisedUserCircleIcon />,
+    label: "Employe",
+    path: "/employes",
+  },
 ];

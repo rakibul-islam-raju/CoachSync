@@ -1,4 +1,4 @@
 export type IUserUpdateData = {
-	id: number;
-	user: Partial<IUser>;
+  id: number;
+  user: Partial<IUser>;
 };

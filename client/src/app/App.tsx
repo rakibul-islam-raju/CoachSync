@@ -10,23 +10,23 @@ import useAuthCheck from "../hooks/useAuthCheck";
 import Loader from "../components/Loader";
 
 function App() {
-	const authChecked = useAuthCheck();
+  const authChecked = useAuthCheck();
 
-	return (
-		<>
-			<CssBaseline />
+  return (
+    <>
+      <CssBaseline />
 
-			{!authChecked ? (
-				<Loader />
-			) : (
-				<ThemeProvider theme={theme}>
-					<RouterProvider router={router} fallbackElement={<BigSpinner />} />
-				</ThemeProvider>
-			)}
+      {!authChecked ? (
+        <Loader />
+      ) : (
+        <ThemeProvider theme={theme}>
+          <RouterProvider router={router} fallbackElement={<BigSpinner />} />
+        </ThemeProvider>
+      )}
 
-			<ToastContainer />
-		</>
-	);
+      <ToastContainer />
+    </>
+  );
 }
 
 export default App;

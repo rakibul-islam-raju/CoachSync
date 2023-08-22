@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface ITableColumn {
-	name: string;
-	accessor: (rowData: any) => any;
-	type: "string" | "date" | "number" | "boolean";
+  name: string;
+  accessor: (rowData: any) => any;
+  type: "string" | "date" | "number" | "boolean";
 }

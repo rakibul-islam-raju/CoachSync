@@ -1,26 +1,27 @@
 export interface IClass extends IEntityGenericProps {
-	id: number;
-	name: string;
-	numeric: number;
+  id: number;
+  name: string;
+  numeric: number;
 }
 
 export interface IClassCreateReqData {
-	name: string;
-	numeric: number;
+  name: string;
+  numeric: number;
 }
 
 export interface IClassUpdateReqData {
-	id: number;
-	data: {
-		name?: string;
-		numeric?: number;
-		is_Active?: boolean;
-	};
+  id: number;
+  data: {
+    name?: string;
+    numeric?: number;
+    is_Active?: boolean;
+  };
 }
 
 export interface IClassParams {
-	limit: number;
-	offset: number;
-	search?: string;
-	is_active?: boolean;
+  limit: number;
+  offset: number;
+  search?: string;
+  is_active?: boolean;
+  ordering?: string;
 }

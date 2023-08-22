@@ -1,16 +1,16 @@
 import CustomBreadcrumb from "../../components/CustomBreadcrumb";
 
 const breadCrumbList = [
-	{
-		label: "Dashboard",
-		path: "/",
-	},
+  {
+    label: "Dashboard",
+    path: "/",
+  },
 ];
 
 export default function Dashboard() {
-	return (
-		<>
-			<CustomBreadcrumb list={breadCrumbList} />
-		</>
-	);
+  return (
+    <>
+      <CustomBreadcrumb list={breadCrumbList} />
+    </>
+  );
 }

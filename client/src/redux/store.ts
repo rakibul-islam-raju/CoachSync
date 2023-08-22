@@ -5,17 +5,17 @@ import classReducer from "./class/classSlice";
 import subjectReducer from "./subject/subjectSlice";
 
 const rootReducer = combineReducers({
-	[apiSlice.reducerPath]: apiSlice.reducer,
-	auth: authReducer,
-	class: classReducer,
-	subject: subjectReducer,
+  [apiSlice.reducerPath]: apiSlice.reducer,
+  auth: authReducer,
+  class: classReducer,
+  subject: subjectReducer,
 });
 
 const store = configureStore({
-	reducer: rootReducer,
-	devTools: true,
-	middleware: (getDefaultMiddleware) =>
-		getDefaultMiddleware().concat(apiSlice.middleware),
+  reducer: rootReducer,
+  devTools: true,
+  middleware: getDefaultMiddleware =>
+    getDefaultMiddleware().concat(apiSlice.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
