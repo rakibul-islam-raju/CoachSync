@@ -73,7 +73,7 @@ class ForgetPasswordView(APIView):
             plain_message = strip_tags(html_content)
 
             # send email to set password
-            send_email.delay(
+            send_email(
                 subject="Set your password",
                 plain_message=plain_message,
                 to_email=[to_email],

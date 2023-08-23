@@ -29,7 +29,6 @@ class SubjectListCreateView(ListCreateAPIView):
     queryset = Subject.objects.all()
     permission_classes = [IsOrgStaff]
     serializer_class = SubjectSerializer
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["name", "code", "is_active"]
     search_fields = [
         "name",
@@ -50,13 +49,20 @@ class SubjectDetailView(RetrieveUpdateDestroyAPIView):
 class TeacherListCreateView(ListCreateAPIView):
     permission_classes = [IsOrgStaff]
     queryset = Teacher.objects.all()
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_fields = ["is_active"]
+    filterset_fields = ["is_active", "user__first_name", "user__last_name"]
     search_fields = [
         "user__first_name",
         "user__last_name",
         "user__email",
         "user__phone",
+    ]
+    ordering_fields = [
+        "user__first_name",
+        "user__last_name",
+        "user__email",
+        "user__phone",
+        "created_at",
+        "updated_at",
     ]
 
     def get_serializer_class(self):

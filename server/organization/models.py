@@ -26,7 +26,7 @@ class Teacher(BaseModel):
         ordering = ["-id"]
 
     def __str__(self):
-        return self.user
+        return self.user.email
 
 
 class Classs(BaseModel):

@@ -8,6 +8,7 @@ import ProtectedLayout from "../components/layouts/ProtectedLayout/ProtectedLayo
 import PublicLayout from "../components/layouts/PublicLayout/PublicLayout";
 import Class from "../pages/Class/Class";
 import Subject from "../pages/Subject/Subject";
+import Teacher from "../pages/Teacher/Teacher";
 
 export const router = createBrowserRouter([
   // protected routes
@@ -21,6 +22,10 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <Dashboard />,
+          },
+          {
+            path: "teachers",
+            element: <Teacher />,
           },
           {
             path: "classes",

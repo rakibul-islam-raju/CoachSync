@@ -1,9 +1,13 @@
+from django.utils.html import strip_tags
+from django.template.loader import render_to_string
+
 from rest_framework import serializers
 
-from user.serializers import UserSerializer
-from user.serializers import ExtendedUserSerializer
-
 from .models import Subject, Teacher, Classs, Batch, ExamType, Exam, Schedule
+
+from user.models import User
+from user.serializers import UserSerializer, ExtendedUserSerializer
+from utilities.utils import send_email
 
 
 class SubjectSerializer(serializers.ModelSerializer):
@@ -36,15 +40,37 @@ class TeacherCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # Create user
         user_data = validated_data.pop("user")
-        user_data["role"] = "S"
-        new_user = Teacher.objects.create(**user_data)
+        user_data["role"] = "teacher"
 
         try:
+            # create new user
+            new_user = User(**user_data)
+            new_user.save()
             # Create the Teacher instance and associate it with the new user
-            new_teacher = Teacher.objects.create(user=new_user, **validated_data)
+            new_teacher = Teacher(user=new_user, **validated_data)
+            new_teacher.save()
+
+            # send registration confirmation email to the user
+            email_subject = "Teacher registration"
+            message = (
+                "Contratulations!"
+                "\nYou have been registered as a teacher."
+                "\nRegards\nCoachSync"
+            )
+            html_content = render_to_string(
+                "registration_confirmation.html", {"user": new_user, "message": message}
+            )
+            plain_message = strip_tags(html_content)
+            send_email(
+                subject=email_subject,
+                to_email=[new_user.email],
+                html_content=html_content,
+                plain_message=plain_message,
+            )
         except Exception as e:
-            # If an exception occurs during Teacher creation, rollback the transaction
+            # If an exception occurs during user or Teacher creation, rollback the transaction
             new_user.delete()
+            new_teacher.delete()
             raise e
 
         return new_teacher
