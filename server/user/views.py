@@ -2,12 +2,15 @@ import random
 import string
 from django.conf import settings
 from django.utils.html import strip_tags
+from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
 from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -17,6 +20,17 @@ from .permissions import IsSuperUser
 from .serializers import UserSerializer, UserCreateSerializer
 
 from utilities.utils import send_email
+
+
+class MeApiView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def get(self, request):
+        print(self.request.user)
+        user = get_object_or_404(User, id=self.request.user.id)
+        serializer = self.serializer_class(user, context={"request": request})
+        return Response(serializer.data)
 
 
 class UserListCreateView(ListCreateAPIView):

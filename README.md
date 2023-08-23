@@ -31,6 +31,11 @@ Once the server is up and running, you can access the following URLs:
 
   That's it! You have successfully set up the Coaching Management System. You can now access the frontend interface and explore the API documentation.
 
+#### Super Admin Credential
+
+- Email: admin@coachsync.com
+- Password: admin
+
 ## Pre-commit Hooks and Code Formatting
 
 To maintain consistent code style and quality, we use pre-commit hooks and code formatting tools for both the Django backend and the React frontend.

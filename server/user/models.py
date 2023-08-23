@@ -5,12 +5,12 @@ from django.db import models
 from .managers import CustomUserManager
 
 ROLES = (
-    ("A", "Admin"),
-    ("AS", "Admin Staff"),
-    ("OA", "Organization Admin"),
-    ("OS", "Organization Staff"),
-    ("S", "student"),
-    ("T", "teacher"),
+    ("admin", "Admin"),
+    ("admin_staff", "Admin Staff"),
+    ("org_admin", "Organization Admin"),
+    ("org_staff", "Organization Staff"),
+    ("student", "student"),
+    ("teacher", "teacher"),
 )
 
 
@@ -22,7 +22,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
-    role = models.CharField(choices=ROLES, max_length=2, blank=True, null=True)
+    role = models.CharField(choices=ROLES, max_length=11, blank=True, null=True)
     password = models.CharField(max_length=128, blank=True, null=True)
     password_reset_token = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -45,7 +45,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         elif not self.role and self.is_superuser:
             self.role = "A"
 
-        super(User, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
