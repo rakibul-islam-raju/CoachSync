@@ -1,24 +1,38 @@
+/* eslint-disable no-prototype-builtins */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { ISubjectParams } from "./subject.type";
+import { RESULTS_PER_PAGE } from "../../config";
 
 type SubjectState = {
-  search?: string;
+  params: ISubjectParams;
 };
 
-const initialState: SubjectState = {};
+const initialState: SubjectState = {
+  params: {
+    limit: RESULTS_PER_PAGE,
+    offset: 0,
+  },
+};
 
 const subjectSlice = createSlice({
   name: "subject",
   initialState,
   reducers: {
-    setSearchTerm(state, action: PayloadAction<string>) {
-      state.search = action.payload;
+    setParams(state, action: PayloadAction<Partial<ISubjectParams>>) {
+      state.params = {
+        ...state.params,
+        ...action.payload,
+      };
     },
 
-    removeSearchTerm(state) {
-      delete state.search;
+    removeParam(state, action: PayloadAction<string>) {
+      const paramKey = action.payload;
+      if (state.params.hasOwnProperty(paramKey)) {
+        delete state.params[paramKey];
+      }
     },
   },
 });
 
-export const { setSearchTerm, removeSearchTerm } = subjectSlice.actions;
+export const { setParams, removeParam } = subjectSlice.actions;
 export default subjectSlice.reducer;

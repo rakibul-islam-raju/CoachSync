@@ -26,4 +26,7 @@ export interface ISubjectParams {
   code?: boolean;
   is_active?: boolean;
   ordering?: string;
+
+  // Index signature for string keys
+  [key: string]: string | number | boolean | undefined;
 }

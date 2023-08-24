@@ -23,8 +23,9 @@ export interface ITeacherParams {
   search?: string;
   user__first_name?: boolean;
   user__last_name?: string;
-  user__email?: string;
-  user__phone?: string;
   is_active?: boolean;
   ordering?: string;
+
+  // Index signature for string keys
+  [key: string]: string | number | boolean | undefined;
 }

@@ -25,7 +25,7 @@ import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
 import { toast } from "react-toastify";
 import ConfirmDialogue from "../../../../components/ConfirmDialogue/ConfirmDialogue";
 import { PAGE_SIZE_OPTIONS, RESULTS_PER_PAGE } from "../../../../config";
-import { useAppSelector } from "../../../../redux/hook";
+import { useAppDispatch, useAppSelector } from "../../../../redux/hook";
 import { ITeacher } from "../../../../redux/teacher/teacher.type";
 import {
   useDeleteTeacherMutation,
@@ -33,7 +33,6 @@ import {
   useUpdateTeacherMutation,
 } from "../../../../redux/teacher/teacherApi";
 import { removeParam, setParams } from "../../../../redux/teacher/teacherSlice";
-import { useDispatch } from "react-redux";
 
 function mapSortModel(fieldName: string): string {
   switch (fieldName) {
@@ -51,7 +50,7 @@ function mapSortModel(fieldName: string): string {
 }
 
 const TeacherTable: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { params } = useAppSelector(state => state.teacher);
 
   const [rows, setRows] = useState<ITeacher[]>([]);
@@ -328,18 +327,6 @@ const TeacherTable: FC = () => {
       data?.count !== undefined ? data?.count : prevRowCountState,
     );
   }, [data?.count, setRowCountState]);
-
-  // useEffect(() => {
-  //   if (params.search) {
-  //     dispatch(setParams({ search:par }));
-  //   } else {
-  //     if (params?.search) {
-  //       const updatedParams = { ...params };
-  //       delete updatedParams.search;
-  //       dispatch(removeParam("search"));
-  //     }
-  //   }
-  // }, [search]);
 
   return (
     <Box>

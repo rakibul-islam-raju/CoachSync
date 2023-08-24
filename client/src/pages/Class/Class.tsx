@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 import Modal from "../../components/Modal/Modal";
 import ClassForm from "./components/ClassForm/ClassForm";
 import { useAppDispatch, useAppSelector } from "../../redux/hook";
-import { setSearchTerm } from "../../redux/class/classSlice";
+import { setParams } from "../../redux/class/classSlice";
 import { useDebounce } from "../../hooks/useDebounce";
 
 const breadCrumbList = [
@@ -31,10 +31,10 @@ const breadCrumbList = [
 export default function Class() {
   const dispatch = useAppDispatch();
 
-  const { search } = useAppSelector(state => state.class);
+  const { params } = useAppSelector(state => state.class);
 
   const [createClass, setCreateClass] = useState<boolean>(false);
-  const [searchText, setSearchText] = useState<string>(search ?? "");
+  const [searchText, setSearchText] = useState<string>(params.search ?? "");
 
   // get debounced search term
   const debouncedSearchTerm = useDebounce(searchText, 500);
@@ -44,7 +44,7 @@ export default function Class() {
   const handleCloseCreateModal = () => setCreateClass(false);
 
   useEffect(() => {
-    dispatch(setSearchTerm(debouncedSearchTerm));
+    dispatch(setParams({ search: debouncedSearchTerm }));
   }, [debouncedSearchTerm, dispatch]);
 
   return (

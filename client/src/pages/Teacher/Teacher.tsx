@@ -31,10 +31,10 @@ const breadCrumbList = [
 export default function Teacher() {
   const dispatch = useAppDispatch();
 
-  const { search } = useAppSelector(state => state.teacher);
+  const { params } = useAppSelector(state => state.teacher);
 
   const [createSub, setCreateSub] = useState<boolean>(false);
-  const [searchText, setSearchText] = useState<string>(search ?? "");
+  const [searchText, setSearchText] = useState<string>(params.search ?? "");
 
   // get debounced search term
   const debouncedSearchTerm = useDebounce(searchText, 500);

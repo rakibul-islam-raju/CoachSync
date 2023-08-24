@@ -1,21 +1,9 @@
 /* eslint-disable no-prototype-builtins */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-// import { ITeacherParams } from "./teacher.type";
 import { RESULTS_PER_PAGE } from "../../config";
-
-export interface ITeacherParams {
-  limit?: number;
-  offset?: number;
-  search?: string;
-  is_active?: boolean;
-  ordering?: string;
-
-  // Index signature for string keys
-  [key: string]: string | number | boolean | undefined;
-}
+import { ITeacherParams } from "./teacher.type";
 
 type TeacherState = {
-  search?: string;
   params: ITeacherParams;
 };
 
@@ -30,14 +18,6 @@ const teacherSlice = createSlice({
   name: "teacher",
   initialState,
   reducers: {
-    setSearchTerm(state, action: PayloadAction<string>) {
-      state.search = action.payload;
-    },
-
-    removeSearchTerm(state) {
-      delete state.search;
-    },
-
     setParams(state, action: PayloadAction<Partial<ITeacherParams>>) {
       state.params = {
         ...state.params,
@@ -54,6 +34,5 @@ const teacherSlice = createSlice({
   },
 });
 
-export const { setSearchTerm, removeSearchTerm, setParams, removeParam } =
-  teacherSlice.actions;
+export const { setParams, removeParam } = teacherSlice.actions;
 export default teacherSlice.reducer;

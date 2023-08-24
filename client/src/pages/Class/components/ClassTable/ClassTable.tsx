@@ -19,23 +19,25 @@ import {
   GridToolbar,
   GridSortModel,
   GridFilterModel,
+  GridPaginationModel,
 } from "@mui/x-data-grid";
 import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
 import { toast } from "react-toastify";
 import ConfirmDialogue from "../../../../components/ConfirmDialogue/ConfirmDialogue";
 import { PAGE_SIZE_OPTIONS, RESULTS_PER_PAGE } from "../../../../config";
-import { useAppSelector } from "../../../../redux/hook";
+import { useAppDispatch, useAppSelector } from "../../../../redux/hook";
 import { IClass } from "../../../../redux/class/class.type";
 import {
   useDeleteClassMutation,
   useGetClassesQuery,
   useUpdateClassMutation,
 } from "../../../../redux/class/classApi";
+import { removeParam, setParams } from "../../../../redux/class/classSlice";
 
 const ClassTable: FC = () => {
-  const { search } = useAppSelector(state => state.class);
+  const dispatch = useAppDispatch();
+  const { params } = useAppSelector(state => state.class);
 
-  const [params, setParams] = useState<{ [key: string]: string }>();
   const [rows, setRows] = useState<IClass[]>([]);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
@@ -44,8 +46,6 @@ const ClassTable: FC = () => {
 
   const { data, isLoading, isError, error } = useGetClassesQuery({
     ...params,
-    limit: paginationModel.pageSize,
-    offset: paginationModel.page * paginationModel.pageSize,
   });
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -65,15 +65,23 @@ const ClassTable: FC = () => {
 
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
 
+  const handlePaginationModelChange = (pageModel: GridPaginationModel) => {
+    setPaginationModel({ ...pageModel });
+
+    const limit = pageModel.pageSize;
+    const offset = pageModel.page * pageModel.pageSize;
+    dispatch(setParams({ limit, offset }));
+  };
+
   // handle sorting
   const handleSortModelChange = useCallback((sortModel: GridSortModel) => {
     if (sortModel.length > 0) {
-      const sortParam =
-        sortModel[0].sort === "asc"
-          ? `${sortModel[0].field}`
-          : `-${sortModel[0].field}`;
+      const item = sortModel[0];
+      const sortType = item.sort;
+      const sortField = String(item.field);
+      const sortParam = sortType === "asc" ? sortField : `-${sortField}`;
 
-      setParams({ ...params, ordering: sortParam });
+      dispatch(setParams({ ordering: sortParam }));
     }
   }, []);
 
@@ -82,14 +90,11 @@ const ClassTable: FC = () => {
     if (filterModel.items.length > 0) {
       const filterField = filterModel.items[0].field;
       const filterValue = filterModel.items[0].value;
-      if (filterValue) {
-        setParams({ ...params, [filterField]: filterValue });
-      } else {
-        const updatedParams = { ...params };
-        if (updatedParams[filterField]) {
-          delete updatedParams[filterField];
-          setParams({ ...updatedParams });
-        }
+
+      if (filterField && filterValue) {
+        dispatch(setParams({ [filterField]: filterValue }));
+      } else if (filterField && !filterValue) {
+        dispatch(removeParam(filterField));
       }
     }
   };
@@ -293,18 +298,6 @@ const ClassTable: FC = () => {
     );
   }, [data?.count, setRowCountState]);
 
-  useEffect(() => {
-    if (search) {
-      setParams({ ...params, search });
-    } else {
-      if (params?.search) {
-        const updatedParams = { ...params };
-        delete updatedParams.search;
-        setParams({ ...updatedParams });
-      }
-    }
-  }, [search]);
-
   return (
     <Box>
       {(isError || isEditError || isDeleteError) && (
@@ -336,7 +329,7 @@ const ClassTable: FC = () => {
             rowCount={rowCountState}
             paginationModel={paginationModel}
             paginationMode="server"
-            onPaginationModelChange={setPaginationModel}
+            onPaginationModelChange={handlePaginationModelChange}
             sortingMode="server"
             onSortModelChange={handleSortModelChange}
             filterMode="server"
