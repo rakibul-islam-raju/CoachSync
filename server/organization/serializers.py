@@ -97,13 +97,13 @@ class BatchCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Batch
         fields = [
+            "id",
             "name",
             "code",
             "classs",
             "start_date",
             "end_date",
             "fee",
-            "description",
         ]
 
 

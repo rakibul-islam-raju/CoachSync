@@ -8,9 +8,9 @@ import {
 } from "@reduxjs/toolkit/query/react";
 import { Mutex } from "async-mutex";
 import jwt_decode from "jwt-decode";
+import { BASE_API_URL } from "../../config";
 import { setUserInfo, userLoggedIn, userLoggedOut } from "../auth/authSlice";
 import { RootState } from "../store";
-import { BASE_API_URL } from "../../config";
 
 // Create a new mutex
 const mutex = new Mutex();
@@ -97,6 +97,8 @@ export const apiSlice = createApi({
     "Class",
     "ClassSearch",
     "Batch",
+    "Batches",
+    "BatchSearch",
     "Schedule",
     "Teacher",
     "TeacherSearch",

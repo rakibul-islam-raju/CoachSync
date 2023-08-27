@@ -1,5 +1,3 @@
-from rest_framework.filters import SearchFilter, OrderingFilter
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
@@ -87,7 +85,6 @@ class ClasssListCreateView(ListCreateAPIView):
     queryset = Classs.objects.all()
     serializer_class = ClasssSerializer
     permission_classes = [IsOrgStaff]
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["is_active"]
     search_fields = [
         "name",
@@ -108,6 +105,21 @@ class ClasssDetailView(RetrieveUpdateDestroyAPIView):
 class BatchListCreateView(ListCreateAPIView):
     permission_classes = [IsOrgStaff]
     queryset = Batch.objects.all()
+    filterset_fields = ["is_active", "classs"]
+    search_fields = [
+        "name",
+        "code",
+        "classs__name",
+        "classs__numeric",
+    ]
+    ordering_fields = [
+        "name",
+        "code",
+        "classs__name",
+        "class_numeric",
+        "created_at",
+        "updated_at",
+    ]
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -122,6 +134,11 @@ class BatchDetailView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOrgStaff]
     queryset = Batch.objects.all()
     serializer_class = BatchSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == "PATCH" or self.request.method == "PUT":
+            return BatchCreateSerializer
+        return BatchSerializer
 
 
 class ExamTypeListCreateView(ListCreateAPIView):

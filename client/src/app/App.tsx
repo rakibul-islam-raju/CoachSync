@@ -1,13 +1,14 @@
-import { ThemeProvider } from "@mui/material/styles";
-import { RouterProvider } from "react-router-dom";
-import { router } from "./router";
-import BigSpinner from "../components/BigSpinner";
 import { CssBaseline } from "@mui/material";
-import { theme } from "./theme";
-import "react-toastify/dist/ReactToastify.css";
+import { ThemeProvider } from "@mui/material/styles";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import useAuthCheck from "../hooks/useAuthCheck";
+import "react-toastify/dist/ReactToastify.css";
 import Loader from "../components/Loader";
+import useAuthCheck from "../hooks/useAuthCheck";
+import { router } from "./router";
+import { theme } from "./theme";
 
 function App() {
   const authChecked = useAuthCheck();
@@ -20,7 +21,9 @@ function App() {
         <Loader />
       ) : (
         <ThemeProvider theme={theme}>
-          <RouterProvider router={router} fallbackElement={<BigSpinner />} />
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <RouterProvider router={router} fallbackElement={<Loader />} />
+          </LocalizationProvider>
         </ThemeProvider>
       )}
 

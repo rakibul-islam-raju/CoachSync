@@ -50,7 +50,6 @@ class Batch(BaseModel):
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
     fee = models.PositiveIntegerField(blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
 
     objects = models.Manager()
 
@@ -59,6 +58,9 @@ class Batch(BaseModel):
 
     def __str__(self):
         return self.name
+
+    def get_class_name(self):
+        return self.classs.name
 
 
 class ExamType(BaseModel):

@@ -31,7 +31,7 @@ const ErrorDisplay: React.FC<IErrorDisplayProps> = ({
   }
 
   return (
-    <Alert severity={severity}>
+    <Alert severity={severity} sx={{ my: 2 }}>
       <AlertTitle>{errorMessage}</AlertTitle>
     </Alert>
   );
