@@ -1,18 +1,11 @@
-import SearchIcon from "@mui/icons-material/Search";
-import {
-  Button,
-  Divider,
-  InputAdornment,
-  Stack,
-  Typography,
-} from "@mui/material";
-import { useEffect, useState } from "react";
+import { Button, Divider, Stack, Typography } from "@mui/material";
+import { ChangeEvent, useEffect, useState } from "react";
 import CustomBreadcrumb from "../../components/CustomBreadcrumb";
 import Modal from "../../components/Modal/Modal";
 import PageContainer from "../../components/PageContainer/PageContainer";
-import TextInput from "../../components/forms/TextInput";
+import SearchInput from "../../components/forms/SearchInput";
 import { useDebounce } from "../../hooks/useDebounce";
-import { setParams } from "../../redux/batch/batchSlice";
+import { removeParam, setParams } from "../../redux/batch/batchSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hook";
 import BatchForm from "./components/BatchForm/BatchForm";
 import BatchTable from "./components/BatchTable/BatchTable";
@@ -43,8 +36,17 @@ export default function Batch() {
 
   const handleCloseCreateModal = () => setCreateBatch(false);
 
+  const handleCancelSearch = () => {
+    setSearchText("");
+    dispatch(removeParam("search"));
+  };
+
   useEffect(() => {
-    dispatch(setParams({ search: debouncedSearchTerm }));
+    if (debouncedSearchTerm) {
+      dispatch(setParams({ search: debouncedSearchTerm }));
+    } else {
+      dispatch(removeParam("search"));
+    }
   }, [debouncedSearchTerm, dispatch]);
 
   return (
@@ -66,17 +68,14 @@ export default function Batch() {
             gap={2}
             flexWrap={"wrap"}
           >
-            <TextInput
-              onChange={e => setSearchText(e.target.value)}
-              label="Search Batch"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
+            <SearchInput
+              value={searchText}
+              handleChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setSearchText(e.target.value)
+              }
+              handleCancelSearch={handleCancelSearch}
             />
+
             <Button variant="contained" onClick={handleOpenCreateModal}>
               Add Batch
             </Button>

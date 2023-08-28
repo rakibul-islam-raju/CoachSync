@@ -1,27 +1,31 @@
-import { Outlet, useNavigate } from "react-router-dom";
-import * as React from "react";
-import { styled, Theme, CSSObject } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import MuiDrawer from "@mui/material/Drawer";
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import CssBaseline from "@mui/material/CssBaseline";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
+import AccountCircle from "@mui/icons-material/AccountCircle";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import MailIcon from "@mui/icons-material/Mail";
+import MenuIcon from "@mui/icons-material/Menu";
+import MoreIcon from "@mui/icons-material/MoreVert";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import { Badge, Menu, MenuItem } from "@mui/material";
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import CssBaseline from "@mui/material/CssBaseline";
+import Divider from "@mui/material/Divider";
+import MuiDrawer from "@mui/material/Drawer";
+import IconButton from "@mui/material/IconButton";
+import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import { Badge, Menu, MenuItem } from "@mui/material";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import MailIcon from "@mui/icons-material/Mail";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import MoreIcon from "@mui/icons-material/MoreVert";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import { CSSObject, Theme, styled } from "@mui/material/styles";
+import * as React from "react";
+import { Outlet, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { drawerWidth } from "../../../config";
+import { useLogoutMutation } from "../../../redux/auth/authApi";
+import { useAppSelector } from "../../../redux/hook";
+import ErrorDisplay from "../../ErrorDisplay/ErrorDisplay";
 import { IMenu, MAIN_MENUS } from "./constants";
 
 const openedMixin = (theme: Theme): CSSObject => ({
@@ -96,6 +100,10 @@ const Drawer = styled(MuiDrawer, {
 export default function RootLayout() {
   const navigate = useNavigate();
 
+  const { refresh } = useAppSelector(state => state.auth);
+
+  const [logout, { isSuccess, isError, error }] = useLogoutMutation();
+
   const [open, setOpen] = React.useState(true);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
@@ -130,6 +138,18 @@ export default function RootLayout() {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
+  const handleLogout = () => {
+    if (refresh) {
+      logout({ refresh });
+    }
+  };
+
+  React.useEffect(() => {
+    if (isSuccess) {
+      toast.success("Successfully logged out!");
+    }
+  }, [isSuccess]);
+
   const menuId = "primary-search-account-menu";
 
   const renderMenu = (
@@ -151,6 +171,7 @@ export default function RootLayout() {
     >
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem onClick={handleLogout}>Logout</MenuItem>
     </Menu>
   );
 
@@ -322,6 +343,9 @@ export default function RootLayout() {
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
+
+        {isError && <ErrorDisplay error={error} />}
+
         <Outlet />
       </Box>
     </Box>

@@ -5,6 +5,7 @@ import { IBatchParams } from "./batch.type";
 
 type BatchState = {
   params: IBatchParams;
+  page: number;
 };
 
 const initialState: BatchState = {
@@ -12,6 +13,7 @@ const initialState: BatchState = {
     limit: RESULTS_PER_PAGE,
     offset: 0,
   },
+  page: 1,
 };
 
 const batchSlice = createSlice({
@@ -31,8 +33,15 @@ const batchSlice = createSlice({
         delete state.params[paramKey];
       }
     },
+
+    setPage(state, action: PayloadAction<number>) {
+      state.page = action.payload;
+      const offset: number =
+        (Number(state.page) - 1) * Number(state.params.limit);
+      state.params.offset = offset;
+    },
   },
 });
 
-export const { setParams, removeParam } = batchSlice.actions;
+export const { setParams, removeParam, setPage } = batchSlice.actions;
 export default batchSlice.reducer;

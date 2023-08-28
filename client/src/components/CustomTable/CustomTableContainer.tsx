@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { Paper } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
@@ -14,7 +15,7 @@ interface TableProps {
 
 const CustomTableContainer: FC<TableProps> = ({ columns, children }) => {
   return (
-    <TableContainer>
+    <TableContainer component={Paper} variant="outlined">
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
