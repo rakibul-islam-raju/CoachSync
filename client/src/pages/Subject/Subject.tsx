@@ -1,21 +1,14 @@
-import {
-  Button,
-  Divider,
-  InputAdornment,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Button, Divider, Stack, Typography } from "@mui/material";
+import { ChangeEvent, useEffect, useState } from "react";
 import CustomBreadcrumb from "../../components/CustomBreadcrumb";
-import TextInput from "../../components/forms/TextInput";
-import SearchIcon from "@mui/icons-material/Search";
-import PageContainer from "../../components/PageContainer/PageContainer";
-import { useEffect, useState } from "react";
 import Modal from "../../components/Modal/Modal";
-import { useAppDispatch, useAppSelector } from "../../redux/hook";
+import PageContainer from "../../components/PageContainer/PageContainer";
+import SearchInput from "../../components/forms/SearchInput";
 import { useDebounce } from "../../hooks/useDebounce";
+import { useAppDispatch, useAppSelector } from "../../redux/hook";
+import { removeParam, setParams } from "../../redux/subject/subjectSlice";
 import SubjectForm from "./components/SubjectForm/SubjectForm";
 import SubjectTable from "./components/SubjectTable/SubjectTable";
-import { setParams } from "../../redux/subject/subjectSlice";
 
 const breadCrumbList = [
   {
@@ -43,8 +36,17 @@ export default function Subject() {
 
   const handleCloseCreateModal = () => setCreateSub(false);
 
+  const handleCancelSearch = () => {
+    setSearchText("");
+    dispatch(removeParam("search"));
+  };
+
   useEffect(() => {
-    dispatch(setParams({ search: debouncedSearchTerm }));
+    if (debouncedSearchTerm) {
+      dispatch(setParams({ search: debouncedSearchTerm }));
+    } else {
+      dispatch(removeParam("search"));
+    }
   }, [debouncedSearchTerm, dispatch]);
 
   return (
@@ -66,16 +68,12 @@ export default function Subject() {
             gap={2}
             flexWrap={"wrap"}
           >
-            <TextInput
-              onChange={e => setSearchText(e.target.value)}
-              label="Search Subject"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
+            <SearchInput
+              value={searchText}
+              handleChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setSearchText(e.target.value)
+              }
+              handleCancelSearch={handleCancelSearch}
             />
             <Button variant="contained" onClick={handleOpenCreateModal}>
               Add Subject

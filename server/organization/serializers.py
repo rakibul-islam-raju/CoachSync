@@ -75,6 +75,26 @@ class TeacherCreateSerializer(serializers.ModelSerializer):
 
         return new_teacher
 
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop("user")
+
+        try:
+            # Update user data
+            user_instance = instance.user
+            for attr, value in user_data.items():
+                setattr(user_instance, attr, value)
+            user_instance.save()
+
+            # Update teacher instance
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+            instance.save()
+
+        except Exception as e:
+            raise e
+
+        return instance
+
 
 class ClasssSerializer(serializers.ModelSerializer):
     class Meta:

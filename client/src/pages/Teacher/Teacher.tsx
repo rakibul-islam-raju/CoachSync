@@ -1,21 +1,15 @@
-import {
-  Button,
-  Divider,
-  InputAdornment,
-  Stack,
-  Typography,
-} from "@mui/material";
+/* eslint-disable react-hooks/rules-of-hooks */
+import { Button, Divider, Stack, Typography } from "@mui/material";
+import { ChangeEvent, useEffect, useState } from "react";
 import CustomBreadcrumb from "../../components/CustomBreadcrumb";
-import TextInput from "../../components/forms/TextInput";
-import SearchIcon from "@mui/icons-material/Search";
-import PageContainer from "../../components/PageContainer/PageContainer";
-import { useEffect, useState } from "react";
 import Modal from "../../components/Modal/Modal";
-import { useAppDispatch, useAppSelector } from "../../redux/hook";
+import PageContainer from "../../components/PageContainer/PageContainer";
+import SearchInput from "../../components/forms/SearchInput";
 import { useDebounce } from "../../hooks/useDebounce";
-import TeacherTable from "./components/TeacherTable/TeacherTable";
+import { useAppDispatch, useAppSelector } from "../../redux/hook";
+import { removeParam, setParams } from "../../redux/teacher/teacherSlice";
 import TeacherForm from "./components/TeacherForm/TeacherForm";
-import { setParams } from "../../redux/teacher/teacherSlice";
+import TeacherTable from "./components/TeacherTable/TeacherTable";
 
 const breadCrumbList = [
   {
@@ -36,6 +30,9 @@ export default function Teacher() {
   const [createSub, setCreateSub] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>(params.search ?? "");
 
+  console.log("params=>", params);
+  console.log("searchText=>", searchText);
+
   // get debounced search term
   const debouncedSearchTerm = useDebounce(searchText, 500);
 
@@ -43,8 +40,17 @@ export default function Teacher() {
 
   const handleCloseCreateModal = () => setCreateSub(false);
 
+  const handleCancelSearch = () => {
+    setSearchText("");
+    dispatch(removeParam("search"));
+  };
+
   useEffect(() => {
-    dispatch(setParams({ search: debouncedSearchTerm }));
+    if (debouncedSearchTerm) {
+      dispatch(setParams({ search: debouncedSearchTerm }));
+    } else {
+      dispatch(removeParam("search"));
+    }
   }, [debouncedSearchTerm, dispatch]);
 
   return (
@@ -66,16 +72,12 @@ export default function Teacher() {
             gap={2}
             flexWrap={"wrap"}
           >
-            <TextInput
-              onChange={e => setSearchText(e.target.value)}
-              label="Search Teacher"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
+            <SearchInput
+              value={searchText}
+              handleChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setSearchText(e.target.value)
+              }
+              handleCancelSearch={handleCancelSearch}
             />
             <Button variant="contained" onClick={handleOpenCreateModal}>
               Add Teacher

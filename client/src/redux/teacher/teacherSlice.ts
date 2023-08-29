@@ -5,6 +5,7 @@ import { ITeacherParams } from "./teacher.type";
 
 type TeacherState = {
   params: ITeacherParams;
+  page: number;
 };
 
 const initialState: TeacherState = {
@@ -12,6 +13,7 @@ const initialState: TeacherState = {
     limit: RESULTS_PER_PAGE,
     offset: 0,
   },
+  page: 1,
 };
 
 const teacherSlice = createSlice({
@@ -19,10 +21,19 @@ const teacherSlice = createSlice({
   initialState,
   reducers: {
     setParams(state, action: PayloadAction<Partial<ITeacherParams>>) {
-      state.params = {
-        ...state.params,
-        ...action.payload,
-      };
+      if ("search" in action.payload && action.payload.search !== undefined) {
+        state.params = {
+          ...state.params,
+          ...action.payload,
+          offset: 0,
+        };
+        state.page = 1;
+      } else {
+        state.params = {
+          ...state.params,
+          ...action.payload,
+        };
+      }
     },
 
     removeParam(state, action: PayloadAction<string>) {
@@ -31,8 +42,15 @@ const teacherSlice = createSlice({
         delete state.params[paramKey];
       }
     },
+
+    setPage(state, action: PayloadAction<number>) {
+      state.page = action.payload;
+      const offset: number =
+        (Number(state.page) - 1) * Number(state.params.limit);
+      state.params.offset = offset;
+    },
   },
 });
 
-export const { setParams, removeParam } = teacherSlice.actions;
+export const { setParams, removeParam, setPage } = teacherSlice.actions;
 export default teacherSlice.reducer;

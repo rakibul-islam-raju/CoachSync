@@ -21,10 +21,19 @@ const batchSlice = createSlice({
   initialState,
   reducers: {
     setParams(state, action: PayloadAction<Partial<IBatchParams>>) {
-      state.params = {
-        ...state.params,
-        ...action.payload,
-      };
+      if ("search" in action.payload && action.payload.search !== undefined) {
+        state.params = {
+          ...state.params,
+          ...action.payload,
+          offset: 0,
+        };
+        state.page = 1;
+      } else {
+        state.params = {
+          ...state.params,
+          ...action.payload,
+        };
+      }
     },
 
     removeParam(state, action: PayloadAction<string>) {

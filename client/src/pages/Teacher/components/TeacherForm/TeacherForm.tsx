@@ -1,20 +1,21 @@
-import { Box, Checkbox, FormControl, FormControlLabel } from "@mui/material";
-import { FormInputText } from "../../../../components/forms/FormInputText";
-import {
-  ITeacherCreateFormValues,
-  TeacherCreateSchema,
-} from "../TeacherSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Box, Checkbox, FormControl, FormControlLabel } from "@mui/material";
+import { FC, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { CustomButton } from "../../../../components/CustomButton/CustomButton";
 import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
-import { FC, useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { FormInputText } from "../../../../components/forms/FormInputText";
 import { ITeacher } from "../../../../redux/teacher/teacher.type";
 import {
   useCreateTeacherMutation,
   useUpdateTeacherMutation,
 } from "../../../../redux/teacher/teacherApi";
+import { getDirtyValues } from "../../../../utils/filterChangedFormFields";
+import {
+  ITeacherCreateFormValues,
+  TeacherCreateSchema,
+} from "../TeacherSchema";
 
 type TeacherFormProps = {
   onClose: () => void;
@@ -22,7 +23,12 @@ type TeacherFormProps = {
 };
 
 const TeacherForm: FC<TeacherFormProps> = ({ onClose, defaultData }) => {
-  const { control, handleSubmit, reset } = useForm<ITeacherCreateFormValues>({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isDirty, dirtyFields },
+  } = useForm<ITeacherCreateFormValues>({
     resolver: zodResolver(TeacherCreateSchema),
     defaultValues: {
       user: {
@@ -52,7 +58,11 @@ const TeacherForm: FC<TeacherFormProps> = ({ onClose, defaultData }) => {
 
   const onSubmit = (data: ITeacherCreateFormValues) => {
     if (defaultData) {
-      updateTeacher({ id: defaultData.id, data });
+      if (isDirty) {
+        const dirtyValues = getDirtyValues(dirtyFields, data);
+        updateTeacher({ id: defaultData.id, data: dirtyValues });
+      }
+      // onClose();
     } else {
       createTeacher(data);
     }
@@ -143,14 +153,17 @@ const TeacherForm: FC<TeacherFormProps> = ({ onClose, defaultData }) => {
       >
         Save
       </CustomButton>
-      <CustomButton
-        onClick={() => setAddAnother(true)}
-        type="submit"
-        variant="outlined"
-        disabled={isLoading || isEditLoading}
-      >
-        Save and Add Another
-      </CustomButton>
+
+      {!defaultData && (
+        <CustomButton
+          onClick={() => setAddAnother(true)}
+          type="submit"
+          variant="outlined"
+          disabled={isLoading || isEditLoading}
+        >
+          Save and Add Another
+        </CustomButton>
+      )}
 
       {(isError || isEditError) && <ErrorDisplay error={error || editError} />}
     </Box>

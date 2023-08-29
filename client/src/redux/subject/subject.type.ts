@@ -19,8 +19,8 @@ export interface ISubjectUpdateReqData {
 }
 
 export interface ISubjectParams {
-  limit?: number;
-  offset?: number;
+  limit: number;
+  offset: number;
   search?: string;
   name?: boolean;
   code?: boolean;

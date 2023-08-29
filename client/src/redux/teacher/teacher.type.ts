@@ -18,8 +18,8 @@ export interface ITeacherUpdateReqData {
 }
 
 export interface ITeacherParams {
-  limit?: number;
-  offset?: number;
+  limit: number;
+  offset: number;
   search?: string;
   user__first_name?: boolean;
   user__last_name?: string;

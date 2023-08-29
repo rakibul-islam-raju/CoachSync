@@ -1,369 +1,100 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useState, FC, useEffect, useCallback } from "react";
-import Box from "@mui/material/Box";
+import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import SaveIcon from "@mui/icons-material/Save";
-import CancelIcon from "@mui/icons-material/Close";
 import {
-  GridRowModesModel,
-  GridRowModes,
-  DataGrid,
-  GridColDef,
-  GridActionsCellItem,
-  GridEventListener,
-  GridRowId,
-  GridRowModel,
-  GridRowEditStopReasons,
-  GridToolbar,
-  GridSortModel,
-  GridFilterModel,
-  GridPaginationModel,
-} from "@mui/x-data-grid";
+  ButtonGroup,
+  IconButton,
+  TableBody,
+  TableCell,
+  TableRow,
+  Tooltip,
+} from "@mui/material";
+import Box from "@mui/material/Box";
+import { FC } from "react";
+import CustomPagination from "../../../../components/CustomPagination/CustomPagination";
+import CustomTableContainer from "../../../../components/CustomTable/CustomTableContainer";
 import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
-import { toast } from "react-toastify";
-import ConfirmDialogue from "../../../../components/ConfirmDialogue/ConfirmDialogue";
-import { PAGE_SIZE_OPTIONS, RESULTS_PER_PAGE } from "../../../../config";
+import Loader from "../../../../components/Loader";
+import { useGetClassesQuery } from "../../../../redux/class/classApi";
+import { setPage } from "../../../../redux/class/classSlice";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hook";
-import { IClass } from "../../../../redux/class/class.type";
-import {
-  useDeleteClassMutation,
-  useGetClassesQuery,
-  useUpdateClassMutation,
-} from "../../../../redux/class/classApi";
-import { removeParam, setParams } from "../../../../redux/class/classSlice";
+import { formatDate } from "../../../../utils/formatDate";
+
+const columns = [
+  "Class Name",
+  "Numeric",
+  "Created At",
+  "Updated At",
+  "Active",
+  "Action",
+];
 
 const ClassTable: FC = () => {
   const dispatch = useAppDispatch();
-  const { params } = useAppSelector(state => state.class);
-
-  const [rows, setRows] = useState<IClass[]>([]);
-  const [paginationModel, setPaginationModel] = useState({
-    page: 0,
-    pageSize: RESULTS_PER_PAGE,
-  });
+  const { params, page } = useAppSelector(state => state.class);
 
   const { data, isLoading, isError, error } = useGetClassesQuery({
     ...params,
   });
 
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [classToDelete, setClassToDelete] = useState<number | null>(null);
-  const [promiseArguments, setPromiseArguments] = useState<any>(null);
-  const [rowCountState, setRowCountState] = useState<number>(data?.count || 0);
-
-  const [
-    updateClass,
-    { isError: isEditError, error: editError, isSuccess: isEditSuccess },
-  ] = useUpdateClassMutation();
-
-  const [
-    deleteClass,
-    { isError: isDeleteError, isSuccess: isDeleteSuccess, error: deleteError },
-  ] = useDeleteClassMutation();
-
-  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
-
-  const handlePaginationModelChange = (pageModel: GridPaginationModel) => {
-    setPaginationModel({ ...pageModel });
-
-    const limit = pageModel.pageSize;
-    const offset = pageModel.page * pageModel.pageSize;
-    dispatch(setParams({ limit, offset }));
+  const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    dispatch(setPage(value));
   };
 
-  // handle sorting
-  const handleSortModelChange = useCallback((sortModel: GridSortModel) => {
-    if (sortModel.length > 0) {
-      const item = sortModel[0];
-      const sortType = item.sort;
-      const sortField = String(item.field);
-      const sortParam = sortType === "asc" ? sortField : `-${sortField}`;
-
-      dispatch(setParams({ ordering: sortParam }));
-    }
-  }, []);
-
-  // handle filtering
-  const onFilterChange = (filterModel: GridFilterModel) => {
-    if (filterModel.items.length > 0) {
-      const filterField = filterModel.items[0].field;
-      const filterValue = filterModel.items[0].value;
-
-      if (filterField && filterValue) {
-        dispatch(setParams({ [filterField]: filterValue }));
-      } else if (filterField && !filterValue) {
-        dispatch(removeParam(filterField));
-      }
-    }
-  };
-
-  // handle stop editing row
-  const handleRowEditStop: GridEventListener<"rowEditStop"> = (
-    params,
-    event,
-  ) => {
-    if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-      event.defaultMuiPrevented = true;
-    }
-  };
-
-  // click edit
-  const handleEditClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-  };
-
-  // save edit row
-  const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
-  };
-
-  // handle click delete
-  const handleDeleteClick = (id: GridRowId) => () => {
-    setClassToDelete(Number(id));
-    setDeleteDialogOpen(true);
-  };
-
-  // delete confirmation dialog
-  const closeDeleteDialog = () => {
-    setDeleteDialogOpen(false);
-    setClassToDelete(null);
-  };
-
-  // confirm delete
-  const confirmDelete = () => {
-    if (classToDelete) {
-      deleteClass(classToDelete);
-      closeDeleteDialog();
-    }
-  };
-
-  const handleCancelClick = (id: GridRowId) => () => {
-    setRowModesModel({
-      ...rowModesModel,
-      [id]: { mode: GridRowModes.View, ignoreModifications: true },
-    });
-  };
-
-  // edit process
-  const processRowUpdate = useCallback(
-    (newRow: GridRowModel, oldRow: GridRowModel) =>
-      new Promise<GridRowModel>((resolve, reject) => {
-        // Save the arguments to resolve or reject the promise later
-        setPromiseArguments({ resolve, reject, newRow, oldRow });
-      }),
-    [],
-  );
-
-  // cancel edit
-  const handleNo = () => {
-    const { oldRow, resolve } = promiseArguments;
-    resolve(oldRow); // Resolve with the old row to not update the internal state
-    setPromiseArguments(null);
-  };
-
-  // save edit row
-  const handleYes = () => {
-    const { newRow, oldRow, reject, resolve } = promiseArguments;
-
-    // save updated data
-    if (newRow.id) {
-      updateClass({ id: newRow.id, data: newRow });
-      resolve(newRow);
-    } else {
-      reject(oldRow);
-    }
-    setPromiseArguments(null);
-  };
-
-  const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-    setRowModesModel(newRowModesModel);
-  };
-
-  // table columns
-  const columns: GridColDef[] = [
-    {
-      field: "name",
-      headerName: "Name",
-      type: "string",
-      flex: 1,
-      editable: true,
-      filterable: false,
-    },
-    {
-      field: "numeric",
-      headerName: "Numeric",
-      type: "number",
-      flex: 1,
-      editable: true,
-      align: "left",
-      headerAlign: "left",
-      filterable: false,
-    },
-    {
-      field: "created_at",
-      headerName: "Created At",
-      type: "dateTime",
-      flex: 1,
-      editable: false,
-      filterable: false,
-      valueGetter: params => new Date(params.value as string),
-    },
-    {
-      field: "updated_at",
-      headerName: "Updated At",
-      type: "dateTime",
-      flex: 1,
-      editable: false,
-      filterable: false,
-      valueGetter: params => new Date(params.value as string),
-    },
-    {
-      field: "is_active",
-      headerName: "Active",
-      type: "boolean",
-      flex: 1,
-      editable: true,
-      sortable: false,
-    },
-    {
-      field: "actions",
-      type: "actions",
-      headerName: "Actions",
-      flex: 1,
-      cellClassName: "actions",
-      getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-
-        if (isInEditMode) {
-          return [
-            <GridActionsCellItem
-              icon={<SaveIcon />}
-              label="Save"
-              sx={{
-                color: "primary.main",
-              }}
-              onClick={handleSaveClick(id)}
-            />,
-            <GridActionsCellItem
-              icon={<CancelIcon />}
-              label="Cancel"
-              className="textPrimary"
-              onClick={handleCancelClick(id)}
-              color="inherit"
-            />,
-          ];
-        }
-
-        return [
-          <GridActionsCellItem
-            icon={<EditIcon />}
-            label="Edit"
-            className="textPrimary"
-            onClick={handleEditClick(id)}
-            color="inherit"
-          />,
-          <GridActionsCellItem
-            icon={<DeleteIcon />}
-            label="Delete"
-            onClick={handleDeleteClick(id)}
-            color="inherit"
-          />,
-        ];
-      },
-    },
-  ];
-
-  useEffect(() => {
-    if (data?.results && data?.results.length > 0) {
-      setRows(data?.results);
-    } else {
-      setRows([]);
-    }
-  }, [data?.results]);
-
-  useEffect(() => {
-    if (isEditSuccess) {
-      toast.success("Class edited successfully");
-    }
-    if (isDeleteSuccess) {
-      toast.success("Class deleted successfully");
-    }
-  }, [isDeleteSuccess, isEditSuccess]);
-
-  useEffect(() => {
-    setRowCountState(prevRowCountState =>
-      data?.count !== undefined ? data?.count : prevRowCountState,
-    );
-  }, [data?.count, setRowCountState]);
-
-  return (
+  return isLoading ? (
+    <Loader />
+  ) : isError ? (
+    <ErrorDisplay error={error} />
+  ) : data?.results && data?.results.length > 0 ? (
     <Box>
-      {(isError || isEditError || isDeleteError) && (
-        <ErrorDisplay error={error || editError || deleteError} />
-      )}
+      <CustomTableContainer columns={columns}>
+        <TableBody>
+          {data?.results.map(row => (
+            <TableRow
+              key={row.id}
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
+              <TableCell component="th" scope="row">
+                {row.name}
+              </TableCell>
+              <TableCell>{row.numeric}</TableCell>
+              <TableCell>{formatDate(row.created_at)}</TableCell>
+              <TableCell>{formatDate(row.updated_at)}</TableCell>
+              <TableCell>{row.is_active ? "yes" : "No"}</TableCell>
+              <TableCell>
+                <ButtonGroup>
+                  <Tooltip title="Edit">
+                    <IconButton
+                    // onClick={() =>
+                    // }
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete">
+                    <IconButton
+                    // onClick={() =>
+                    // }
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
+                </ButtonGroup>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </CustomTableContainer>
 
-      {rows && (
-        <Box
-          sx={{
-            width: "100%",
-            "& .actions": {
-              color: "text.secondary",
-            },
-            "& .textPrimary": {
-              color: "text.primary",
-            },
-          }}
-        >
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            editMode="row"
-            rowModesModel={rowModesModel}
-            onRowModesModelChange={handleRowModesModelChange}
-            onRowEditStop={handleRowEditStop}
-            processRowUpdate={processRowUpdate}
-            rowSelection={false}
-            loading={isLoading}
-            rowCount={rowCountState}
-            paginationModel={paginationModel}
-            paginationMode="server"
-            onPaginationModelChange={handlePaginationModelChange}
-            sortingMode="server"
-            onSortModelChange={handleSortModelChange}
-            filterMode="server"
-            onFilterModelChange={onFilterChange}
-            pageSizeOptions={PAGE_SIZE_OPTIONS}
-            slots={{
-              toolbar: GridToolbar,
-            }}
-          />
-        </Box>
-      )}
-
-      {/* edit dialogue */}
-      {!!promiseArguments && (
-        <ConfirmDialogue
-          open={!!promiseArguments}
-          title="Edit Class"
-          message={"Are you want to save this class?"}
-          handleSubmit={handleYes}
-          handleClose={handleNo}
-        />
-      )}
-
-      {/* delete dialogue */}
-      {deleteDialogOpen && (
-        <ConfirmDialogue
-          open={deleteDialogOpen}
-          title="Delete Class"
-          message={"Are you want to delete this class?"}
-          handleSubmit={confirmDelete}
-          handleClose={closeDeleteDialog}
-        />
-      )}
+      <CustomPagination
+        page={page}
+        handleChange={handleChange}
+        count={Math.ceil(data.count / params.limit)}
+      />
     </Box>
+  ) : (
+    <ErrorDisplay severity="warning" error={"No data found!"} />
   );
 };
 

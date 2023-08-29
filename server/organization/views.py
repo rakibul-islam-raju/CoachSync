@@ -3,7 +3,6 @@ from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView,
 )
 
-from user.models import User
 from user.permissions import IsOrgStaff
 
 from .models import Subject, Teacher, Classs, Batch, ExamType, Exam, Schedule
@@ -77,8 +76,13 @@ class TeacherDetailView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOrgStaff]
     serializer_class = TeacherSerializer
 
+    def get_serializer_class(self):
+        if self.request.method == "PATCH" or self.request.method == "PUT":
+            return TeacherCreateSerializer
+        return TeacherSerializer
+
     def perform_destroy(self, instance):
-        User.objects.delete(id=instance.user__id)
+        instance.user.delete()
 
 
 class ClasssListCreateView(ListCreateAPIView):
