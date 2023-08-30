@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DoneIcon from "@mui/icons-material/Done";
 import EditIcon from "@mui/icons-material/Edit";
 import {
   ButtonGroup,
@@ -110,7 +112,9 @@ const TeacherTable: FC = () => {
                 <TableCell>{row.user.phone}</TableCell>
                 <TableCell>{formatDate(row.created_at)}</TableCell>
                 <TableCell>{formatDate(row.updated_at)}</TableCell>
-                <TableCell>{row.is_active ? "yes" : "No"}</TableCell>
+                <TableCell>
+                  {row.is_active ? <DoneIcon /> : <CloseIcon />}
+                </TableCell>
                 <TableCell>
                   <ButtonGroup>
                     <Tooltip title="Edit">

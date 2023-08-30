@@ -1,20 +1,21 @@
-import { Box, Checkbox, FormControl, FormControlLabel } from "@mui/material";
-import { FormInputText } from "../../../../components/forms/FormInputText";
-import {
-  ISubjectCreateFormValues,
-  subjectCreateSchema,
-} from "../subjectSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Box, Checkbox, FormControl, FormControlLabel } from "@mui/material";
+import { FC, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { CustomButton } from "../../../../components/CustomButton/CustomButton";
 import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
-import { FC, useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { FormInputText } from "../../../../components/forms/FormInputText";
 import { ISubject } from "../../../../redux/subject/subject.type";
 import {
   useCreateSubjectMutation,
   useUpdateSubjectMutation,
 } from "../../../../redux/subject/subjectApi";
+import { getDirtyValues } from "../../../../utils/getDirtyValues";
+import {
+  ISubjectCreateFormValues,
+  subjectCreateSchema,
+} from "../subjectSchema";
 
 type SubjectFormProps = {
   onClose: () => void;
@@ -22,7 +23,12 @@ type SubjectFormProps = {
 };
 
 const SubjectForm: FC<SubjectFormProps> = ({ onClose, defaultData }) => {
-  const { control, handleSubmit, reset } = useForm<ISubjectCreateFormValues>({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isDirty, dirtyFields },
+  } = useForm<ISubjectCreateFormValues>({
     resolver: zodResolver(subjectCreateSchema),
     defaultValues: {
       name: defaultData?.name ?? "",
@@ -48,7 +54,10 @@ const SubjectForm: FC<SubjectFormProps> = ({ onClose, defaultData }) => {
 
   const onSubmit = (data: ISubjectCreateFormValues) => {
     if (defaultData) {
-      updateSubject({ id: defaultData.id, data });
+      if (isDirty) {
+        const dirtyValues = getDirtyValues(dirtyFields, data);
+        updateSubject({ id: defaultData.id, data: dirtyValues });
+      }
     } else {
       createSubject(data);
     }
@@ -69,7 +78,7 @@ const SubjectForm: FC<SubjectFormProps> = ({ onClose, defaultData }) => {
       }
       reset();
     }
-  }, [isSuccess, isEditSuccess, onClose, addAnother, reset]);
+  }, [isSuccess, isEditSuccess]);
 
   return (
     <Box

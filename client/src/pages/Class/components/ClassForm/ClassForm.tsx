@@ -1,17 +1,18 @@
-import { Box, Checkbox, FormControl, FormControlLabel } from "@mui/material";
-import { FormInputText } from "../../../../components/forms/FormInputText";
-import { IClassCreateFormValues, classCreateSchema } from "../classSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Box, Checkbox, FormControl, FormControlLabel } from "@mui/material";
+import { FC, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { CustomButton } from "../../../../components/CustomButton/CustomButton";
+import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
+import { FormInputText } from "../../../../components/forms/FormInputText";
+import { IClass } from "../../../../redux/class/class.type";
 import {
   useCreateClassMutation,
   useUpdateClassMutation,
 } from "../../../../redux/class/classApi";
-import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
-import { FC, useEffect, useState } from "react";
-import { toast } from "react-toastify";
-import { IClass } from "../../../../redux/class/class.type";
+import { getDirtyValues } from "../../../../utils/getDirtyValues";
+import { IClassCreateFormValues, classCreateSchema } from "../classSchema";
 
 type ClassFormProps = {
   onClose: () => void;
@@ -19,7 +20,12 @@ type ClassFormProps = {
 };
 
 const ClassForm: FC<ClassFormProps> = ({ onClose, defaultData }) => {
-  const { control, handleSubmit, reset } = useForm<IClassCreateFormValues>({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isDirty, dirtyFields },
+  } = useForm<IClassCreateFormValues>({
     resolver: zodResolver(classCreateSchema),
     defaultValues: {
       name: defaultData?.name ?? "",
@@ -45,13 +51,18 @@ const ClassForm: FC<ClassFormProps> = ({ onClose, defaultData }) => {
 
   const onSubmit = (data: IClassCreateFormValues) => {
     if (defaultData) {
-      updateClass({ id: defaultData.id, data });
+      if (isDirty) {
+        const dirtyValues = getDirtyValues(dirtyFields, data);
+        updateClass({ id: defaultData.id, data: dirtyValues });
+      }
     } else {
       createClass(data);
     }
   };
 
   useEffect(() => {
+    console.log("useeffect");
+
     if (isSuccess) {
       toast.success("Class successfully created!");
       if (!addAnother) {
@@ -60,13 +71,14 @@ const ClassForm: FC<ClassFormProps> = ({ onClose, defaultData }) => {
       reset();
     }
     if (isEditSuccess) {
+      console.log("useeffect edited");
       toast.success("Class successfully updated!");
       if (!addAnother) {
         onClose();
       }
       reset();
     }
-  }, [isSuccess, isEditSuccess, onClose, addAnother, reset]);
+  }, [isSuccess, isEditSuccess]);
 
   return (
     <Box
@@ -118,14 +130,17 @@ const ClassForm: FC<ClassFormProps> = ({ onClose, defaultData }) => {
       >
         Save
       </CustomButton>
-      <CustomButton
-        onClick={() => setAddAnother(true)}
-        type="submit"
-        variant="outlined"
-        disabled={isLoading || isEditLoading}
-      >
-        Save and Add Another
-      </CustomButton>
+
+      {!defaultData && (
+        <CustomButton
+          onClick={() => setAddAnother(true)}
+          type="submit"
+          variant="outlined"
+          disabled={isLoading || isEditLoading}
+        >
+          Save and Add Another
+        </CustomButton>
+      )}
 
       {(isError || isEditError) && <ErrorDisplay error={error || editError} />}
     </Box>

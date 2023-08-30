@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DoneIcon from "@mui/icons-material/Done";
 import EditIcon from "@mui/icons-material/Edit";
 import {
   ButtonGroup,
@@ -11,15 +13,23 @@ import {
   Tooltip,
 } from "@mui/material";
 import Box from "@mui/material/Box";
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import ConfirmDialogue from "../../../../components/ConfirmDialogue/ConfirmDialogue";
 import CustomPagination from "../../../../components/CustomPagination/CustomPagination";
 import CustomTableContainer from "../../../../components/CustomTable/CustomTableContainer";
 import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
 import Loader from "../../../../components/Loader";
+import Modal from "../../../../components/Modal/Modal";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hook";
-import { useGetSubjectsQuery } from "../../../../redux/subject/subjectApi";
+import { ISubject } from "../../../../redux/subject/subject.type";
+import {
+  useDeleteSubjectMutation,
+  useGetSubjectsQuery,
+} from "../../../../redux/subject/subjectApi";
 import { setPage } from "../../../../redux/subject/subjectSlice";
 import { formatDate } from "../../../../utils/formatDate";
+import SubjectForm from "../SubjectForm/SubjectForm";
 
 const columns = [
   "Subject Name",
@@ -30,7 +40,7 @@ const columns = [
   "Action",
 ];
 
-const ClassTable: FC = () => {
+const SubjectTable: FC = () => {
   const dispatch = useAppDispatch();
   const { params, page } = useAppSelector(state => state.subject);
 
@@ -38,9 +48,43 @@ const ClassTable: FC = () => {
     ...params,
   });
 
+  const [
+    deleteSubject,
+    {
+      isLoading: deleteLoading,
+      isError: isDeleteError,
+      error: deleteError,
+      isSuccess: deleteSuccess,
+    },
+  ] = useDeleteSubjectMutation();
+
+  const [itemToEdit, setItemToEdit] = useState<ISubject | undefined>();
+  const [itemToDelete, setItemToDelete] = useState<ISubject | undefined>();
+
+  const handleOpenEditModal = (data: ISubject) => setItemToEdit(data);
+
+  const handleCloseEditModal = () => setItemToEdit(undefined);
+
+  const handleCloseDeleteModal = () => setItemToDelete(undefined);
+
+  const handleOpenDeleteModal = (data: ISubject) => setItemToDelete(data);
+
+  const handleDelete = () => {
+    if (itemToDelete) {
+      deleteSubject(itemToDelete?.id);
+    }
+  };
+
   const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
     dispatch(setPage(value));
   };
+
+  useEffect(() => {
+    if (deleteSuccess) {
+      toast.success("Subject successfully deleted!");
+      handleCloseDeleteModal();
+    }
+  }, [deleteSuccess]);
 
   return isLoading ? (
     <Loader />
@@ -48,6 +92,8 @@ const ClassTable: FC = () => {
     <ErrorDisplay error={error} />
   ) : data?.results && data?.results.length > 0 ? (
     <Box>
+      {isDeleteError && <ErrorDisplay error={deleteError} />}
+
       <CustomTableContainer columns={columns}>
         <TableBody>
           {data?.results.map(row => (
@@ -61,21 +107,20 @@ const ClassTable: FC = () => {
               <TableCell>{row.code}</TableCell>
               <TableCell>{formatDate(row.created_at)}</TableCell>
               <TableCell>{formatDate(row.updated_at)}</TableCell>
-              <TableCell>{row.is_active ? "yes" : "No"}</TableCell>
+              <TableCell>
+                {row.is_active ? <DoneIcon /> : <CloseIcon />}
+              </TableCell>
               <TableCell>
                 <ButtonGroup>
                   <Tooltip title="Edit">
-                    <IconButton
-                    // onClick={() =>
-                    // }
-                    >
+                    <IconButton onClick={() => handleOpenEditModal(row)}>
                       <EditIcon />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Delete">
                     <IconButton
-                    // onClick={() =>
-                    // }
+                      onClick={() => handleOpenDeleteModal(row)}
+                      disabled={deleteLoading}
                     >
                       <DeleteIcon />
                     </IconButton>
@@ -92,10 +137,40 @@ const ClassTable: FC = () => {
         handleChange={handleChange}
         count={Math.ceil(data.count / params.limit)}
       />
+
+      {/* edit modal */}
+      {itemToEdit && (
+        <Modal
+          open={!!itemToEdit}
+          onClose={handleCloseEditModal}
+          title="Edit Batch"
+          content={
+            <SubjectForm
+              onClose={handleCloseEditModal}
+              defaultData={itemToEdit}
+            />
+          }
+          onConfirm={handleCloseEditModal}
+          onCancel={handleCloseEditModal}
+          maxWidth="sm"
+          fullWidth
+        />
+      )}
+
+      {/* delete confirm modal */}
+      {itemToDelete && (
+        <ConfirmDialogue
+          open={!!itemToDelete}
+          title="Delete Batch"
+          message={"Are you want to delete this Subject?"}
+          handleSubmit={handleDelete}
+          handleClose={handleCloseDeleteModal}
+        />
+      )}
     </Box>
   ) : (
     <ErrorDisplay severity="warning" error={"No data found!"} />
   );
 };
 
-export default ClassTable;
+export default SubjectTable;

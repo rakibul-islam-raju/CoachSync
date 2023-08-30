@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import CloseIcon from "@mui/icons-material/Close";
+import DoneIcon from "@mui/icons-material/Done";
 import PreviewIcon from "@mui/icons-material/Preview";
 import {
   ButtonGroup,
@@ -28,6 +30,7 @@ const columns = [
   "Class",
   "Start Date",
   "End Date",
+  "Active",
   "Action",
 ];
 
@@ -66,10 +69,13 @@ const BatchTable: FC = () => {
                 <TableCell>{row.fee}</TableCell>
                 <TableCell>{row.classs.name}</TableCell>
                 <TableCell>
-                  {row?.start_date ? formatDate(row.start_date) : "-"}
+                  {row?.start_date ? formatDate(row.start_date) : ""}
                 </TableCell>
                 <TableCell>
-                  {row?.end_date ? formatDate(row.end_date) : "-"}
+                  {row?.end_date ? formatDate(row.end_date) : ""}
+                </TableCell>
+                <TableCell>
+                  {row.is_active ? <DoneIcon /> : <CloseIcon />}
                 </TableCell>
                 <TableCell>
                   <ButtonGroup>

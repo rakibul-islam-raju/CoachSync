@@ -11,7 +11,7 @@ import {
   useCreateTeacherMutation,
   useUpdateTeacherMutation,
 } from "../../../../redux/teacher/teacherApi";
-import { getDirtyValues } from "../../../../utils/filterChangedFormFields";
+import { getDirtyValues } from "../../../../utils/getDirtyValues";
 import {
   ITeacherCreateFormValues,
   TeacherCreateSchema,
@@ -62,7 +62,6 @@ const TeacherForm: FC<TeacherFormProps> = ({ onClose, defaultData }) => {
         const dirtyValues = getDirtyValues(dirtyFields, data);
         updateTeacher({ id: defaultData.id, data: dirtyValues });
       }
-      // onClose();
     } else {
       createTeacher(data);
     }
@@ -83,7 +82,7 @@ const TeacherForm: FC<TeacherFormProps> = ({ onClose, defaultData }) => {
       }
       reset();
     }
-  }, [isSuccess, isEditSuccess, onClose, addAnother, reset]);
+  }, [isSuccess, isEditSuccess]);
 
   return (
     <Box

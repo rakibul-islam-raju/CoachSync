@@ -16,6 +16,7 @@ import {
   useGetBatchQuery,
 } from "../../../redux/batch/batchApi";
 import { formatDate } from "../../../utils/formatDate";
+import { formatDateTime } from "../../../utils/formatDateTime";
 import BatchForm from "../components/BatchForm/BatchForm";
 
 const breadCrumbList = [
@@ -139,6 +140,18 @@ const BatchDetails: FC = () => {
               <Typography>Start Date:</Typography>
               <Typography color={"GrayText"}>
                 {batch?.end_date ? formatDate(batch?.end_date) : "-"}
+              </Typography>
+            </ItemWrapper>
+            <ItemWrapper>
+              <Typography>Created at:</Typography>
+              <Typography color={"GrayText"}>
+                {batch?.created_at ? formatDateTime(batch?.created_at) : "-"}
+              </Typography>
+            </ItemWrapper>
+            <ItemWrapper>
+              <Typography>Updated at:</Typography>
+              <Typography color={"GrayText"}>
+                {batch?.updated_at ? formatDateTime(batch?.updated_at) : "-"}
               </Typography>
             </ItemWrapper>
           </Grid>

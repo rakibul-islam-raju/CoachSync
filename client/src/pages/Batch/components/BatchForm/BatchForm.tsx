@@ -16,6 +16,7 @@ import {
   useUpdateBatchMutation,
 } from "../../../../redux/batch/batchApi";
 import { useGetClassesQuery } from "../../../../redux/class/classApi";
+import { getDirtyValues } from "../../../../utils/getDirtyValues";
 import { IBatchCreateFormValues, batchCreateSchema } from "../batchSchema";
 
 type BatchFormProps = {
@@ -24,19 +25,24 @@ type BatchFormProps = {
 };
 
 const BatchForm: FC<BatchFormProps> = ({ onClose, defaultData }) => {
-  const { control, handleSubmit, reset, setValue } =
-    useForm<IBatchCreateFormValues>({
-      resolver: zodResolver(batchCreateSchema),
-      defaultValues: {
-        name: defaultData?.name,
-        code: defaultData?.code,
-        fee: defaultData?.fee,
-        classs: defaultData?.classs.id,
-        start_date: defaultData?.start_date,
-        end_date: defaultData?.end_date,
-        is_active: defaultData?.is_active,
-      },
-    });
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { isDirty, dirtyFields },
+  } = useForm<IBatchCreateFormValues>({
+    resolver: zodResolver(batchCreateSchema),
+    defaultValues: {
+      name: defaultData?.name,
+      code: defaultData?.code,
+      fee: defaultData?.fee,
+      classs: defaultData?.classs.id,
+      start_date: defaultData?.start_date,
+      end_date: defaultData?.end_date,
+      is_active: defaultData?.is_active,
+    },
+  });
 
   const [createBatch, { isLoading, isError, isSuccess, error }] =
     useCreateBatchMutation();
@@ -63,7 +69,10 @@ const BatchForm: FC<BatchFormProps> = ({ onClose, defaultData }) => {
 
   const onSubmit = (data: IBatchCreateFormValues) => {
     if (defaultData) {
-      updateBatch({ id: defaultData.id, data });
+      if (isDirty) {
+        const dirtyValues = getDirtyValues(dirtyFields, data);
+        updateBatch({ id: defaultData.id, data: dirtyValues });
+      }
     } else {
       createBatch(data);
     }
@@ -100,7 +109,7 @@ const BatchForm: FC<BatchFormProps> = ({ onClose, defaultData }) => {
       }
       reset();
     }
-  }, [isSuccess, isEditSuccess, onClose, addAnother, reset]);
+  }, [isSuccess, isEditSuccess]);
 
   return (
     <Box
