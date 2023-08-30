@@ -4,13 +4,21 @@ from django.db import models
 
 from .managers import CustomUserManager
 
+ADMIN = "admin"
+ADMIN_STAFF = "admin_staff"
+ORG_ADMIN = "org_admin"
+ORG_STAFF = "org_staff"
+STUDENT = "student"
+TEACHER = "teacher"
+
+
 ROLES = (
-    ("admin", "Admin"),
-    ("admin_staff", "Admin Staff"),
-    ("org_admin", "Organization Admin"),
-    ("org_staff", "Organization Staff"),
-    ("student", "student"),
-    ("teacher", "teacher"),
+    (ADMIN, "Admin"),
+    (ADMIN_STAFF, "Admin Staff"),
+    (ORG_ADMIN, "Organization Admin"),
+    (ORG_STAFF, "Organization Staff"),
+    (STUDENT, "student"),
+    (TEACHER, "teacher"),
 )
 
 
@@ -41,11 +49,15 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def save(self, *args, **kwargs):
         if not self.role and self.is_staff:
-            self.role = "AS"
+            self.role = ADMIN_STAFF
         elif not self.role and self.is_superuser:
-            self.role = "A"
+            self.role = ADMIN
 
         super().save(*args, **kwargs)
 
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
+
+    @classmethod
+    def get_non_student_teacher_users(cls):
+        return cls.objects.exclude(role__in=[STUDENT, TEACHER])

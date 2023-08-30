@@ -1,25 +1,15 @@
-import random
-import string
-from django.conf import settings
-from django.utils.html import strip_tags
 from django.shortcuts import get_object_or_404
-from django.template.loader import render_to_string
 from rest_framework.generics import (
-    ListCreateAPIView,
+    ListAPIView,
     RetrieveUpdateDestroyAPIView,
 )
-from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.filters import SearchFilter
-from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import User
-from .permissions import IsSuperUser
-from .serializers import UserSerializer, UserCreateSerializer
-
-from utilities.utils import send_email
+from .models import User, ADMIN, ADMIN_STAFF, ORG_ADMIN, ORG_STAFF
+from .permissions import IsSuperUser, IsOrgStaff
+from .serializers import UserSerializer
 
 
 class MeApiView(APIView):
@@ -33,52 +23,60 @@ class MeApiView(APIView):
         return Response(serializer.data)
 
 
-class UserListCreateView(ListCreateAPIView):
-    permission_classes = [IsSuperUser]
-    queryset = User.objects.all()
-    filter_backends = [DjangoFilterBackend, SearchFilter]
+class UserListView(ListAPIView):
+    permission_classes = [IsOrgStaff]
+    serializer_class = UserSerializer
     filterset_fields = ["is_active", "is_staff", "is_superuser", "role"]
     search_fields = ["email", "first_name", "last_name", "phone"]
+    ordering_fields = [
+        "first_name",
+        "last_name",
+        "created_at",
+        "updated_at",
+    ]
 
-    def get_serializer_class(self):
-        if self.request.method == "POST":
-            return UserCreateSerializer
-        else:
-            return UserSerializer
+    def get_queryset(self):
+        user = self.request.user
+        queryset = User.get_non_student_teacher_users()
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            email = serializer.validated_data["email"]
-            user = serializer.save(password=None, is_active=False)
+        if user.role == ORG_ADMIN or user.role == ORG_STAFF:
+            queryset.exclude(role__in=[ADMIN, ADMIN_STAFF])
 
-            # generate token for set new password
-            token = "".join(random.choices(string.ascii_letters + string.digits, k=100))
-            user.password_reset_token = token
-            user.save()
+        return queryset
 
-            # email content
-            to_email = email
-            reset_url = f"{settings.FRONTEND_BASE_URL}/set-password/{token}"
-            html_content = render_to_string(
-                "set_password_email.html", {"reset_url": reset_url, "user": user}
-            )
-            plain_message = strip_tags(html_content)
+    # def create(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     if serializer.is_valid():
+    #         email = serializer.validated_data["email"]
+    #         user = serializer.save(password=None, is_active=False)
 
-            # send email to set password
-            send_email(
-                subject="Set your password",
-                plain_message=plain_message,
-                to_email=[to_email],
-                html_content=html_content,
-            )
+    #         # generate token for set new password
+    #         token = "".join(random.choices(string.ascii_letters + string.digits, k=100))
+    #         user.password_reset_token = token
+    #         user.save()
 
-            headers = self.get_success_headers(serializer.data)
-            return Response(
-                serializer.data, status=status.HTTP_201_CREATED, headers=headers
-            )
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #         # email content
+    #         to_email = email
+    #         reset_url = f"{settings.FRONTEND_BASE_URL}/set-password/{token}"
+    #         html_content = render_to_string(
+    #             "set_password_email.html", {"reset_url": reset_url, "user": user}
+    #         )
+    #         plain_message = strip_tags(html_content)
+
+    #         # send email to set password
+    #         send_email(
+    #             subject="Set your password",
+    #             plain_message=plain_message,
+    #             to_email=[to_email],
+    #             html_content=html_content,
+    #         )
+
+    #         headers = self.get_success_headers(serializer.data)
+    #         return Response(
+    #             serializer.data, status=status.HTTP_201_CREATED, headers=headers
+    #         )
+    #     else:
+    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserDetailView(RetrieveUpdateDestroyAPIView):

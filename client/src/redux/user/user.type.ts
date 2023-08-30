@@ -13,3 +13,19 @@ export type IUserUpdateData = {
   id: number;
   user: Partial<IUser>;
 };
+
+export interface IUserParams {
+  limit: number;
+  offset: number;
+  search?: string;
+  name?: boolean;
+  code?: boolean;
+  is_active?: boolean;
+  is_staff?: boolean;
+  is_superuser?: boolean;
+  is_role?: string;
+  ordering?: string;
+
+  // Index signature for string keys
+  [key: string]: string | number | boolean | undefined;
+}

@@ -1,10 +1,10 @@
-import ScheduleIcon from "@mui/icons-material/Schedule";
-import SupervisedUserCircleIcon from "@mui/icons-material/SupervisedUserCircle";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import Diversity3Icon from "@mui/icons-material/Diversity3";
 import PeopleIcon from "@mui/icons-material/People";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-import Diversity3Icon from "@mui/icons-material/Diversity3";
+import ScheduleIcon from "@mui/icons-material/Schedule";
+import SupervisedUserCircleIcon from "@mui/icons-material/SupervisedUserCircle";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
-import DashboardIcon from "@mui/icons-material/Dashboard";
 
 export type IMenu = {
   icon: React.ReactNode;
@@ -51,6 +51,6 @@ export const MAIN_MENUS: IMenu[] = [
   {
     icon: <SupervisedUserCircleIcon />,
     label: "Employe",
-    path: "/employes",
+    path: "/employees",
   },
 ];

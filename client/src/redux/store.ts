@@ -1,14 +1,16 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { apiSlice } from "./api/apiSlice";
 import authReducer from "./auth/authSlice";
+import batchReducer from "./batch/batchSlice";
 import classReducer from "./class/classSlice";
 import subjectReducer from "./subject/subjectSlice";
 import teacherReducer from "./teacher/teacherSlice";
-import batchReducer from "./batch/batchSlice";
+import userReducer from "./user/userSlice";
 
 const rootReducer = combineReducers({
   [apiSlice.reducerPath]: apiSlice.reducer,
   auth: authReducer,
+  user: userReducer,
   class: classReducer,
   subject: subjectReducer,
   teacher: teacherReducer,

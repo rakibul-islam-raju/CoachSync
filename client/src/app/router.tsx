@@ -7,6 +7,7 @@ import Batch from "../pages/Batch/Batch";
 import BatchDetails from "../pages/Batch/BatchDetails/BatchDetails";
 import Class from "../pages/Class/Class";
 import Dashboard from "../pages/Dashboard/Dashboard";
+import Employee from "../pages/Employee/Employee";
 import ForgetPassword from "../pages/ForgetPassword/ForgetPassword";
 import Login from "../pages/Login/Login";
 import Subject from "../pages/Subject/Subject";
@@ -44,6 +45,10 @@ export const router = createBrowserRouter([
           {
             path: "subjects",
             element: <Subject />,
+          },
+          {
+            path: "employees",
+            element: <Employee />,
           },
         ],
       },

@@ -1,5 +1,17 @@
 from rest_framework.permissions import BasePermission
 
+from .models import ADMIN, ADMIN_STAFF, ORG_ADMIN, ORG_STAFF
+
+
+class IsRequesteduser(BasePermission):
+    """
+    Allows access only to owner of the object.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        if request.user == obj:
+            return True
+
 
 class IsSuperUser(BasePermission):
     """
@@ -10,29 +22,40 @@ class IsSuperUser(BasePermission):
         return request.user and request.user.is_superuser
 
 
-class IsRequesteduser(BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.user == obj:
+class IsAdminStaff(BasePermission):
+    """
+    Allows access only to admin staff and above.
+    """
+
+    def has_permission(self, request, view):
+        if request.user.role == ADMIN_STAFF or request.user.role == ADMIN:
             return True
 
 
 class IsOrgAdmin(BasePermission):
-    def has_permission(self, request, view):
-        if request.user.role == "OA":
-            return True
+    """
+    Allows access only to organization admin and above.
+    """
 
-
-class IsOrgAdmin(BasePermission):
     def has_permission(self, request, view):
-        if request.user.role == "OA" or request.user.is_staff:
+        if (
+            request.user.role == ORG_ADMIN
+            or request.user.role == ADMIN_STAFF
+            or request.user.role == ADMIN
+        ):
             return True
 
 
 class IsOrgStaff(BasePermission):
+    """
+    Allows access only to organization staff and above.
+    """
+
     def has_permission(self, request, view):
         if (
-            request.user.role == "OS"
-            or request.user.role == "OA"
-            or request.user.is_staff
+            request.user.role == ORG_STAFF
+            or request.user.role == ORG_ADMIN
+            or request.user.role == ADMIN_STAFF
+            or request.user.role == ADMIN
         ):
             return True

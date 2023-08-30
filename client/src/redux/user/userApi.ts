@@ -1,5 +1,6 @@
 import { apiSlice } from "../api/apiSlice";
 import { setUserInfo } from "../auth/authSlice";
+import { IUserParams } from "./user.type";
 
 export const userApi = apiSlice.injectEndpoints({
   endpoints: builder => ({
@@ -17,7 +18,26 @@ export const userApi = apiSlice.injectEndpoints({
         }
       },
     }),
+
+    getUsers: builder.query<IPaginatedData<IUser[]>, IUserParams>({
+      query: params => ({
+        url: `users`,
+        params,
+      }),
+      providesTags: result => {
+        if (result) {
+          return [
+            ...result.results.map(({ id }) => ({
+              type: "User" as const,
+              id,
+            })),
+            "User",
+          ];
+        }
+        return ["User"];
+      },
+    }),
   }),
 });
 
-export const { useGetMeQuery } = userApi;
+export const { useGetMeQuery, useGetUsersQuery } = userApi;
