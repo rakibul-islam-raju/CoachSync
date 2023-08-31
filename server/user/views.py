@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.generics import (
-    ListAPIView,
+    ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
 from rest_framework.views import APIView
@@ -23,7 +23,7 @@ class MeApiView(APIView):
         return Response(serializer.data)
 
 
-class UserListView(ListAPIView):
+class UserListCreateView(ListCreateAPIView):
     permission_classes = [IsOrgStaff]
     serializer_class = UserSerializer
     filterset_fields = ["is_active", "is_staff", "is_superuser", "role"]

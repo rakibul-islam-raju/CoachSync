@@ -1,11 +1,13 @@
 import { Button, Divider, Stack, Typography } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import CustomBreadcrumb from "../../components/CustomBreadcrumb";
+import Modal from "../../components/Modal/Modal";
 import PageContainer from "../../components/PageContainer/PageContainer";
 import SearchInput from "../../components/forms/SearchInput";
 import { useDebounce } from "../../hooks/useDebounce";
 import { useAppDispatch, useAppSelector } from "../../redux/hook";
 import { removeParam, setParams } from "../../redux/subject/subjectSlice";
+import EmployeeForm from "./components/EmployeeForm/EmployeeForm";
 import EmployeeTable from "./components/EmployeeTable/EmployeeTable";
 
 const breadCrumbList = [
@@ -14,8 +16,8 @@ const breadCrumbList = [
     path: "/",
   },
   {
-    label: "Subject",
-    path: "/subjects",
+    label: "Employee",
+    path: "/employees",
   },
 ];
 
@@ -24,15 +26,15 @@ export default function Employee() {
 
   const { params } = useAppSelector(state => state.user);
 
-  //   const [createSub, setCreateSub] = useState<boolean>(false);
+  const [createEmp, setCreateEmp] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>(params.search ?? "");
 
   // get debounced search term
   const debouncedSearchTerm = useDebounce(searchText, 500);
 
-  //   const handleOpenCreateModal = () => setCreateSub(true);
+  const handleOpenCreateModal = () => setCreateEmp(true);
 
-  //   const handleCloseCreateModal = () => setCreateSub(false);
+  const handleCloseCreateModal = () => setCreateEmp(false);
 
   const handleCancelSearch = () => {
     setSearchText("");
@@ -67,16 +69,14 @@ export default function Employee() {
             flexWrap={"wrap"}
           >
             <SearchInput
+              label="Search Employee"
               value={searchText}
               handleChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setSearchText(e.target.value)
               }
               handleCancelSearch={handleCancelSearch}
             />
-            <Button
-              variant="contained"
-              // onClick={handleOpenCreateModal}
-            >
+            <Button variant="contained" onClick={handleOpenCreateModal}>
               Add Employee
             </Button>
           </Stack>
@@ -86,18 +86,18 @@ export default function Employee() {
       </PageContainer>
 
       {/* create modal */}
-      {/* {createSub && (
+      {createEmp && (
         <Modal
-          open={createSub}
+          open={createEmp}
           onClose={handleCloseCreateModal}
           title="Create New Subject"
-          content={<SubjectForm onClose={handleCloseCreateModal} />}
+          content={<EmployeeForm onClose={handleCloseCreateModal} />}
           onConfirm={handleCloseCreateModal}
           onCancel={handleCloseCreateModal}
           maxWidth="sm"
           fullWidth
         />
-      )} */}
+      )}
     </>
   );
 }

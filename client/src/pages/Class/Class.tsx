@@ -69,6 +69,7 @@ export default function Class() {
             flexWrap={"wrap"}
           >
             <SearchInput
+              label="Search Class"
               value={searchText}
               handleChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setSearchText(e.target.value)

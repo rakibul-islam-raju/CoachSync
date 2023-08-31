@@ -21,7 +21,7 @@ interface IUser {
   is_active: boolean;
   is_staff: boolean;
   is_superuser: boolean;
-  role?: string;
+  role: string;
   created_at: Date;
   updated_at: Date;
 }

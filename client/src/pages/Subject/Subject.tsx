@@ -69,6 +69,7 @@ export default function Subject() {
             flexWrap={"wrap"}
           >
             <SearchInput
+              label="Search Subject"
               value={searchText}
               handleChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setSearchText(e.target.value)

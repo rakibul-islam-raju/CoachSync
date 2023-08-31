@@ -69,6 +69,7 @@ export default function Batch() {
             flexWrap={"wrap"}
           >
             <SearchInput
+              label="Search Batch"
               value={searchText}
               handleChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setSearchText(e.target.value)

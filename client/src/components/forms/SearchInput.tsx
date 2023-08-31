@@ -6,12 +6,14 @@ import TextInput from "./TextInput";
 
 type SearchInputProps = {
   value: string;
+  label: string;
   handleChange: (e: ChangeEvent<HTMLInputElement>) => void;
   handleCancelSearch: () => void;
 };
 
 const SearchInput: FC<SearchInputProps> = ({
   value,
+  label,
   handleChange,
   handleCancelSearch,
 }) => {
@@ -19,7 +21,7 @@ const SearchInput: FC<SearchInputProps> = ({
     <TextInput
       value={value}
       onChange={handleChange}
-      label="Search Batch"
+      label={label}
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">
