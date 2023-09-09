@@ -1,7 +1,8 @@
-import Breadcrumbs from "@mui/material/Breadcrumbs";
-import { Box, Link, Typography, styled } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
 import AccountTreeIcon from "@mui/icons-material/AccountTree";
+import { Box, Link, Typography, styled } from "@mui/material";
+import Breadcrumbs from "@mui/material/Breadcrumbs";
+import { FC } from "react";
+import { Link as RouterLink } from "react-router-dom";
 
 const BreadcrumbWrapper = styled(Box)(() => ({
   display: "flex",
@@ -21,7 +22,7 @@ type Props = {
   list: Menu[];
 };
 
-export default function CustomBreadcrumb({ list }: Props) {
+const CustomBreadcrumb: FC<Props> = ({ list }) => {
   return (
     <BreadcrumbWrapper>
       <AccountTreeIcon color="primary" />
@@ -41,4 +42,6 @@ export default function CustomBreadcrumb({ list }: Props) {
       </Breadcrumbs>
     </BreadcrumbWrapper>
   );
-}
+};
+
+export default CustomBreadcrumb;

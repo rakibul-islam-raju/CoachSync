@@ -4,7 +4,6 @@ import { FC } from "react";
 
 type CustomButtonProps = ButtonProps & {
   variant?: "contained" | "outlined" | "text";
-  color?: string;
 };
 
 const StyledButton = styled(Button)<CustomButtonProps>(

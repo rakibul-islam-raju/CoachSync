@@ -1,9 +1,12 @@
-import { CircularProgress, Stack } from "@mui/material";
+import { CircularProgress, CircularProgressProps, Stack } from "@mui/material";
+import { FC } from "react";
 
-export default function Loader() {
+const Loader: FC<CircularProgressProps> = ({ color = "primary", ...rest }) => {
   return (
     <Stack direction={"row"} justifyContent={"center"}>
-      <CircularProgress color="primary" />
+      <CircularProgress {...rest} color={color} />
     </Stack>
   );
-}
+};
+
+export default Loader;
