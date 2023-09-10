@@ -23,11 +23,11 @@ import Loader from "../../../../components/Loader";
 import Modal from "../../../../components/Modal/Modal";
 import { mapRole } from "../../../../helpers/mapRoles";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hook";
-import { setPage } from "../../../../redux/subject/subjectSlice";
 import {
   useDeleteUserMutation,
   useGetUsersQuery,
 } from "../../../../redux/user/userApi";
+import { setPage } from "../../../../redux/user/userSlice";
 import EmployeeForm from "../EmployeeForm/EmployeeForm";
 
 const columns = [
@@ -42,7 +42,7 @@ const columns = [
 
 const EmployeeTable: FC = () => {
   const dispatch = useAppDispatch();
-  const { params, page } = useAppSelector(state => state.subject);
+  const { params, page } = useAppSelector(state => state.user);
 
   const { data, isLoading, isError, error } = useGetUsersQuery({
     ...params,
@@ -144,7 +144,7 @@ const EmployeeTable: FC = () => {
         <Modal
           open={!!itemToEdit}
           onClose={handleCloseEditModal}
-          title="Edit Batch"
+          title="Edit Employee"
           content={
             <EmployeeForm
               onClose={handleCloseEditModal}

@@ -23,7 +23,7 @@ export interface IUserParams {
   is_active?: boolean;
   is_staff?: boolean;
   is_superuser?: boolean;
-  is_role?: string;
+  role?: string;
   ordering?: string;
 
   // Index signature for string keys

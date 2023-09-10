@@ -1,6 +1,10 @@
+import AddIcon from "@mui/icons-material/Add";
+import TuneIcon from "@mui/icons-material/Tune";
 import { Button, Divider, Stack, Typography } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import CustomBreadcrumb from "../../components/CustomBreadcrumb";
+import { CustomButton } from "../../components/CustomButton/CustomButton";
+import CustomDrawer from "../../components/CustomDrawer/CustomDrawer";
 import Modal from "../../components/Modal/Modal";
 import PageContainer from "../../components/PageContainer/PageContainer";
 import SearchInput from "../../components/forms/SearchInput";
@@ -9,6 +13,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/hook";
 import { removeParam, setParams } from "../../redux/subject/subjectSlice";
 import EmployeeForm from "./components/EmployeeForm/EmployeeForm";
 import EmployeeTable from "./components/EmployeeTable/EmployeeTable";
+import EmployeeFilterForm from "./components/FilterForm/EmployeeFilterForm";
 
 const breadCrumbList = [
   {
@@ -28,9 +33,14 @@ export default function Employee() {
 
   const [createEmp, setCreateEmp] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>(params.search ?? "");
+  const [openDrawer, setOpenDrawer] = useState<boolean>(false);
 
   // get debounced search term
   const debouncedSearchTerm = useDebounce(searchText, 500);
+
+  const handleOpenDrawer = () => setOpenDrawer(true);
+
+  const handleCloseDrawer = () => setOpenDrawer(false);
 
   const handleOpenCreateModal = () => setCreateEmp(true);
 
@@ -65,7 +75,7 @@ export default function Employee() {
           <Stack
             direction={"row"}
             alignItems={"center"}
-            gap={2}
+            gap={1}
             flexWrap={"wrap"}
           >
             <SearchInput
@@ -77,11 +87,15 @@ export default function Employee() {
               handleCancelSearch={handleCancelSearch}
             />
             <Button variant="contained" onClick={handleOpenCreateModal}>
-              Add Employee
+              <AddIcon />
             </Button>
+            <CustomButton variant="contained" onClick={handleOpenDrawer}>
+              <TuneIcon />
+            </CustomButton>
           </Stack>
         </Stack>
         <Divider sx={{ my: 3 }} />
+
         <EmployeeTable />
       </PageContainer>
 
@@ -96,6 +110,16 @@ export default function Employee() {
           onCancel={handleCloseCreateModal}
           maxWidth="sm"
           fullWidth
+        />
+      )}
+
+      {/* Drawer */}
+      {openDrawer && (
+        <CustomDrawer
+          open={openDrawer}
+          content={<EmployeeFilterForm />}
+          onClose={handleCloseDrawer}
+          onOpen={handleOpenDrawer}
         />
       )}
     </>

@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import Loader from "../components/Loader";
+import { default as LoaderComponent } from "../components/Loader";
 
-const meta: Meta<typeof Loader> = {
+const meta: Meta<typeof LoaderComponent> = {
   title: "Loader",
-  component: Loader,
+  component: LoaderComponent,
   parameters: {
     layout: "centered",
   },
@@ -20,7 +20,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Base: Story = {
+export const Loader: Story = {
   args: {
     color: "primary",
   },
