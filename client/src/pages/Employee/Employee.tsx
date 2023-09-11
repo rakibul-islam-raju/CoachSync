@@ -1,6 +1,6 @@
 import AddIcon from "@mui/icons-material/Add";
 import TuneIcon from "@mui/icons-material/Tune";
-import { Button, Divider, Stack, Typography } from "@mui/material";
+import { Divider, Stack, Typography } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import CustomBreadcrumb from "../../components/CustomBreadcrumb";
 import { CustomButton } from "../../components/CustomButton/CustomButton";
@@ -86,9 +86,9 @@ export default function Employee() {
               }
               handleCancelSearch={handleCancelSearch}
             />
-            <Button variant="contained" onClick={handleOpenCreateModal}>
+            <CustomButton variant="contained" onClick={handleOpenCreateModal}>
               <AddIcon />
-            </Button>
+            </CustomButton>
             <CustomButton variant="contained" onClick={handleOpenDrawer}>
               <TuneIcon />
             </CustomButton>

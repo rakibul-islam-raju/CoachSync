@@ -1,12 +1,17 @@
-import { Button, Divider, Stack, Typography } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import TuneIcon from "@mui/icons-material/Tune";
+import { Divider, Stack, Typography } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import CustomBreadcrumb from "../../components/CustomBreadcrumb";
+import { CustomButton } from "../../components/CustomButton/CustomButton";
+import CustomDrawer from "../../components/CustomDrawer/CustomDrawer";
 import Modal from "../../components/Modal/Modal";
 import PageContainer from "../../components/PageContainer/PageContainer";
 import SearchInput from "../../components/forms/SearchInput";
 import { useDebounce } from "../../hooks/useDebounce";
 import { useAppDispatch, useAppSelector } from "../../redux/hook";
 import { removeParam, setParams } from "../../redux/subject/subjectSlice";
+import SubjectFilterForm from "./components/FilterForm/SubjectFilterForm";
 import SubjectForm from "./components/SubjectForm/SubjectForm";
 import SubjectTable from "./components/SubjectTable/SubjectTable";
 
@@ -28,9 +33,14 @@ export default function Subject() {
 
   const [createSub, setCreateSub] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>(params.search ?? "");
+  const [openDrawer, setOpenDrawer] = useState<boolean>(false);
 
   // get debounced search term
   const debouncedSearchTerm = useDebounce(searchText, 500);
+
+  const handleOpenDrawer = () => setOpenDrawer(true);
+
+  const handleCloseDrawer = () => setOpenDrawer(false);
 
   const handleOpenCreateModal = () => setCreateSub(true);
 
@@ -65,7 +75,7 @@ export default function Subject() {
           <Stack
             direction={"row"}
             alignItems={"center"}
-            gap={2}
+            gap={1}
             flexWrap={"wrap"}
           >
             <SearchInput
@@ -76,9 +86,12 @@ export default function Subject() {
               }
               handleCancelSearch={handleCancelSearch}
             />
-            <Button variant="contained" onClick={handleOpenCreateModal}>
-              Add Subject
-            </Button>
+            <CustomButton variant="contained" onClick={handleOpenCreateModal}>
+              <AddIcon />
+            </CustomButton>
+            <CustomButton variant="contained" onClick={handleOpenDrawer}>
+              <TuneIcon />
+            </CustomButton>
           </Stack>
         </Stack>
         <Divider sx={{ my: 3 }} />
@@ -96,6 +109,16 @@ export default function Subject() {
           onCancel={handleCloseCreateModal}
           maxWidth="sm"
           fullWidth
+        />
+      )}
+
+      {/* Drawer */}
+      {openDrawer && (
+        <CustomDrawer
+          open={openDrawer}
+          content={<SubjectFilterForm />}
+          onClose={handleCloseDrawer}
+          onOpen={handleOpenDrawer}
         />
       )}
     </>

@@ -1,19 +1,19 @@
-export const employeeOrderings: { label: string; value: string }[] = [
+export const subjectOrderings: { label: string; value: string }[] = [
   {
-    label: "First Name (ASC)",
-    value: "first_name",
+    label: "Name (ASC)",
+    value: "name",
   },
   {
-    label: "First Name (DESC)",
-    value: "-first_name",
+    label: "Name (DESC)",
+    value: "-name",
   },
   {
-    label: "Last Name (ASC)",
-    value: "last_name",
+    label: "Code (ASC)",
+    value: "code",
   },
   {
-    label: "Last Name (DESC)",
-    value: "-last_name",
+    label: "Code (DESC)",
+    value: "-code",
   },
   {
     label: "Created At (ASC)",

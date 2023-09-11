@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { ChangeEvent, FC, FormEvent, useState } from "react";
 import { CustomButton } from "../../../../components/CustomButton/CustomButton";
-import { employeeFilterList } from "../../../../constants/employee.constants";
+import { employeeOrderings } from "../../../../constants/employee.constants";
 import { getVisibleRoles } from "../../../../helpers/mapRoles";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hook";
 import { IUserParams } from "../../../../redux/user/user.type";
@@ -57,7 +57,7 @@ const EmployeeFilterForm: FC = () => {
             value={args?.ordering}
             size="small"
           >
-            {employeeFilterList.map(item => (
+            {employeeOrderings.map(item => (
               <MenuItem key={item.value} value={item.value}>
                 {item.label}
               </MenuItem>

@@ -119,8 +119,10 @@ class BatchListCreateView(ListCreateAPIView):
     ordering_fields = [
         "name",
         "code",
+        "start_date",
+        "end_date",
         "classs__name",
-        "class_numeric",
+        "classs__numeric",
         "created_at",
         "updated_at",
     ]

@@ -31,7 +31,7 @@ export interface IBatchParams {
   search?: string;
   name?: boolean;
   code?: boolean;
-  classs?: boolean;
+  classs?: number;
   is_active?: boolean;
   ordering?: string;
 

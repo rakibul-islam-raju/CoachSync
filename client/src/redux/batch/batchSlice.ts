@@ -49,8 +49,14 @@ const batchSlice = createSlice({
         (Number(state.page) - 1) * Number(state.params.limit);
       state.params.offset = offset;
     },
+
+    resetParams(state) {
+      state.params = { ...initialState.params };
+      state.page = initialState.page;
+    },
   },
 });
 
-export const { setParams, removeParam, setPage } = batchSlice.actions;
+export const { setParams, removeParam, setPage, resetParams } =
+  batchSlice.actions;
 export default batchSlice.reducer;
