@@ -3,6 +3,7 @@ import { apiSlice } from "./api/apiSlice";
 import authReducer from "./auth/authSlice";
 import batchReducer from "./batch/batchSlice";
 import classReducer from "./class/classSlice";
+import studentReducer from "./student/studentSlice";
 import subjectReducer from "./subject/subjectSlice";
 import teacherReducer from "./teacher/teacherSlice";
 import userReducer from "./user/userSlice";
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   subject: subjectReducer,
   teacher: teacherReducer,
   batch: batchReducer,
+  student: studentReducer,
 });
 
 const store = configureStore({

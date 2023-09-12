@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Controller } from "react-hook-form";
-import TextInput from "./TextInput";
 import { InputProps } from "@mui/material";
 import { HTMLInputTypeAttribute } from "react";
+import { Controller } from "react-hook-form";
+import TextInput from "./TextInput";
 
 type FormInputProps = {
   name: string;
@@ -11,6 +11,7 @@ type FormInputProps = {
   type: HTMLInputTypeAttribute;
   placeholder?: string;
   inputProps?: InputProps;
+  multiline?: boolean;
 };
 
 export const FormInputText = ({

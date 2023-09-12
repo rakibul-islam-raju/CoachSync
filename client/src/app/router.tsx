@@ -10,6 +10,8 @@ import Dashboard from "../pages/Dashboard/Dashboard";
 import Employee from "../pages/Employee/Employee";
 import ForgetPassword from "../pages/ForgetPassword/ForgetPassword";
 import Login from "../pages/Login/Login";
+import Student from "../pages/Student/Student";
+import StudentDetails from "../pages/Student/StudentDetails";
 import Subject from "../pages/Subject/Subject";
 import Teacher from "../pages/Teacher/Teacher";
 
@@ -33,6 +35,14 @@ export const router = createBrowserRouter([
           {
             path: "batches/:batchId/:batchName",
             element: <BatchDetails />,
+          },
+          {
+            path: "students",
+            element: <Student />,
+          },
+          {
+            path: "students/:studentId",
+            element: <StudentDetails />,
           },
           {
             path: "teachers",

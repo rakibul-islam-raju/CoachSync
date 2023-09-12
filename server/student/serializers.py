@@ -1,9 +1,14 @@
+from django.utils.html import strip_tags
+from django.template.loader import render_to_string
+
 from rest_framework import serializers
 
-from .models import Student
+from .models import Student, Enroll
 
 from user.serializers import ExtendedUserSerializer
+from organization.serializers import BatchSerializer
 from user.models import User
+from utilities.utils import send_email
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -12,6 +17,19 @@ class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = "__all__"
+
+    def to_representation(self, instance):
+        # Get the default representation (dictionary) of the student
+        representation = super().to_representation(instance)
+
+        # Fetch and serialize the related enrollments
+        enrollments = Enroll.objects.filter(student=instance)
+        enrollments_data = EnrollSerializer(enrollments, many=True).data
+
+        # Include the serialized enrollments in the representation
+        representation["enrolls"] = enrollments_data
+
+        return representation
 
 
 class CreateStudentSerializer(serializers.ModelSerializer):
@@ -27,44 +45,71 @@ class CreateStudentSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # Create user
         user_data = validated_data.pop("user")
-        user_data["role"] = "S"
-        new_user = User.objects.create(**user_data)
+        user_data["role"] = "student"
 
         try:
+            # create new user
+            new_user = User(**user_data)
+            new_user.save()
             # Create the Student instance and associate it with the new user
-            new_student = Student.objects.create(user=new_user, **validated_data)
+            new_student = Student(user=new_user, **validated_data)
+            new_student.save()
+
+            # send registration confirmation email to the user
+            email_subject = "Student registration"
+            message = (
+                "Contratulations!"
+                "\nYou have been registered as a student."
+                "\nRegards\nCoachSync"
+            )
+            html_content = render_to_string(
+                "registration_confirmation.html", {"user": new_user, "message": message}
+            )
+            plain_message = strip_tags(html_content)
+            send_email(
+                subject=email_subject,
+                to_email=[new_user.email],
+                html_content=html_content,
+                plain_message=plain_message,
+            )
         except Exception as e:
-            # If an exception occurs during Student creation, rollback the transaction
+            # If an exception occurs during user or Teacher creation, rollback the transaction
             new_user.delete()
+            new_student.delete()
             raise e
 
         return new_student
 
-
-class EditStudentSerializer(serializers.ModelSerializer):
-    user = ExtendedUserSerializer()
-
-    class Meta:
-        model = Student
-        fields = "__all__"
-        extra_kwargs = {
-            "created_by": {"read_only": True},
-        }
-
     def update(self, instance, validated_data):
-        # Update user data if available in validated_data
-        if "user" in validated_data:
-            user_data = validated_data.pop("user")
-            user_data["role"] = "S"
-            user_serializer = ExtendedUserSerializer(
-                instance.user, data=user_data, partial=True
-            )
-            user_serializer.is_valid(raise_exception=True)
-            user_serializer.save()
+        user_data = validated_data.pop("user")
 
-        # Update Student instance
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
+        try:
+            # Update user data
+            user_instance = instance.user
+            for attr, value in user_data.items():
+                setattr(user_instance, attr, value)
+            user_instance.save()
+
+            # Update student instance
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+            instance.save()
+
+        except Exception as e:
+            raise e
 
         return instance
+
+
+class EnrollSerializer(serializers.ModelSerializer):
+    student_data = StudentSerializer()
+    batch_data = BatchSerializer()
+
+    class Meta:
+        model = Enroll
+        fileds = "__all__"
+        extra_kwargs = {
+            "created_by": {"read_only": True},
+            "student_data": {"read_only": True},
+            "batch_data": {"read_only": True},
+        }

@@ -1,7 +1,9 @@
+from datetime import date
+
 from django.db import models
 
 from user.models import User
-from organization.models import Classs, Batch
+from organization.models import Batch
 from utilities.models import BaseModel
 
 BLOOD_GROUPS = (
@@ -18,11 +20,8 @@ BLOOD_GROUPS = (
 
 class Student(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    classs = models.ForeignKey(
-        Classs, on_delete=models.SET_NULL, null=True, related_name="students"
-    )
-    batch = models.ForeignKey(
-        Batch, on_delete=models.SET_NULL, null=True, related_name="students"
+    student_id = models.CharField(
+        max_length=50, db_index=True, unique=True, blank=True, null=False
     )
     emergency_contact_no = models.CharField(max_length=11, null=True)
     date_of_birth = models.DateField(null=True)
@@ -38,7 +37,22 @@ class Student(BaseModel):
         ordering = ["-id"]
 
     def __str__(self):
-        return self.user.email
+        return self.student_id
+
+    def save(self, *args, **kwargs):
+        if not self.student_id:
+            # Generate a unique student ID based on current date and UUID
+            today = date.today()
+            formatted_year = str(today.year)[-2:]
+            formatted_date = today.strftime("%m%d")
+
+            # Check if the instance has an ID (has been saved to the database)
+            if self.id is None:
+                super().save(*args, **kwargs)  # Save the instance to get an ID
+
+            self.student_id = f"ST{self.id}-{formatted_year}{formatted_date}"
+
+        super().save(*args, **kwargs)
 
 
 class Enroll(BaseModel):
@@ -63,7 +77,7 @@ class Enroll(BaseModel):
         ordering = ["-id"]
 
     def __str__(self):
-        return self.student
+        return self.student.student_id
 
 
 class Transaction(BaseModel):
