@@ -11,6 +11,7 @@ from .serializers import (
     StudentSerializer,
     CreateStudentSerializer,
     EnrollSerializer,
+    EnrollCreateSerializer,
 )
 
 from user.permissions import IsOrgStaff
@@ -57,9 +58,8 @@ class StudentDetailView(RetrieveUpdateDestroyAPIView):
         return StudentSerializer
 
 
-class EnrollListView(ListCreateAPIView):
+class EnrollListCreateView(ListCreateAPIView):
     permission_classes = [IsOrgStaff]
-    serializer_class = EnrollSerializer
     queryset = Enroll.objects.all()
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = ["batch"]
@@ -75,6 +75,11 @@ class EnrollListView(ListCreateAPIView):
         "updated_at",
     ]
 
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return EnrollCreateSerializer
+        return EnrollSerializer
+
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
 
@@ -82,4 +87,9 @@ class EnrollListView(ListCreateAPIView):
 class EnrollDetailView(RetrieveUpdateAPIView):
     permission_classes = [IsOrgStaff]
     queryset = Enroll.objects.all()
-    serializer_class = EnrollSerializer
+    # serializer_class = EnrollSerializer
+
+    def get_serializer_class(self):
+        if self.request.method == "PUT" or self.request.method == "PATCH":
+            return EnrollCreateSerializer
+        return EnrollSerializer

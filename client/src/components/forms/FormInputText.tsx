@@ -12,6 +12,8 @@ type FormInputProps = {
   placeholder?: string;
   inputProps?: InputProps;
   multiline?: boolean;
+  helperText?: string | null;
+  disabled?: boolean;
 };
 
 export const FormInputText = ({
@@ -21,6 +23,7 @@ export const FormInputText = ({
   type,
   placeholder,
   inputProps,
+  helperText,
   ...rest
 }: FormInputProps) => {
   return (
@@ -30,7 +33,7 @@ export const FormInputText = ({
       render={({ field: { onChange, value }, fieldState: { error } }) => (
         <TextInput
           {...rest}
-          helperText={error ? error.message : null}
+          helperText={error ? error.message : helperText ? helperText : null}
           error={!!error}
           onChange={
             type === "number" ? e => onChange(+e.target.value) : onChange

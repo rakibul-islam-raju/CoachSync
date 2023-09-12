@@ -11,6 +11,14 @@ from user.models import User
 from utilities.utils import send_email
 
 
+class EnrollSerializerForStudentDetails(serializers.ModelSerializer):
+    batch = BatchSerializer()
+
+    class Meta:
+        model = Enroll
+        fields = "__all__"
+
+
 class StudentSerializer(serializers.ModelSerializer):
     user = ExtendedUserSerializer()
 
@@ -22,9 +30,11 @@ class StudentSerializer(serializers.ModelSerializer):
         # Get the default representation (dictionary) of the student
         representation = super().to_representation(instance)
 
-        # Fetch and serialize the related enrollments
-        enrollments = Enroll.objects.filter(student=instance)
-        enrollments_data = EnrollSerializer(enrollments, many=True).data
+        # # Fetch and serialize the related enrollments
+        enrollments = Enroll.objects.filter(student=instance.id)
+        enrollments_data = EnrollSerializerForStudentDetails(
+            enrollments, many=True
+        ).data
 
         # Include the serialized enrollments in the representation
         representation["enrolls"] = enrollments_data
@@ -101,15 +111,36 @@ class CreateStudentSerializer(serializers.ModelSerializer):
         return instance
 
 
-class EnrollSerializer(serializers.ModelSerializer):
-    student_data = StudentSerializer()
-    batch_data = BatchSerializer()
-
+class EnrollCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enroll
-        fileds = "__all__"
+        fields = [
+            "student",
+            "batch",
+            "total_amount",
+            "discount_amount",
+            "paid_amount",
+            "reference_by",
+        ]
         extra_kwargs = {
             "created_by": {"read_only": True},
             "student_data": {"read_only": True},
             "batch_data": {"read_only": True},
         }
+
+    def validate(self, data):
+        exists = Enroll.objects.filter(
+            student=data.get("student"), batch=data.get("batch")
+        )
+        if exists:
+            raise serializers.ValidationError("You have already enrolled in this batch")
+        return data
+
+
+class EnrollSerializer(serializers.ModelSerializer):
+    student = StudentSerializer()
+    batch = BatchSerializer()
+
+    class Meta:
+        model = Enroll
+        fields = "__all__"

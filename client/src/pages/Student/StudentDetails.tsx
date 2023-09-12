@@ -1,5 +1,6 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { Box, BoxProps, Divider, Grid, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FC, useEffect, useState } from "react";
@@ -16,6 +17,8 @@ import {
   useGetStudentQuery,
 } from "../../redux/student/studentApi";
 import { formatDateTime } from "../../utils/formatDateTime";
+import StudentEnrollments from "./components/StudentEnrollments/StudentEnrollments";
+import EnrollForm from "./components/StudentForm/EnrollForm";
 import StudentForm from "./components/StudentForm/StudentForm";
 
 const breadCrumbList = [
@@ -58,6 +61,11 @@ const StudentDetails: FC = () => {
 
   const [editStudent, setEditStudent] = useState<boolean>(false);
   const [deleteStudentModal, setDeleteStudentModal] = useState<boolean>(false);
+  const [enrollModal, setEnrollModal] = useState<boolean>(false);
+
+  const handleOpenEnrollModal = () => setEnrollModal(true);
+
+  const handleCloseEnrollModal = () => setEnrollModal(false);
 
   const handleOpenCreateModal = () => setEditStudent(true);
 
@@ -169,12 +177,45 @@ const StudentDetails: FC = () => {
             </ItemWrapper>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="h5" gutterBottom>
-              Students
-            </Typography>
+            <Stack direction={"row"} justifyContent={"space-between"} mb={2}>
+              <Typography variant="h5" gutterBottom>
+                Enrollments
+              </Typography>
+              <CustomButton
+                size="small"
+                variant="contained"
+                onClick={handleOpenEnrollModal}
+              >
+                <PersonAddIcon sx={{ mr: 1 }} /> New Enroll
+              </CustomButton>
+            </Stack>
+            {student ? (
+              <StudentEnrollments studentData={student} />
+            ) : (
+              <ErrorDisplay severity="warning" error={"No Data found!"} />
+            )}
           </Grid>
         </Grid>
       </PageContainer>
+
+      {/* enroll modal */}
+      {enrollModal && (
+        <Modal
+          open={enrollModal}
+          onClose={handleCloseEnrollModal}
+          title="New Enrollment"
+          content={
+            <EnrollForm
+              onClose={handleCloseEnrollModal}
+              studentData={student}
+            />
+          }
+          onConfirm={handleCloseCreateModal}
+          onCancel={handleCloseCreateModal}
+          maxWidth="sm"
+          fullWidth
+        />
+      )}
 
       {/* create modal */}
       {editStudent && student && (

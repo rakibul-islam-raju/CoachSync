@@ -5,9 +5,9 @@ export interface IEnroll extends IEntityGenericProps {
   id: number;
   student: IStudent;
   batch: IBatch;
-  total_amount: string;
-  discount_amount: string;
-  paid_amount: string;
+  total_amount: number;
+  discount_amount: number;
+  paid_amount: number;
   reference_by: IUser;
 }
 
@@ -15,9 +15,9 @@ export interface IEnrollCreateReqData {
   student: number;
   batch: number;
   total_amount: number;
-  discount_amount: number;
+  discount_amount?: number | null;
   paid_amount: number;
-  reference_by: number;
+  reference_by?: number | null;
 }
 
 export interface IEnrollUpdateReqData {

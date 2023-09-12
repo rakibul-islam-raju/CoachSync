@@ -1,21 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Controller } from "react-hook-form";
 import {
-  Select,
-  MenuItem,
   FormControl,
-  InputLabel,
   FormHelperText,
+  InputLabel,
+  InputProps,
+  MenuItem,
+  Select,
 } from "@mui/material";
-import { InputProps } from "@mui/material";
 import { FC } from "react";
+import { Controller } from "react-hook-form";
 
 type FormSelectInputProps = {
   name: string;
   control: any;
-  label: string;
+  label?: string;
   options?: { value: string | number; label: string }[];
   inputProps?: InputProps;
+  size?: "small" | "medium";
 };
 
 const FormSelectInput: FC<FormSelectInputProps> = ({
@@ -32,7 +33,7 @@ const FormSelectInput: FC<FormSelectInputProps> = ({
       control={control}
       render={({ field: { onChange, value }, fieldState: { error } }) => (
         <FormControl fullWidth error={!!error}>
-          <InputLabel>{label}</InputLabel>
+          {label && <InputLabel>{label}</InputLabel>}
           <Select
             {...rest}
             {...inputProps}

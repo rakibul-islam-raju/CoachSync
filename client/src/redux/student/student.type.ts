@@ -1,4 +1,4 @@
-import { IEnroll } from "../enroll/enroll.type";
+import { IBatch } from "../batch/batch.type";
 
 export interface IStudent extends IEntityGenericProps {
   id: number;
@@ -11,8 +11,18 @@ export interface IStudent extends IEntityGenericProps {
   description: string;
 }
 
+export interface IEnrollsForStudentDetails extends IEntityGenericProps {
+  id: number;
+  student: number;
+  batch: IBatch;
+  total_amount: number;
+  discount_amount: number;
+  paid_amount: number;
+  reference_by: IUser;
+}
+
 export interface IStudentDetails extends IStudent {
-  enrolls: IEnroll;
+  enrolls: IEnrollsForStudentDetails[];
 }
 
 export interface IStudentCreateReqData {
