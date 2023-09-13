@@ -6,12 +6,13 @@ from rest_framework.generics import (
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import Student, Enroll
+from .models import Student, Enroll, Transaction
 from .serializers import (
     StudentSerializer,
     CreateStudentSerializer,
     EnrollSerializer,
     EnrollCreateSerializer,
+    TransactionSerializer,
 )
 
 from user.permissions import IsOrgStaff
@@ -87,9 +88,19 @@ class EnrollListCreateView(ListCreateAPIView):
 class EnrollDetailView(RetrieveUpdateAPIView):
     permission_classes = [IsOrgStaff]
     queryset = Enroll.objects.all()
-    # serializer_class = EnrollSerializer
 
     def get_serializer_class(self):
         if self.request.method == "PUT" or self.request.method == "PATCH":
             return EnrollCreateSerializer
         return EnrollSerializer
+
+
+class TransactionListCreateView(ListCreateAPIView):
+    permission_classes = [IsOrgStaff]
+    queryset = Transaction.objects.all()
+    serializer_class = TransactionSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_fields = ["enroll"]
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)

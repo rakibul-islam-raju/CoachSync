@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 
 from rest_framework import serializers
 
-from .models import Student, Enroll
+from .models import Student, Enroll, Transaction
 
 from user.serializers import ExtendedUserSerializer
 from organization.serializers import BatchSerializer
@@ -115,17 +115,15 @@ class EnrollCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enroll
         fields = [
+            "id",
             "student",
             "batch",
             "total_amount",
             "discount_amount",
-            "paid_amount",
             "reference_by",
         ]
         extra_kwargs = {
-            "created_by": {"read_only": True},
-            "student_data": {"read_only": True},
-            "batch_data": {"read_only": True},
+            "id": {"read_only": True},
         }
 
     def validate(self, data):
@@ -143,4 +141,10 @@ class EnrollSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Enroll
+        fields = "__all__"
+
+
+class TransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transaction
         fields = "__all__"

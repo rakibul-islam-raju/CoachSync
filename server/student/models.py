@@ -61,8 +61,7 @@ class Enroll(BaseModel):
     )
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE, related_name="enrolls")
     total_amount = models.PositiveIntegerField()
-    discount_amount = models.PositiveIntegerField(default=0)
-    paid_amount = models.PositiveIntegerField(default=0)
+    discount_amount = models.PositiveIntegerField(default=0, blank=True, null=True)
     reference_by = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -83,6 +82,7 @@ class Enroll(BaseModel):
 class Transaction(BaseModel):
     amount = models.PositiveIntegerField()
     enroll = models.ForeignKey(Enroll, on_delete=models.CASCADE)
+    remark = models.CharField(max_length=100, blank=True, null=True)
 
     objects = models.Manager()
 
