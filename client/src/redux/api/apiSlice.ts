@@ -107,6 +107,7 @@ export const apiSlice = createApi({
     "SubjectSearch",
     "User",
     "Enroll",
+    "Transaction",
   ],
   endpoints: () => ({}),
 });

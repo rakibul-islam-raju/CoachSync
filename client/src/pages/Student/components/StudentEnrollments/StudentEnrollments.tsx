@@ -17,7 +17,7 @@ type Props = {
 
 const StudentEnrollments: FC<Props> = ({ studentData }) => {
   return (
-    <Box sx={{ maxHeight: 1000, overflowY: "auto" }}>
+    <Box sx={{ maxHeight: 565, overflowY: "auto" }}>
       <Stack gap={1}>
         {studentData.enrolls.map(enroll => (
           <Card key={enroll.id} variant="outlined">

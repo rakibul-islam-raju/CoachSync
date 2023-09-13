@@ -3,9 +3,11 @@ import { apiSlice } from "./api/apiSlice";
 import authReducer from "./auth/authSlice";
 import batchReducer from "./batch/batchSlice";
 import classReducer from "./class/classSlice";
+import enrollReducer from "./enroll/enrollSlice";
 import studentReducer from "./student/studentSlice";
 import subjectReducer from "./subject/subjectSlice";
 import teacherReducer from "./teacher/teacherSlice";
+import transactionReducer from "./transaction/transactionSlice";
 import userReducer from "./user/userSlice";
 
 const rootReducer = combineReducers({
@@ -17,6 +19,8 @@ const rootReducer = combineReducers({
   teacher: teacherReducer,
   batch: batchReducer,
   student: studentReducer,
+  enroll: enrollReducer,
+  transaction: transactionReducer,
 });
 
 const store = configureStore({

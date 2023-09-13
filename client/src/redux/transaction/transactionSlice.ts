@@ -1,14 +1,14 @@
 /* eslint-disable no-prototype-builtins */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RESULTS_PER_PAGE } from "../../config";
-import { IEnrollParams } from "./enroll.type";
+import { ITransactionParams } from "./transaction.type";
 
-type EnrollState = {
-  params: IEnrollParams;
+type TransactionState = {
+  params: ITransactionParams;
   page: number;
 };
 
-const initialState: EnrollState = {
+const initialState: TransactionState = {
   params: {
     limit: RESULTS_PER_PAGE,
     offset: 0,
@@ -16,11 +16,11 @@ const initialState: EnrollState = {
   page: 1,
 };
 
-const enrollSlice = createSlice({
-  name: "enroll",
+const transactionSlice = createSlice({
+  name: "transaction",
   initialState,
   reducers: {
-    setParams(state, action: PayloadAction<Partial<IEnrollParams>>) {
+    setParams(state, action: PayloadAction<Partial<ITransactionParams>>) {
       if ("search" in action.payload && action.payload.search !== undefined) {
         state.params = {
           ...state.params,
@@ -58,5 +58,5 @@ const enrollSlice = createSlice({
 });
 
 export const { setParams, removeParam, setPage, resetParams } =
-  enrollSlice.actions;
-export default enrollSlice.reducer;
+  transactionSlice.actions;
+export default transactionSlice.reducer;

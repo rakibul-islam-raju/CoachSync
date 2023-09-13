@@ -17,8 +17,8 @@ import {
   useGetStudentQuery,
 } from "../../redux/student/studentApi";
 import { formatDateTime } from "../../utils/formatDateTime";
+import EnrollToTransactionSwitch from "./components/EnrollToTransactionSwitch";
 import StudentEnrollments from "./components/StudentEnrollments/StudentEnrollments";
-import EnrollForm from "./components/StudentForm/EnrollForm";
 import StudentForm from "./components/StudentForm/StudentForm";
 
 const breadCrumbList = [
@@ -205,7 +205,7 @@ const StudentDetails: FC = () => {
           onClose={handleCloseEnrollModal}
           title="New Enrollment"
           content={
-            <EnrollForm
+            <EnrollToTransactionSwitch
               onClose={handleCloseEnrollModal}
               studentData={student}
             />

@@ -17,7 +17,6 @@ export interface IEnrollsForStudentDetails extends IEntityGenericProps {
   batch: IBatch;
   total_amount: number;
   discount_amount: number;
-  paid_amount: number;
   reference_by: IUser;
 }
 

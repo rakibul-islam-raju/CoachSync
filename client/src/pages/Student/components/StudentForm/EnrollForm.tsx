@@ -23,22 +23,26 @@ import {
 } from "../StudentSchema";
 
 type EnrollFormProps = {
-  onClose: () => void;
   studentData?: IStudent;
   defaultData?: IEnroll;
+  onClose?: () => void;
+  handleShowTransaction?: () => void;
+  handleSetEnroll?: (data: IEnroll) => void;
 };
 
 const EnrollForm: FC<EnrollFormProps> = ({
   onClose,
   studentData,
   defaultData,
+  handleSetEnroll,
+  handleShowTransaction,
 }) => {
   const navigate = useNavigate();
   const {
     control,
     handleSubmit,
     reset,
-    formState: { isDirty, dirtyFields, errors },
+    formState: { isDirty, dirtyFields },
     setValue,
     watch,
   } = useForm<IStudentEnrollFormValues>({
@@ -48,15 +52,14 @@ const EnrollForm: FC<EnrollFormProps> = ({
       batch: defaultData?.batch.id,
       total_amount: defaultData?.total_amount,
       discount_amount: defaultData?.discount_amount,
-      paid_amount: defaultData?.paid_amount,
       reference_by: defaultData?.reference_by.id,
     },
   });
 
-  console.log("errors =>", errors);
-
-  const [createEnroll, { isLoading, isError, isSuccess, error }] =
-    useCreateEnrollMutation();
+  const [
+    createEnroll,
+    { data: createdData, isLoading, isError, isSuccess, error },
+  ] = useCreateEnrollMutation();
 
   const [
     updateEnroll,
@@ -72,11 +75,10 @@ const EnrollForm: FC<EnrollFormProps> = ({
   const { data: users } = useGetUsersQuery({ limit: 50, offset: 0 });
   const [due, setDue] = useState<number | null>(null);
 
-  const [batch, total_amount, discount_amount, paid_amount] = watch([
+  const [batch, total_amount, discount_amount] = watch([
     "batch",
     "total_amount",
     "discount_amount",
-    "paid_amount",
   ]);
 
   console.log("batch =>", batch);
@@ -106,34 +108,26 @@ const EnrollForm: FC<EnrollFormProps> = ({
         });
       }
     }
-
-    // calculate due amount
-    if (total_amount) {
-      let left;
-      const total = Number(total_amount) - Number(discount_amount || 0);
-      if (!paid_amount) {
-        left = total;
-      } else {
-        left = total - Number(paid_amount);
-      }
-      setDue(left);
-      console.log("left =>", left);
-    }
-  }, [setValue, batch, total_amount, discount_amount, paid_amount]);
+  }, [setValue, batch]);
 
   useEffect(() => {
     if (isSuccess && studentData) {
+      if (createdData && handleSetEnroll && handleShowTransaction) {
+        handleSetEnroll(createdData);
+        handleShowTransaction();
+      }
       toast.success("Student successfully enrolled!");
       navigate(`/students/${studentData.student_id}`);
-      onClose();
+      onClose && onClose();
       reset();
     }
+
     if (isEditSuccess) {
       toast.success("Enroll successfully updated!");
-      onClose();
+      onClose && onClose();
       reset();
     }
-  }, [isSuccess]);
+  }, [isSuccess, isEditSuccess]);
 
   return (
     <Box
@@ -169,16 +163,6 @@ const EnrollForm: FC<EnrollFormProps> = ({
           control={control}
           placeholder="Enter Discount Amount"
           label="Discount Amount"
-        />
-      </FormControl>
-      <FormControl fullWidth>
-        <FormInputText
-          name="paid_amount"
-          type="number"
-          control={control}
-          placeholder="Enter Paid Amount"
-          label="Paid Amount"
-          helperText={due ? `Due: ${due}` : null}
         />
       </FormControl>
       {/* TODO: autocomplete */}

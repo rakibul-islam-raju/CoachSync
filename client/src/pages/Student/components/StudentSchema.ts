@@ -26,8 +26,15 @@ export const StudentEnrollSchema = z.object({
   batch: z.number({ required_error: "Batch is required" }),
   total_amount: z.number({ required_error: "Total amount is required" }),
   discount_amount: z.number().optional().nullable(),
-  paid_amount: z.number({ required_error: "Paid amount is required" }),
   reference_by: z.number().optional().nullable(),
 });
 
 export type IStudentEnrollFormValues = z.infer<typeof StudentEnrollSchema>;
+
+export const TransactionSchema = z.object({
+  enroll: z.number(),
+  amount: z.number({ required_error: "Amount is required" }),
+  remark: z.string().optional().nullable(),
+});
+
+export type ITransactionFormValues = z.infer<typeof TransactionSchema>;

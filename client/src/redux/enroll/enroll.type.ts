@@ -7,7 +7,6 @@ export interface IEnroll extends IEntityGenericProps {
   batch: IBatch;
   total_amount: number;
   discount_amount: number;
-  paid_amount: number;
   reference_by: IUser;
 }
 
@@ -16,7 +15,6 @@ export interface IEnrollCreateReqData {
   batch: number;
   total_amount: number;
   discount_amount?: number | null;
-  paid_amount: number;
   reference_by?: number | null;
 }
 
