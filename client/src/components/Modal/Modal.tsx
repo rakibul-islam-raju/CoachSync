@@ -67,14 +67,16 @@ const Modal: FC<Props> = ({
       </DialogTitle>
       <Divider />
       <DialogContent>{content}</DialogContent>
-      <DialogActions>
-        <Button onClick={onCancel} color="primary">
-          {cancelText}
-        </Button>
-        <Button onClick={onConfirm} color="primary">
-          {confirmText}
-        </Button>
-      </DialogActions>
+      {(onCancel || onConfirm) && (
+        <DialogActions>
+          <Button onClick={onCancel} color="primary">
+            {cancelText}
+          </Button>
+          <Button onClick={onConfirm} color="primary">
+            {confirmText}
+          </Button>
+        </DialogActions>
+      )}
     </Dialog>
   );
 };

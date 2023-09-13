@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, FormControl } from "@mui/material";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -73,13 +73,9 @@ const EnrollForm: FC<EnrollFormProps> = ({
 
   const { data: batches } = useGetBatchesQuery({ limit: 50, offset: 0 });
   const { data: users } = useGetUsersQuery({ limit: 50, offset: 0 });
-  const [due, setDue] = useState<number | null>(null);
+  // const [due, setDue] = useState<number | null>(null);
 
-  const [batch, total_amount, discount_amount] = watch([
-    "batch",
-    "total_amount",
-    "discount_amount",
-  ]);
+  const [batch] = watch(["batch", "total_amount", "discount_amount"]);
 
   console.log("batch =>", batch);
 

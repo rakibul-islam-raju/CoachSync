@@ -20,7 +20,9 @@ const CustomTableContainer: FC<TableProps> = ({ columns, children }) => {
         <TableHead>
           <TableRow>
             {columns.map((column, index) => (
-              <TableCell key={index}>{column}</TableCell>
+              <TableCell key={index} sx={{ fontWeight: "bold" }}>
+                {column}
+              </TableCell>
             ))}
           </TableRow>
         </TableHead>

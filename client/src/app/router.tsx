@@ -11,7 +11,7 @@ import Employee from "../pages/Employee/Employee";
 import ForgetPassword from "../pages/ForgetPassword/ForgetPassword";
 import Login from "../pages/Login/Login";
 import Student from "../pages/Student/Student";
-import StudentDetails from "../pages/Student/StudentDetails";
+import StudentDetails from "../pages/Student/StudentDetails/StudentDetails";
 import Subject from "../pages/Subject/Subject";
 import Teacher from "../pages/Teacher/Teacher";
 

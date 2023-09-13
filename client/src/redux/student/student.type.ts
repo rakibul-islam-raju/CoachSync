@@ -18,6 +18,7 @@ export interface IEnrollsForStudentDetails extends IEntityGenericProps {
   total_amount: number;
   discount_amount: number;
   reference_by: IUser;
+  total_paid?: string;
 }
 
 export interface IStudentDetails extends IStudent {

@@ -17,7 +17,7 @@ export interface ITransactionParams {
   limit: number;
   offset: number;
   search?: string;
-  enroll?: string;
+  enroll?: number;
   ordering?: string;
 
   // Index signature for string keys

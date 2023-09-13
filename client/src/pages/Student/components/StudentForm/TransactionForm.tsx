@@ -7,13 +7,14 @@ import { CustomButton } from "../../../../components/CustomButton/CustomButton";
 import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
 import { FormInputText } from "../../../../components/forms/FormInputText";
 import { IEnroll } from "../../../../redux/enroll/enroll.type";
+import { IEnrollsForStudentDetails } from "../../../../redux/student/student.type";
 import { ITransactionCreateReqData } from "../../../../redux/transaction/transaction.type";
 import { useCreategetTransactionMutation } from "../../../../redux/transaction/transactionApi";
 import { ITransactionFormValues, TransactionSchema } from "../StudentSchema";
 
 type TransactionFormProps = {
   onClose: () => void;
-  enrollData?: IEnroll;
+  enrollData?: IEnroll | IEnrollsForStudentDetails;
 };
 
 const TransactionForm: FC<TransactionFormProps> = ({ onClose, enrollData }) => {

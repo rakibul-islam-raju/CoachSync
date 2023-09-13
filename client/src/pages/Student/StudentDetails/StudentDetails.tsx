@@ -5,21 +5,21 @@ import { Box, BoxProps, Divider, Grid, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FC, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import ConfirmDialogue from "../../components/ConfirmDialogue/ConfirmDialogue";
-import CustomBreadcrumb from "../../components/CustomBreadcrumb";
-import { CustomButton } from "../../components/CustomButton/CustomButton";
-import ErrorDisplay from "../../components/ErrorDisplay/ErrorDisplay";
-import Loader from "../../components/Loader";
-import Modal from "../../components/Modal/Modal";
-import PageContainer from "../../components/PageContainer/PageContainer";
+import ConfirmDialogue from "../../../components/ConfirmDialogue/ConfirmDialogue";
+import CustomBreadcrumb from "../../../components/CustomBreadcrumb";
+import { CustomButton } from "../../../components/CustomButton/CustomButton";
+import ErrorDisplay from "../../../components/ErrorDisplay/ErrorDisplay";
+import Loader from "../../../components/Loader";
+import Modal from "../../../components/Modal/Modal";
+import PageContainer from "../../../components/PageContainer/PageContainer";
 import {
   useDeleteStudentMutation,
   useGetStudentQuery,
-} from "../../redux/student/studentApi";
-import { formatDateTime } from "../../utils/formatDateTime";
-import EnrollToTransactionSwitch from "./components/EnrollToTransactionSwitch";
-import StudentEnrollments from "./components/StudentEnrollments/StudentEnrollments";
-import StudentForm from "./components/StudentForm/StudentForm";
+} from "../../../redux/student/studentApi";
+import { formatDateTime } from "../../../utils/formatDateTime";
+import EnrollToTransactionSwitch from "../components/EnrollToTransactionSwitch";
+import StudentEnrollments from "../components/StudentEnrollments/StudentEnrollments";
+import StudentForm from "../components/StudentForm/StudentForm";
 
 const breadCrumbList = [
   {

@@ -12,11 +12,15 @@ from utilities.utils import send_email
 
 
 class EnrollSerializerForStudentDetails(serializers.ModelSerializer):
+    total_paid = serializers.SerializerMethodField()
     batch = BatchSerializer()
 
     class Meta:
         model = Enroll
         fields = "__all__"
+
+    def get_total_paid(self, object):
+        return object.total_paid
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -136,12 +140,16 @@ class EnrollCreateSerializer(serializers.ModelSerializer):
 
 
 class EnrollSerializer(serializers.ModelSerializer):
+    total_paid = serializers.SerializerMethodField()
     student = StudentSerializer()
     batch = BatchSerializer()
 
     class Meta:
         model = Enroll
         fields = "__all__"
+
+    def get_total_paid(self, object):
+        return object.total_paid
 
 
 class TransactionSerializer(serializers.ModelSerializer):

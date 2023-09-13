@@ -1,6 +1,8 @@
 from datetime import date
+from functools import cached_property
 
 from django.db import models
+from django.db.models import Sum
 
 from user.models import User
 from organization.models import Batch
@@ -78,10 +80,18 @@ class Enroll(BaseModel):
     def __str__(self):
         return self.student.student_id
 
+    @cached_property
+    def total_paid(self):
+        return (
+            self.transactions.aggregate(total_amount=Sum("amount"))["total_amount"] or 0
+        )
+
 
 class Transaction(BaseModel):
-    amount = models.PositiveIntegerField()
-    enroll = models.ForeignKey(Enroll, on_delete=models.CASCADE)
+    amount = models.IntegerField()
+    enroll = models.ForeignKey(
+        Enroll, on_delete=models.CASCADE, related_name="transactions"
+    )
     remark = models.CharField(max_length=100, blank=True, null=True)
 
     objects = models.Manager()
