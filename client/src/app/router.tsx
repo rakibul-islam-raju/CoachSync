@@ -14,6 +14,8 @@ import Student from "../pages/Student/Student";
 import StudentDetails from "../pages/Student/StudentDetails/StudentDetails";
 import Subject from "../pages/Subject/Subject";
 import Teacher from "../pages/Teacher/Teacher";
+import AddSchedule from "../pages/schedule/AddSchedule/AddSchedule";
+import Schedule from "../pages/schedule/schedule";
 
 export const router = createBrowserRouter([
   // protected routes
@@ -27,6 +29,14 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <Dashboard />,
+          },
+          {
+            path: "schedules",
+            element: <Schedule />,
+          },
+          {
+            path: "add-schedules",
+            element: <AddSchedule />,
           },
           {
             path: "batches",

@@ -86,6 +86,8 @@ class Exam(BaseModel):
     pass_mark = models.PositiveBigIntegerField()
     total_mark = models.PositiveBigIntegerField()
 
+    # TODO: auto create schedule after creating an exam
+
     objects = models.Manager()
 
     class Meta:
@@ -111,4 +113,4 @@ class Schedule(BaseModel):
         ordering = ["-id"]
 
     def __str__(self):
-        return self.name
+        return self.title

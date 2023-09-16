@@ -5,6 +5,7 @@ from rest_framework.generics import (
 
 from user.permissions import IsOrgStaff
 
+from .filters import ScheduleFilter
 from .models import Subject, Teacher, Classs, Batch, ExamType, Exam, Schedule
 from .serializers import (
     SubjectSerializer,
@@ -187,7 +188,18 @@ class ExamDetailView(RetrieveUpdateDestroyAPIView):
 
 class ScheduleListCreateView(ListCreateAPIView):
     permission_classes = [IsOrgStaff]
+    filterset_class = ScheduleFilter
     queryset = Schedule.objects.all()
+    search_fields = [
+        "name",
+        "code",
+        "classs__name",
+        "classs__numeric",
+    ]
+    ordering_fields = [
+        "date" "created_at",
+        "updated_at",
+    ]
 
     def get_serializer_class(self):
         if self.request.method == "POST":

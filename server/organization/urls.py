@@ -34,6 +34,6 @@ urlpatterns = [
     path("exam-types/<pk>", ExamTypeDetailView.as_view(), name="exam-types-details"),
     path("exams", ExamListCreateView.as_view(), name="exam-list"),
     path("exams/<pk>", ExamDetailView.as_view(), name="exam-details"),
-    path("schedule", ScheduleListCreateView.as_view(), name="schedule-list"),
-    path("schedule/<pk>", ScheduleDetailView.as_view(), name="schedule-details"),
+    path("schedules", ScheduleListCreateView.as_view(), name="schedule-list"),
+    path("schedules/<pk>", ScheduleDetailView.as_view(), name="schedule-details"),
 ]

@@ -4,6 +4,7 @@ import authReducer from "./auth/authSlice";
 import batchReducer from "./batch/batchSlice";
 import classReducer from "./class/classSlice";
 import enrollReducer from "./enroll/enrollSlice";
+import scheduleReducer from "./schedule/scheduleSlice";
 import studentReducer from "./student/studentSlice";
 import subjectReducer from "./subject/subjectSlice";
 import teacherReducer from "./teacher/teacherSlice";
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   student: studentReducer,
   enroll: enrollReducer,
   transaction: transactionReducer,
+  schedule: scheduleReducer,
 });
 
 const store = configureStore({

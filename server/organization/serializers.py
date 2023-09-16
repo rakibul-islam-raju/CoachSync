@@ -172,6 +172,7 @@ class ScheduleCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule
         fields = [
+            "id",
             "title",
             "subject",
             "teacher",
@@ -181,6 +182,17 @@ class ScheduleCreateSerializer(serializers.ModelSerializer):
             "time",
             "exam",
         ]
+
+    def validate(self, data):
+        exam = data.get("exam")
+        teacher = data.get("teacher")
+
+        if not exam and not teacher:
+            raise serializers.ValidationError(
+                "Teacher is required when no exam is provided."
+            )
+
+        return data
 
 
 class ScheduleSerializer(serializers.ModelSerializer):
