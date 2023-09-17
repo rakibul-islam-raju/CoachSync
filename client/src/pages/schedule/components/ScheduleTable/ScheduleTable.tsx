@@ -27,6 +27,7 @@ import {
 } from "../../../../redux/schedule/scheduleApi";
 import { setPage } from "../../../../redux/schedule/scheduleSlice";
 import { formatDate } from "../../../../utils/formatDate";
+import { formatTime } from "../../../../utils/formatTime";
 import ScheduleAddForm from "../scheduleForm/scheduleAddForm";
 
 const columns = [
@@ -49,7 +50,7 @@ const ScheduleTable: FC = () => {
   });
 
   const [
-    deleteSubject,
+    deleteSchedule,
     {
       isLoading: deleteLoading,
       isError: isDeleteError,
@@ -71,7 +72,7 @@ const ScheduleTable: FC = () => {
 
   const handleDelete = () => {
     if (itemToDelete) {
-      deleteSubject(itemToDelete?.id);
+      deleteSchedule(itemToDelete?.id);
     }
   };
 
@@ -115,7 +116,7 @@ const ScheduleTable: FC = () => {
                 <TableCell>{row.duration}</TableCell>
               </TableCell>
               <TableCell>
-                <TableCell>{row.time}</TableCell>
+                <TableCell>{formatTime(row.time, false)}</TableCell>
               </TableCell>
               <TableCell>{formatDate(row.date)}</TableCell>
 
@@ -152,7 +153,7 @@ const ScheduleTable: FC = () => {
         <Modal
           open={!!itemToEdit}
           onClose={handleCloseEditModal}
-          title="Edit Batch"
+          title="Edit Schedule"
           content={<ScheduleAddForm />}
           onConfirm={handleCloseEditModal}
           onCancel={handleCloseEditModal}
@@ -165,8 +166,8 @@ const ScheduleTable: FC = () => {
       {itemToDelete && (
         <ConfirmDialogue
           open={!!itemToDelete}
-          title="Delete Batch"
-          message={"Are you want to delete this Subject?"}
+          title="Delete Schedule"
+          message={"Are you want to delete this Schedule?"}
           handleSubmit={handleDelete}
           handleClose={handleCloseDeleteModal}
         />

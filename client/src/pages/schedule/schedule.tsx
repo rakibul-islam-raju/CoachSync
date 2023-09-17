@@ -10,7 +10,7 @@ import PageContainer from "../../components/PageContainer/PageContainer";
 import SearchInput from "../../components/forms/SearchInput";
 import { useDebounce } from "../../hooks/useDebounce";
 import { useAppDispatch, useAppSelector } from "../../redux/hook";
-import { removeParam, setParams } from "../../redux/subject/subjectSlice";
+import { removeParam, setParams } from "../../redux/schedule/scheduleSlice";
 import ScheduleFilterForm from "./components/FilterForm/ScheduleFilterForm";
 import ScheduleTable from "./components/ScheduleTable/ScheduleTable";
 

@@ -1,12 +1,13 @@
 /* eslint-disable no-prototype-builtins */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
 import { RESULTS_PER_PAGE } from "../../config";
 import { IScheduleDemoData, IScheduleParams } from "./schedule.type";
 
 type ScheduleState = {
   params: IScheduleParams;
   page: number;
-  newSchedules: IScheduleDemoData[];
+  draftSchedules: IScheduleDemoData[];
 };
 
 const initialState: ScheduleState = {
@@ -15,7 +16,7 @@ const initialState: ScheduleState = {
     offset: 0,
   },
   page: 1,
-  newSchedules: [],
+  draftSchedules: [],
 };
 
 const scheduleSlice = createSlice({
@@ -57,14 +58,29 @@ const scheduleSlice = createSlice({
       state.page = initialState.page;
     },
 
-    addNewSchedule(state, action: PayloadAction<IScheduleDemoData>) {
-      state.newSchedules.push(action.payload);
+    addDraftSchedule(state, action: PayloadAction<IScheduleDemoData>) {
+      const data = action.payload;
+      const existed = state.draftSchedules.find(
+        i =>
+          i.batch.id === data.batch.id &&
+          i.date === data.date &&
+          i.time === data.time,
+      );
+      if (existed) {
+        toast.warning("Schedule already occupied");
+      } else {
+        state.draftSchedules.unshift(data);
+      }
     },
 
-    removeNewSchedule(state, action: PayloadAction<string>) {
-      state.newSchedules = state.newSchedules.filter(
+    removeDraftSchedule(state, action: PayloadAction<string>) {
+      state.draftSchedules = state.draftSchedules.filter(
         i => i.uuid !== action.payload,
       );
+    },
+
+    clearDraftSchedules(state) {
+      state.draftSchedules = [];
     },
   },
 });
@@ -74,7 +90,8 @@ export const {
   removeParam,
   setPage,
   resetParams,
-  addNewSchedule,
-  removeNewSchedule,
+  addDraftSchedule,
+  removeDraftSchedule,
+  clearDraftSchedules,
 } = scheduleSlice.actions;
 export default scheduleSlice.reducer;

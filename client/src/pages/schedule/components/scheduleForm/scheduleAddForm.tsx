@@ -12,7 +12,8 @@ import { IBatch } from "../../../../redux/batch/batch.type";
 import { useGetBatchesQuery } from "../../../../redux/batch/batchApi";
 import { IExam } from "../../../../redux/exam/exam.type";
 import { useAppDispatch } from "../../../../redux/hook";
-import { addNewSchedule } from "../../../../redux/schedule/scheduleSlice";
+import { IScheduleDemoData } from "../../../../redux/schedule/schedule.type";
+import { addDraftSchedule } from "../../../../redux/schedule/scheduleSlice";
 import { ISubject } from "../../../../redux/subject/subject.type";
 import { useGetSubjectsQuery } from "../../../../redux/subject/subjectApi";
 import { ITeacher } from "../../../../redux/teacher/teacher.type";
@@ -22,12 +23,29 @@ import {
   scheduleCreateSchema,
 } from "../scheduleSchema";
 
-const ScheduleAddForm: FC = () => {
+type Props = {
+  editData?: IScheduleDemoData | null;
+  handleRemoveFromEdit?: () => void;
+};
+
+const ScheduleAddForm: FC<Props> = ({ editData, handleRemoveFromEdit }) => {
   const dispatch = useAppDispatch();
 
-  const { control, handleSubmit, setValue, watch } =
+  // Use the useForm hook with default values
+  const { control, handleSubmit, setValue, watch, reset } =
     useForm<IScheduleCreateFormValues>({
       resolver: zodResolver(scheduleCreateSchema),
+      defaultValues: {
+        // Initialize default values based on editData
+        title: editData?.title || "",
+        batch: editData?.batch?.id || undefined,
+        subject: editData?.subject?.id || undefined,
+        teacher: editData?.teacher?.id || undefined,
+        exam: editData?.exam?.id || undefined,
+        duration: editData?.duration || undefined,
+        date: editData?.date || undefined,
+        time: editData?.time || undefined,
+      },
     });
 
   const { data: batches } = useGetBatchesQuery({ limit: 50, offset: 0 });
@@ -48,6 +66,20 @@ const ScheduleAddForm: FC = () => {
     "exam",
   ]);
 
+  // Initialize the form with default values
+  useEffect(() => {
+    reset({
+      title: editData?.title || "",
+      batch: editData?.batch?.id || undefined,
+      subject: editData?.subject?.id || undefined,
+      teacher: editData?.teacher?.id || undefined,
+      exam: editData?.exam?.id || undefined,
+      duration: editData?.duration || undefined,
+      date: editData?.date || undefined,
+      time: editData?.time || undefined,
+    });
+  }, [editData, reset]);
+
   const onSubmit = (data: IScheduleCreateFormValues) => {
     if (selectedBatch && selectedSub) {
       const newData = {
@@ -62,7 +94,8 @@ const ScheduleAddForm: FC = () => {
         duration: data.duration,
       };
 
-      dispatch(addNewSchedule(newData));
+      dispatch(addDraftSchedule(newData));
+      if (editData && handleRemoveFromEdit) handleRemoveFromEdit();
     }
   };
 
@@ -76,30 +109,38 @@ const ScheduleAddForm: FC = () => {
 
   const timeChangeHandler = (t: Dayjs | null) => {
     if (t) {
-      const formattedDate = t.format("hh:mm:a");
-      setTime(dayjs(date));
-      setValue("time", formattedDate);
+      const formattedTime = t.format("HH:mm:ss.SSSSSS");
+      setTime(dayjs(t));
+      setValue("time", formattedTime);
     }
   };
 
   useEffect(() => {
     if (batch) {
       const nbatch = batches?.results.find(b => b.id === batch);
-      setSelectedBatch(nbatch ?? null);
+      setSelectedBatch(nbatch || null);
     }
     if (subject) {
       const sub = subjects?.results.find(b => b.id === subject);
-      setSelectedSub(sub ?? null);
+      setSelectedSub(sub || null);
     }
     if (teacher) {
       const nteacher = teachers?.results.find(b => b.id === teacher);
-      setSelectedTeacher(nteacher ?? null);
+      setSelectedTeacher(nteacher || null);
     }
     if (exam) {
       // const xm = teachers?.results.find(b => b.id === teacher);
       // setSelectedExam(xm ?? null);
     }
-  }, [batch, subject, teacher, exam]);
+  }, [
+    batch,
+    subject,
+    teacher,
+    exam,
+    batches?.results,
+    subjects?.results,
+    teachers?.results,
+  ]);
 
   return (
     <Box

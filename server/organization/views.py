@@ -1,3 +1,5 @@
+from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
@@ -206,8 +208,17 @@ class ScheduleListCreateView(ListCreateAPIView):
             return ScheduleCreateSerializer
         return ScheduleSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+    # def perform_create(self, serializer):
+    #     serializer.save(created_by=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        serializer = ScheduleCreateSerializer(data=request.data, many=True)
+
+        if serializer.is_valid():
+            serializer.save(created_by=self.request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ScheduleDetailView(RetrieveUpdateDestroyAPIView):

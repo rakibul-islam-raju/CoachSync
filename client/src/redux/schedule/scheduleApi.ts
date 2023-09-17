@@ -29,8 +29,8 @@ export const scheduleApi = apiSlice.injectEndpoints({
       },
     }),
 
-    createSchedule: builder.mutation<ISchedule, IScheduleCreateReqData>({
-      query: (data: IScheduleCreateReqData) => ({
+    createSchedule: builder.mutation<ISchedule[], IScheduleCreateReqData[]>({
+      query: (data: IScheduleCreateReqData[]) => ({
         url: `organizations/schedules`,
         method: "POST",
         body: data,
@@ -48,7 +48,7 @@ export const scheduleApi = apiSlice.injectEndpoints({
               param,
               (draft: IPaginatedData<ISchedule[]> | undefined) => {
                 if (draft) {
-                  draft.results.unshift({ ...data });
+                  draft.results = [...data, ...draft.results];
                 }
               },
             ),

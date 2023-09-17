@@ -24,7 +24,7 @@ import {
 
 const ScheduleFilterForm: FC = () => {
   const dispatch = useAppDispatch();
-  const { params } = useAppSelector(state => state.subject);
+  const { params } = useAppSelector(state => state.schedule);
 
   const [args, setArgs] = useState<Partial<IScheduleParams> | null>(params);
 
@@ -44,7 +44,7 @@ const ScheduleFilterForm: FC = () => {
   return (
     <Box>
       <Typography variant="h5" gutterBottom>
-        Filter Subjects
+        Filter Schedule
       </Typography>
       <Divider sx={{ my: 2 }} />
       <Stack gap={1} component={"form"} onSubmit={handleSubmit}>

@@ -110,7 +110,7 @@ class Schedule(BaseModel):
     exam = models.ForeignKey(Exam, models.SET_NULL, blank=True, null=True)
 
     class Meta:
-        ordering = ["-id"]
+        ordering = ["date", "time"]
 
     def __str__(self):
         return self.title
