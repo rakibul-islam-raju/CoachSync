@@ -154,7 +154,13 @@ const ScheduleTable: FC = () => {
           open={!!itemToEdit}
           onClose={handleCloseEditModal}
           title="Edit Schedule"
-          content={<ScheduleAddForm />}
+          content={
+            <ScheduleAddForm
+              editData={itemToEdit}
+              onClose={handleCloseEditModal}
+              edit
+            />
+          }
           onConfirm={handleCloseEditModal}
           onCancel={handleCloseEditModal}
           maxWidth="sm"

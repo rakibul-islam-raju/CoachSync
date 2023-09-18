@@ -193,13 +193,18 @@ class ScheduleListCreateView(ListCreateAPIView):
     filterset_class = ScheduleFilter
     queryset = Schedule.objects.all()
     search_fields = [
-        "name",
-        "code",
-        "classs__name",
-        "classs__numeric",
+        "title",
+        "subject__name",
+        "subject__code",
+        "teacher__user__first_name",
+        "teacher__user__last_name",
+        "batch__name",
+        "batch__code",
+        "exam__name",
     ]
     ordering_fields = [
-        "date" "created_at",
+        "date",
+        "created_at",
         "updated_at",
     ]
 
@@ -207,9 +212,6 @@ class ScheduleListCreateView(ListCreateAPIView):
         if self.request.method == "POST":
             return ScheduleCreateSerializer
         return ScheduleSerializer
-
-    # def perform_create(self, serializer):
-    #     serializer.save(created_by=self.request.user)
 
     def create(self, request, *args, **kwargs):
         serializer = ScheduleCreateSerializer(data=request.data, many=True)
@@ -224,4 +226,8 @@ class ScheduleListCreateView(ListCreateAPIView):
 class ScheduleDetailView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOrgStaff]
     queryset = Schedule.objects.all()
-    serializer_class = ScheduleSerializer
+
+    def get_serializer_class(self):
+        if self.request.method in ["PUT", "PATCH"]:
+            return ScheduleCreateSerializer
+        return ScheduleSerializer

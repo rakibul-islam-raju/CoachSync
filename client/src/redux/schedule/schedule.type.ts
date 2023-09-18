@@ -47,10 +47,15 @@ export interface IScheduleParams {
   limit: number;
   offset: number;
   search?: string;
-  name?: boolean;
-  code?: boolean;
   is_active?: boolean;
   ordering?: string;
+  subject?: number;
+  teacher?: number;
+  batch?: number;
+  exam?: number;
+  date?: string;
+  start_date?: string;
+  end_date?: string;
 
   // Index signature for string keys
   [key: string]: string | number | boolean | undefined;

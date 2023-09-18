@@ -1,9 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, FormControl } from "@mui/material";
+import { parse } from "date-fns";
 import dayjs, { Dayjs } from "dayjs";
 import { FC, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { CustomButton } from "../../../../components/CustomButton/CustomButton";
+import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
 import DateInput from "../../../../components/forms/DateInput";
 import { FormInputText } from "../../../../components/forms/FormInputText";
 import FormSelectInput from "../../../../components/forms/FormSelectInput";
@@ -12,7 +15,11 @@ import { IBatch } from "../../../../redux/batch/batch.type";
 import { useGetBatchesQuery } from "../../../../redux/batch/batchApi";
 import { IExam } from "../../../../redux/exam/exam.type";
 import { useAppDispatch } from "../../../../redux/hook";
-import { IScheduleDemoData } from "../../../../redux/schedule/schedule.type";
+import {
+  ISchedule,
+  IScheduleDemoData,
+} from "../../../../redux/schedule/schedule.type";
+import { useUpdateScheduleMutation } from "../../../../redux/schedule/scheduleApi";
 import { addDraftSchedule } from "../../../../redux/schedule/scheduleSlice";
 import { ISubject } from "../../../../redux/subject/subject.type";
 import { useGetSubjectsQuery } from "../../../../redux/subject/subjectApi";
@@ -23,12 +30,23 @@ import {
   scheduleCreateSchema,
 } from "../scheduleSchema";
 
+function isSchedule(value: IScheduleDemoData | ISchedule): ISchedule {
+  return value as ISchedule;
+}
+
 type Props = {
-  editData?: IScheduleDemoData | null;
+  editData?: IScheduleDemoData | ISchedule | null;
   handleRemoveFromEdit?: () => void;
+  onClose?: () => void;
+  edit?: boolean;
 };
 
-const ScheduleAddForm: FC<Props> = ({ editData, handleRemoveFromEdit }) => {
+const ScheduleAddForm: FC<Props> = ({
+  editData,
+  handleRemoveFromEdit,
+  onClose,
+  edit = false,
+}) => {
   const dispatch = useAppDispatch();
 
   // Use the useForm hook with default values
@@ -51,6 +69,8 @@ const ScheduleAddForm: FC<Props> = ({ editData, handleRemoveFromEdit }) => {
   const { data: batches } = useGetBatchesQuery({ limit: 50, offset: 0 });
   const { data: subjects } = useGetSubjectsQuery({ limit: 50, offset: 0 });
   const { data: teachers } = useGetTeachersQuery({ limit: 50, offset: 0 });
+  const [updateSchedule, { isLoading, isError, error, isSuccess }] =
+    useUpdateScheduleMutation();
 
   const [selectedSub, setSelectedSub] = useState<ISubject | null>(null);
   const [selectedBatch, setSelectedBatch] = useState<IBatch | null>(null);
@@ -66,36 +86,30 @@ const ScheduleAddForm: FC<Props> = ({ editData, handleRemoveFromEdit }) => {
     "exam",
   ]);
 
-  // Initialize the form with default values
-  useEffect(() => {
-    reset({
-      title: editData?.title || "",
-      batch: editData?.batch?.id || undefined,
-      subject: editData?.subject?.id || undefined,
-      teacher: editData?.teacher?.id || undefined,
-      exam: editData?.exam?.id || undefined,
-      duration: editData?.duration || undefined,
-      date: editData?.date || undefined,
-      time: editData?.time || undefined,
-    });
-  }, [editData, reset]);
-
   const onSubmit = (data: IScheduleCreateFormValues) => {
-    if (selectedBatch && selectedSub) {
-      const newData = {
-        uuid: crypto.randomUUID(),
-        batch: selectedBatch,
-        subject: selectedSub,
-        teacher: selectedTeacher,
-        exam: selectedExam,
-        date: data.date,
-        time: data.time,
-        title: data.title,
-        duration: data.duration,
-      };
+    console.log("step 1");
 
-      dispatch(addDraftSchedule(newData));
-      if (editData && handleRemoveFromEdit) handleRemoveFromEdit();
+    if (edit && editData && isSchedule(editData)) {
+      console.log("step 2");
+      updateSchedule({ id: isSchedule(editData).id, data });
+    } else {
+      console.log("step 3");
+      if (selectedBatch && selectedSub) {
+        const newData = {
+          uuid: crypto.randomUUID(),
+          batch: selectedBatch,
+          subject: selectedSub,
+          teacher: selectedTeacher,
+          exam: selectedExam,
+          date: data.date,
+          time: data.time,
+          title: data.title,
+          duration: data.duration,
+        };
+
+        dispatch(addDraftSchedule(newData));
+        if (editData && handleRemoveFromEdit) handleRemoveFromEdit();
+      }
     }
   };
 
@@ -114,6 +128,26 @@ const ScheduleAddForm: FC<Props> = ({ editData, handleRemoveFromEdit }) => {
       setValue("time", formattedTime);
     }
   };
+
+  // Initialize the form with default values
+  useEffect(() => {
+    if (editData?.time && editData?.date) {
+      const parseTime = parse(editData?.time, "HH:mm:ss", new Date());
+      setDate(dayjs(editData?.date));
+      setTime(dayjs(parseTime));
+    }
+
+    reset({
+      title: editData?.title || "",
+      batch: editData?.batch?.id || undefined,
+      subject: editData?.subject?.id || undefined,
+      teacher: editData?.teacher?.id || undefined,
+      exam: editData?.exam?.id || undefined,
+      duration: editData?.duration || undefined,
+      date: editData?.date || undefined,
+      time: editData?.time || undefined,
+    });
+  }, [editData, reset]);
 
   useEffect(() => {
     if (batch) {
@@ -141,6 +175,13 @@ const ScheduleAddForm: FC<Props> = ({ editData, handleRemoveFromEdit }) => {
     subjects?.results,
     teachers?.results,
   ]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Schedule successfully updated!");
+      onClose && onClose();
+    }
+  }, [isSuccess]);
 
   return (
     <Box
@@ -215,7 +256,11 @@ const ScheduleAddForm: FC<Props> = ({ editData, handleRemoveFromEdit }) => {
         />
       </FormControl>
 
-      <CustomButton type="submit">Save</CustomButton>
+      <CustomButton type="submit" disabled={isLoading}>
+        Save
+      </CustomButton>
+
+      {isError && <ErrorDisplay error={error} />}
     </Box>
   );
 };

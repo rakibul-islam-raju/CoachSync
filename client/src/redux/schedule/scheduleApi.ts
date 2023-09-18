@@ -65,25 +65,14 @@ export const scheduleApi = apiSlice.injectEndpoints({
       }),
 
       // pessimistically update cache
-      async onQueryStarted({ id }, { dispatch, queryFulfilled, getState }) {
-        const param = getState().schedule.params;
-
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
 
           dispatch(
-            scheduleApi.util.updateQueryData(
-              "getSchedules",
-              param,
-              (draft: IPaginatedData<ISchedule[]> | undefined) => {
-                if (draft) {
-                  const updatedScheduleIndex = draft.results.findIndex(
-                    item => item.id === id,
-                  );
-                  draft.results[updatedScheduleIndex] = { ...data };
-                }
-              },
-            ),
+            scheduleApi.util.invalidateTags([
+              { type: "Schedule", id: data.id },
+            ]),
           );
         } catch {}
       },
