@@ -15,6 +15,7 @@ from .views import (
     ExamDetailView,
     ScheduleListCreateView,
     ScheduleDetailView,
+    OrganizationShortInfoView,
 )
 
 urlpatterns = [
@@ -36,4 +37,5 @@ urlpatterns = [
     path("exams/<pk>", ExamDetailView.as_view(), name="exam-details"),
     path("schedules", ScheduleListCreateView.as_view(), name="schedule-list"),
     path("schedules/<pk>", ScheduleDetailView.as_view(), name="schedule-details"),
+    path("statistics", OrganizationShortInfoView.as_view(), name="org-stats"),
 ]

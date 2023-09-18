@@ -1,4 +1,13 @@
+from datetime import datetime
+
+from django.db.models import Sum
+from django.db.models.functions import ExtractMonth
+
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.generics import (
+    ListAPIView,
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
     RetrieveUpdateAPIView,
@@ -13,6 +22,8 @@ from .serializers import (
     EnrollSerializer,
     EnrollCreateSerializer,
     TransactionSerializer,
+    StudentsShortStatSerializer,
+    YearlyTransactionStatsSerializer,
 )
 
 from user.permissions import IsOrgStaff
@@ -37,11 +48,6 @@ class StudentListView(ListCreateAPIView):
         "created_at",
         "updated_at",
     ]
-
-    # def get_serializer_class(self):
-    #     if self.request.method == "POST":
-    #         return CreateStudentSerializer
-    #     return StudentSerializer
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -104,3 +110,61 @@ class TransactionListCreateView(ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+
+class StudentShortStatsView(APIView):
+    permission_classes = [IsOrgStaff]
+    serializer_class = StudentsShortStatSerializer
+
+    def get(self, request, *args, **kwargs):
+        # students
+        students = Student.objects.all().count()
+        active_students = Student.objects.filter(is_active=True).count()
+        inactive_students = students - active_students
+
+        # enrolls
+        enrolls = Enroll.objects.all().count()
+        paid_enrolls = Enroll.get_paid_enrolls().count()
+        due_enrolls = enrolls - paid_enrolls
+        data = {
+            "students": students,
+            "active_students": active_students,
+            "inactive_students": inactive_students,
+            "enrolls": enrolls,
+            "paid_enrolls": paid_enrolls,
+            "due_enrolls": due_enrolls,
+        }
+
+        serializer = StudentsShortStatSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
+
+
+class TransactionStatsView(ListAPIView):
+    permission_classes = [IsOrgStaff]
+    serializer_class = YearlyTransactionStatsSerializer
+    pagination_class = None
+    filter_backends = []
+
+    def get(self, request, *args, **kwargs):
+        current_date = datetime.today()
+        current_year = current_date.year
+        year = self.request.query_params.get("year") or current_year
+
+        transactions = (
+            Transaction.objects.filter(enroll__created_at__year=year)
+            .annotate(
+                month=ExtractMonth("enroll__created_at"),
+            )
+            .values("month")
+            .annotate(total_amount=Sum("amount"))
+        )
+
+        serializer = self.serializer_class(data=list(transactions), many=True)
+        serializer.is_valid(raise_exception=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

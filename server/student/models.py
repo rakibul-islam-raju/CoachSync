@@ -86,6 +86,20 @@ class Enroll(BaseModel):
             self.transactions.aggregate(total_amount=Sum("amount"))["total_amount"] or 0
         )
 
+    @classmethod
+    def get_paid_enrolls(cls):
+        # Get all enrolls where the total paid amount is equal to or greater than the total amount
+        return cls.objects.annotate(
+            total_paid_amount=Sum("transactions__amount")
+        ).filter(total_paid_amount__gte=models.F("total_amount"))
+
+    @classmethod
+    def get_due_enrolls(cls):
+        # Get all enrolls where the total paid amount is less than the total amount
+        return cls.objects.annotate(
+            total_paid_amount=Sum("transactions__amount")
+        ).filter(total_paid_amount__lt=models.F("total_amount"))
+
 
 class Transaction(BaseModel):
     amount = models.IntegerField()
@@ -100,4 +114,4 @@ class Transaction(BaseModel):
         ordering = ["-id"]
 
     def __str__(self):
-        return self.enroll
+        return self.enroll.student.student_id

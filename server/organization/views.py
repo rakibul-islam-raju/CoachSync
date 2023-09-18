@@ -1,4 +1,5 @@
 from rest_framework import status
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -22,6 +23,7 @@ from .serializers import (
     ExamSerializer,
     ScheduleCreateSerializer,
     ScheduleSerializer,
+    OrgShortInfoSerializer,
 )
 
 
@@ -231,3 +233,20 @@ class ScheduleDetailView(RetrieveUpdateDestroyAPIView):
         if self.request.method in ["PUT", "PATCH"]:
             return ScheduleCreateSerializer
         return ScheduleSerializer
+
+
+class OrganizationShortInfoView(APIView):
+    serializer_class = OrgShortInfoSerializer
+
+    def get(self, request, *args, **kwargs):
+        active_batches = Batch.objects.filter(is_active=True).count()
+        active_classes = Classs.objects.filter(is_active=True).count()
+        active_teachers = Teacher.objects.filter(is_active=True).count()
+        data = {
+            "active_batches": active_batches,
+            "active_classes": active_classes,
+            "active_teachers": active_teachers,
+        }
+        serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -204,3 +204,9 @@ class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule
         fields = "__all__"
+
+
+class OrgShortInfoSerializer(serializers.Serializer):
+    active_batches = serializers.IntegerField()
+    active_classes = serializers.IntegerField()
+    active_teachers = serializers.IntegerField()

@@ -156,3 +156,21 @@ class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = "__all__"
+
+
+class StudentsShortStatSerializer(serializers.Serializer):
+    students = serializers.IntegerField()
+    active_students = serializers.IntegerField()
+    inactive_students = serializers.IntegerField()
+    enrolls = serializers.IntegerField()
+    paid_enrolls = serializers.IntegerField()
+    due_enrolls = serializers.IntegerField()
+
+
+class YearlyTransactionStatsSerializer(serializers.Serializer):
+    month = serializers.IntegerField()
+    total_amount = serializers.IntegerField()
+
+    class Meta:
+        model = Transaction
+        fileds = []
