@@ -14,7 +14,7 @@ export interface IClassUpdateReqData {
   data: {
     name?: string;
     numeric?: number;
-    is_Active?: boolean;
+    is_active?: boolean;
   };
 }
 

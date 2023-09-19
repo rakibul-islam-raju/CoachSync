@@ -6,6 +6,7 @@ import {
   IStudentCreateReqData,
   IStudentDetails,
   IStudentParams,
+  IStudentShortStats,
   IStudentUpdateReqData,
 } from "./student.type";
 
@@ -53,6 +54,7 @@ export const studentApi = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["StudentStats"],
 
       // pessimistically update cache
       async onQueryStarted(_data, { dispatch, queryFulfilled, getState }) {
@@ -83,7 +85,10 @@ export const studentApi = apiSlice.injectEndpoints({
       }),
 
       // pessimistically update cache
-      async onQueryStarted({ id }, { dispatch, queryFulfilled, getState }) {
+      async onQueryStarted(
+        { id, data: postData },
+        { dispatch, queryFulfilled, getState },
+      ) {
         const param = getState().student.params;
 
         try {
@@ -103,6 +108,9 @@ export const studentApi = apiSlice.injectEndpoints({
               },
             ),
           );
+          if (postData?.is_active) {
+            dispatch(studentApi.util.invalidateTags(["StudentStats"]));
+          }
         } catch {}
       },
     }),
@@ -112,6 +120,7 @@ export const studentApi = apiSlice.injectEndpoints({
         url: `students/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["StudentStats"],
 
       // pessimistically update cache
       async onQueryStarted(id, { dispatch, queryFulfilled, getState }) {
@@ -135,6 +144,13 @@ export const studentApi = apiSlice.injectEndpoints({
         } catch {}
       },
     }),
+
+    getStudentShortStats: builder.query<IStudentShortStats, undefined>({
+      query: () => ({
+        url: `students/statistics`,
+      }),
+      providesTags: ["StudentStats"],
+    }),
   }),
 });
 
@@ -144,4 +160,5 @@ export const {
   useCreateStudentMutation,
   useUpdateStudentMutation,
   useDeleteStudentMutation,
+  useGetStudentShortStatsQuery,
 } = studentApi;

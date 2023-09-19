@@ -32,6 +32,7 @@ export const classApi = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["OrgStats"],
 
       // pessimistically update cache
       async onQueryStarted(_data, { dispatch, queryFulfilled, getState }) {
@@ -62,7 +63,10 @@ export const classApi = apiSlice.injectEndpoints({
       }),
 
       // pessimistically update cache
-      async onQueryStarted({ id }, { dispatch, queryFulfilled, getState }) {
+      async onQueryStarted(
+        { id, data: postData },
+        { dispatch, queryFulfilled, getState },
+      ) {
         const param = getState().class.params;
 
         try {
@@ -82,6 +86,10 @@ export const classApi = apiSlice.injectEndpoints({
               },
             ),
           );
+
+          if (postData.is_active) {
+            dispatch(classApi.util.invalidateTags(["OrgStats"]));
+          }
         } catch {}
       },
     }),
@@ -91,6 +99,7 @@ export const classApi = apiSlice.injectEndpoints({
         url: `organizations/classes/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["OrgStats"],
 
       // pessimistically update cache
       async onQueryStarted(id, { dispatch, queryFulfilled, getState }) {

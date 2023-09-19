@@ -4,8 +4,8 @@ import { apiSlice } from "../api/apiSlice";
 import {
   ITeacher,
   ITeacherCreateReqData,
-  ITeacherUpdateReqData,
   ITeacherParams,
+  ITeacherUpdateReqData,
 } from "./teacher.type";
 
 export const teacherApi = apiSlice.injectEndpoints({
@@ -35,6 +35,7 @@ export const teacherApi = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["OrgStats"],
 
       // pessimistically update cache
       async onQueryStarted(_data, { dispatch, queryFulfilled, getState }) {
@@ -65,7 +66,10 @@ export const teacherApi = apiSlice.injectEndpoints({
       }),
 
       // pessimistically update cache
-      async onQueryStarted({ id }, { dispatch, queryFulfilled, getState }) {
+      async onQueryStarted(
+        { id, data: postData },
+        { dispatch, queryFulfilled, getState },
+      ) {
         const param = getState().teacher.params;
 
         try {
@@ -94,6 +98,7 @@ export const teacherApi = apiSlice.injectEndpoints({
         url: `organizations/teachers/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["OrgStats"],
 
       // pessimistically update cache
       async onQueryStarted(id, { dispatch, queryFulfilled, getState }) {

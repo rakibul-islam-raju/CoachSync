@@ -8,7 +8,7 @@ import {
   IBatchUpdateReqData,
 } from "./batch.type";
 
-export const subjectApi = apiSlice.injectEndpoints({
+export const batchApi = apiSlice.injectEndpoints({
   endpoints: builder => ({
     getBatches: builder.query<IPaginatedData<IBatch[]>, IBatchParams>({
       query: params => ({
@@ -52,6 +52,7 @@ export const subjectApi = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["OrgStats"],
 
       // pessimistically update cache
       async onQueryStarted(_data, { dispatch, queryFulfilled, getState }) {
@@ -60,7 +61,7 @@ export const subjectApi = apiSlice.injectEndpoints({
         try {
           const { data } = await queryFulfilled;
           dispatch(
-            subjectApi.util.updateQueryData(
+            batchApi.util.updateQueryData(
               "getBatches",
               param,
               (draft: IPaginatedData<IBatch[]> | undefined) => {
@@ -82,14 +83,17 @@ export const subjectApi = apiSlice.injectEndpoints({
       }),
 
       // pessimistically update cache
-      async onQueryStarted({ id }, { dispatch, queryFulfilled, getState }) {
+      async onQueryStarted(
+        { id, data: postData },
+        { dispatch, queryFulfilled, getState },
+      ) {
         const param = getState().batch.params;
 
         try {
           const { data } = await queryFulfilled;
 
           dispatch(
-            subjectApi.util.updateQueryData(
+            batchApi.util.updateQueryData(
               "getBatches",
               param,
               (draft: IPaginatedData<IBatch[]> | undefined) => {
@@ -102,6 +106,10 @@ export const subjectApi = apiSlice.injectEndpoints({
               },
             ),
           );
+
+          if (postData.is_active) {
+            dispatch(batchApi.util.invalidateTags(["OrgStats"]));
+          }
         } catch {}
       },
     }),
@@ -111,6 +119,7 @@ export const subjectApi = apiSlice.injectEndpoints({
         url: `organizations/batches/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["OrgStats"],
 
       // pessimistically update cache
       async onQueryStarted(id, { dispatch, queryFulfilled, getState }) {
@@ -119,7 +128,7 @@ export const subjectApi = apiSlice.injectEndpoints({
         try {
           await queryFulfilled;
           dispatch(
-            subjectApi.util.updateQueryData(
+            batchApi.util.updateQueryData(
               "getBatches",
               param,
               (draft: IPaginatedData<IBatch[]> | undefined) => {
@@ -152,4 +161,4 @@ export const {
   useUpdateBatchMutation,
   useDeleteBatchMutation,
   useSearchBatchQuery,
-} = subjectApi;
+} = batchApi;

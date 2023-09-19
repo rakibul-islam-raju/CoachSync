@@ -23,3 +23,10 @@ export interface ITransactionParams {
   // Index signature for string keys
   [key: string]: string | number | boolean | undefined;
 }
+
+export interface ITransactionStats {
+  month: number;
+  total_amount: number;
+
+  [key: string]: number;
+}

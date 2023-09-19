@@ -5,6 +5,7 @@ import {
   ITransaction,
   ITransactionCreateReqData,
   ITransactionParams,
+  ITransactionStats,
 } from "./transaction.type";
 
 export const transactionApi = apiSlice.injectEndpoints({
@@ -40,6 +41,7 @@ export const transactionApi = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["TransactionStats"],
 
       // pessimistically update cache
       async onQueryStarted(_data, { dispatch, queryFulfilled, getState }) {
@@ -61,8 +63,18 @@ export const transactionApi = apiSlice.injectEndpoints({
         } catch {}
       },
     }),
+
+    getTransactionStats: builder.query<ITransactionStats[], undefined>({
+      query: () => ({
+        url: `students/statistics/transactions`,
+      }),
+      providesTags: ["TransactionStats"],
+    }),
   }),
 });
 
-export const { useGetTransactionsQuery, useCreategetTransactionMutation } =
-  transactionApi;
+export const {
+  useGetTransactionsQuery,
+  useCreategetTransactionMutation,
+  useGetTransactionStatsQuery,
+} = transactionApi;

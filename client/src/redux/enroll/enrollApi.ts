@@ -8,7 +8,7 @@ import {
   IEnrollUpdateReqData,
 } from "./enroll.type";
 
-export const studentApi = apiSlice.injectEndpoints({
+export const enrollApi = apiSlice.injectEndpoints({
   endpoints: builder => ({
     getEnrolls: builder.query<IPaginatedData<IEnroll[]>, IEnrollParams>({
       query: params => ({
@@ -35,6 +35,7 @@ export const studentApi = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["StudentStats"],
 
       // pessimistically update cache
       async onQueryStarted(_data, { dispatch, queryFulfilled, getState }) {
@@ -43,7 +44,7 @@ export const studentApi = apiSlice.injectEndpoints({
         try {
           const { data } = await queryFulfilled;
           dispatch(
-            studentApi.util.updateQueryData(
+            enrollApi.util.updateQueryData(
               "getEnrolls",
               param,
               (draft: IPaginatedData<IEnroll[]> | undefined) => {
@@ -72,7 +73,7 @@ export const studentApi = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled;
 
           dispatch(
-            studentApi.util.updateQueryData(
+            enrollApi.util.updateQueryData(
               "getEnrolls",
               param,
               (draft: IPaginatedData<IEnroll[]> | undefined) => {
@@ -95,4 +96,4 @@ export const {
   useGetEnrollsQuery,
   useCreateEnrollMutation,
   useUpdateEnrollMutation,
-} = studentApi;
+} = enrollApi;

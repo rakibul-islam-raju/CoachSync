@@ -56,3 +56,14 @@ export interface IStudentParams {
   // Index signature for string keys
   [key: string]: string | number | boolean | undefined;
 }
+
+export interface IStudentShortStats {
+  students: number;
+  active_students: number;
+  inactive_students: number;
+  enrolls: number;
+  paid_enrolls: number;
+  due_enrolls: number;
+
+  [key: string]: number;
+}
