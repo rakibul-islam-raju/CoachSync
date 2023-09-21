@@ -45,7 +45,7 @@ class Classs(BaseModel):
 
 class Batch(BaseModel):
     name = models.CharField(max_length=30)
-    code = models.CharField(max_length=6, blank=True, null=True)
+    code = models.CharField(max_length=6, unique=True, blank=True, null=True)
     classs = models.ForeignKey(Classs, on_delete=models.CASCADE)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)

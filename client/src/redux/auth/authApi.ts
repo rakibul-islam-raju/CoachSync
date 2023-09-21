@@ -37,8 +37,6 @@ export const authApi = apiSlice.injectEndpoints({
       async onQueryStarted(_, { queryFulfilled, dispatch }) {
         try {
           const { data } = await queryFulfilled;
-          console.log("data =>", data);
-
           if (data?.detail) {
             dispatch(userLoggedOut());
           }

@@ -18,28 +18,21 @@ type TransactionFormProps = {
 };
 
 const TransactionForm: FC<TransactionFormProps> = ({ onClose, enrollData }) => {
-  const { control, handleSubmit, reset, watch } =
-    useForm<ITransactionCreateReqData>({
-      resolver: zodResolver(TransactionSchema),
-      defaultValues: {
-        enroll: enrollData?.id,
-        amount: 0,
-        remark: null,
-      },
-    });
+  const { control, handleSubmit, reset } = useForm<ITransactionCreateReqData>({
+    resolver: zodResolver(TransactionSchema),
+    defaultValues: {
+      enroll: enrollData?.id,
+      amount: 0,
+      remark: null,
+    },
+  });
 
   const [createTransaction, { isLoading, isError, isSuccess, error }] =
     useCreategetTransactionMutation();
 
   //   const [due, setDue] = useState<number | null>(null);
 
-  const [amount] = watch(["amount"]);
-
-  console.log("amount =>", amount);
-
   const onSubmit = (data: ITransactionFormValues) => {
-    console.log("data=>", data);
-
     createTransaction(data);
   };
 

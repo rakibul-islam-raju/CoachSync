@@ -15,7 +15,6 @@ export default function useAuthCheck() {
 
     if (localAuth && isSuccess) {
       const auth = JSON.parse(localAuth);
-      console.log("use auth check");
 
       if (auth?.access && auth?.refresh && data) {
         dispatch(

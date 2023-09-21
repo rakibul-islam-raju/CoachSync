@@ -23,6 +23,7 @@ const EnrollPiechart = () => {
           data={convertData(
             pickObj(data, ["enrolls", "paid_enrolls", "due_enrolls"]),
           )}
+          colors={pie => pie.data.color}
           margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
           innerRadius={0.5}
           padAngle={0.7}
@@ -40,7 +41,7 @@ const EnrollPiechart = () => {
           arcLabelsSkipAngle={10}
           arcLabelsTextColor={{
             from: "color",
-            modifiers: [["darker", 2]],
+            modifiers: [["brighter", 10]],
           }}
           defs={[
             {

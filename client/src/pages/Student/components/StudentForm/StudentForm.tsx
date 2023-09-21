@@ -33,7 +33,7 @@ const StudentForm: FC<StudentFormProps> = ({ onClose, defaultData }) => {
     control,
     handleSubmit,
     reset,
-    formState: { isDirty, dirtyFields, errors },
+    formState: { isDirty, dirtyFields },
     setValue,
   } = useForm<IStudentCreateFormValues>({
     resolver: zodResolver(StudentCreateSchema),
@@ -52,8 +52,6 @@ const StudentForm: FC<StudentFormProps> = ({ onClose, defaultData }) => {
       is_active: defaultData?.is_active,
     },
   });
-
-  console.log("errors =>", errors);
 
   const [
     createStudent,

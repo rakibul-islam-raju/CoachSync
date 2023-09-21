@@ -17,7 +17,6 @@ class MeApiView(APIView):
     serializer_class = UserSerializer
 
     def get(self, request):
-        print(self.request.user)
         user = get_object_or_404(User, id=self.request.user.id)
         serializer = self.serializer_class(user, context={"request": request})
         return Response(serializer.data)

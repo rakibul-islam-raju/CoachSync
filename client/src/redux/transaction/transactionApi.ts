@@ -64,9 +64,12 @@ export const transactionApi = apiSlice.injectEndpoints({
       },
     }),
 
-    getTransactionStats: builder.query<ITransactionStats[], undefined>({
-      query: () => ({
+    getTransactionStats: builder.query<ITransactionStats[], number>({
+      query: year => ({
         url: `students/statistics/transactions`,
+        params: {
+          year,
+        },
       }),
       providesTags: ["TransactionStats"],
     }),

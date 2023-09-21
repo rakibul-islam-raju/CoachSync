@@ -151,20 +151,26 @@ class TransactionStatsView(ListAPIView):
     filter_backends = []
 
     def get(self, request, *args, **kwargs):
-        current_date = datetime.today()
-        current_year = current_date.year
-        year = self.request.query_params.get("year") or current_year
+        current_year = datetime.today().year
+        year = self.request.query_params.get("year", current_year)
 
         transactions = (
-            Transaction.objects.filter(enroll__created_at__year=year)
-            .annotate(
-                month=ExtractMonth("enroll__created_at"),
-            )
+            Transaction.objects.filter(created_at__year=year)
+            .annotate(month=ExtractMonth("created_at"))
             .values("month")
             .annotate(total_amount=Sum("amount"))
         )
 
-        serializer = self.serializer_class(data=list(transactions), many=True)
+        existing_month_data = {
+            item["month"]: item["total_amount"] for item in transactions
+        }
+
+        all_months_data = [
+            {"month": month, "total_amount": existing_month_data.get(month, 0)}
+            for month in range(1, 13)
+        ]
+
+        serializer = self.serializer_class(data=all_months_data, many=True)
         serializer.is_valid(raise_exception=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)

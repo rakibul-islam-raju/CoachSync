@@ -53,8 +53,6 @@ const authSlice = createSlice({
       }
     },
     userLoggedOut(state) {
-      console.log("hitted");
-
       state.access = null;
       state.refresh = null;
       state.user = null;

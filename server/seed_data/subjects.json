@@ -1,0 +1,66 @@
+[
+	{
+		"name": "Bangla 1st Paper",
+		"code": "BN01"
+	},
+	{
+		"name": "Bangla 2nd Paper",
+		"code": "BN02"
+	},
+	{
+		"name": "English 1st Paper",
+		"code": "EN01"
+	},
+	{
+		"name": "English 2nd Paper",
+		"code": "EN02"
+	},
+	{
+		"name": "Physics 1st Paper",
+		"code": "PHY01"
+	},
+	{
+		"name": "Physics 2nd Paper",
+		"code": "PHY02"
+	},
+	{
+		"name": "Chemistry 1st Paper",
+		"code": "CHE01"
+	},
+	{
+		"name": "Chemistry 2nd Paper",
+		"code": "CHE02"
+	},
+	{
+		"name": "Economics 1st Paper",
+		"code": "ECO01"
+	},
+	{
+		"name": "Economics 2nd Paper",
+		"code": "ECO02"
+	},
+	{
+		"name": "History 1st Paper",
+		"code": "HIS01"
+	},
+	{
+		"name": "History 2nd Paper",
+		"code": "HIS02"
+	},
+	{
+		"name": "Marketing 1st Paper",
+		"code": "MAR01"
+	},
+	{
+		"name": "Marketing 2nd Paper",
+		"code": "MAR02"
+	},
+	{
+		"name": "Managment 1st Paper",
+		"code": "MAN01"
+	},
+	{
+		"name": "Managment 2nd Paper",
+		"code": "MAN02"
+	}
+]

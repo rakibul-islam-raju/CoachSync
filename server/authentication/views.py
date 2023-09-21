@@ -41,7 +41,6 @@ class LogoutView(APIView):
 
         try:
             refresh = RefreshToken(serializer.validated_data["refresh"])
-            print(refresh)
             refresh.blacklist()
         except TokenError:
             pass

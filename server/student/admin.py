@@ -50,6 +50,10 @@ class TransactionAdmin(admin.ModelAdmin):
         "enroll",
         "amount",
         "remark",
+        "created_at",
+    ]
+    list_filter = [
+        "created_at",
     ]
     search_fields = [
         "enroll__student_user__email",

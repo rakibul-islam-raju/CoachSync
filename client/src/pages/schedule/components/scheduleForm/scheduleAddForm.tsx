@@ -87,13 +87,9 @@ const ScheduleAddForm: FC<Props> = ({
   ]);
 
   const onSubmit = (data: IScheduleCreateFormValues) => {
-    console.log("step 1");
-
     if (edit && editData && isSchedule(editData)) {
-      console.log("step 2");
       updateSchedule({ id: isSchedule(editData).id, data });
     } else {
-      console.log("step 3");
       if (selectedBatch && selectedSub) {
         const newData = {
           uuid: crypto.randomUUID(),

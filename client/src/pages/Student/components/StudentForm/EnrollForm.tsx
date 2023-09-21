@@ -77,8 +77,6 @@ const EnrollForm: FC<EnrollFormProps> = ({
 
   const [batch] = watch(["batch", "total_amount", "discount_amount"]);
 
-  console.log("batch =>", batch);
-
   const onSubmit = (data: IStudentEnrollFormValues) => {
     if (defaultData) {
       if (isDirty) {
@@ -86,8 +84,6 @@ const EnrollForm: FC<EnrollFormProps> = ({
         updateEnroll({ id: defaultData.id, data: dirtyValues });
       }
     } else {
-      console.log("hereee ====>");
-
       createEnroll(data);
     }
   };

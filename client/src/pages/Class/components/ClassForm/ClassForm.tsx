@@ -61,8 +61,6 @@ const ClassForm: FC<ClassFormProps> = ({ onClose, defaultData }) => {
   };
 
   useEffect(() => {
-    console.log("useeffect");
-
     if (isSuccess) {
       toast.success("Class successfully created!");
       if (!addAnother) {
@@ -71,7 +69,6 @@ const ClassForm: FC<ClassFormProps> = ({ onClose, defaultData }) => {
       reset();
     }
     if (isEditSuccess) {
-      console.log("useeffect edited");
       toast.success("Class successfully updated!");
       if (!addAnother) {
         onClose();
