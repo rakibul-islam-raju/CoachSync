@@ -16,6 +16,7 @@ django-filter==23.2
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.2.2
 drf-spectacular==0.26.3
+Faker==19.3.0
 inflection==0.5.1
 jsonschema==4.18.0
 jsonschema-specifications==2023.6.1
