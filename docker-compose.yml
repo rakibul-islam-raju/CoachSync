@@ -1,6 +1,10 @@
 version: "3.8"
 
 services:
+  redis:
+    image: redis:7.0.10-alpine
+    container_name: coaching_redis
+
   db:
     image: postgres:latest
     container_name: coaching_db
@@ -18,17 +22,17 @@ services:
   api:
     container_name: coaching_api
     build:
-      context: server
+      context: backend
       dockerfile: ./django.Dockerfile
     env_file:
-      - ./server/.env
+      - ./backend/.env
     command: >
       bash -c "python manage.py migrate &&
                python manage.py load_users &&
                python manage.py seed &&
                python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./server:/app
+      - ./backend:/app
     ports:
       - "8000:8000"
     depends_on:
@@ -36,17 +40,34 @@ services:
     networks:
       - coaching_management
 
+  # celery:
+  #   container_name: coaching_celery
+  #   build:
+  #     context: backend
+  #     dockerfile: ./django.Dockerfile
+  #   env_file:
+  #     - ./backend/.env
+  #   command: celery --app=djCelery worker -l INFO -Q tasks
+  #   volumes:
+  #     - ./backend:/app
+  #   depends_on:
+  #     - redis
+  #     - db
+  #     - api
+  #   networks:
+  #     - coaching_management
+
   web:
     container_name: coaching_web
     build:
-      context: client
+      context: frontend
       dockerfile: ./node.Dockerfile
     ports:
       - "5173:5173"
     env_file:
-      - ./client/.env
+      - ./frontend/.env
     volumes:
-      - ./client:/app
+      - ./frontend:/app
     networks:
       - coaching_management
 
