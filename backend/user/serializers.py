@@ -9,7 +9,7 @@ from rest_framework import serializers
 
 from .models import User, ADMIN, ADMIN_STAFF, ORG_ADMIN, ORG_STAFF
 
-from utilities.utils import send_email
+from utilities.tasks import send_email
 
 
 # class UserCreateSerializer(serializers.ModelSerializer):
@@ -126,7 +126,7 @@ class UserSerializer(serializers.ModelSerializer):
         plain_message = strip_tags(html_content)
 
         # send email to set password
-        send_email(
+        send_email.delay(
             subject="Set your password",
             plain_message=plain_message,
             to_email=[to_email],

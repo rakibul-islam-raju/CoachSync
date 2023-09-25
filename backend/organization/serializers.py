@@ -7,7 +7,7 @@ from .models import Subject, Teacher, Classs, Batch, ExamType, Exam, Schedule
 
 from user.models import User
 from user.serializers import UserSerializer, ExtendedUserSerializer
-from utilities.utils import send_email
+from utilities.tasks import send_email
 
 
 class SubjectSerializer(serializers.ModelSerializer):
@@ -61,7 +61,7 @@ class TeacherCreateSerializer(serializers.ModelSerializer):
                 "registration_confirmation.html", {"user": new_user, "message": message}
             )
             plain_message = strip_tags(html_content)
-            send_email(
+            send_email.delay(
                 subject=email_subject,
                 to_email=[new_user.email],
                 html_content=html_content,

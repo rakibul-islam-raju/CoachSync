@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "authentication.apps.AuthenticationConfig",
     "organization.apps.OrganizationConfig",
     "student.apps.StudentConfig",
+    "utilities.apps.UtilitiesConfig",
 ]
 
 MIDDLEWARE = [
@@ -186,11 +187,11 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # CELERY SETTINGS
 CELERY_BROKER_URL = env("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
-CELERY_ACCEPT_CONTENT = {"application/json"}
-CELERY_RESULT_SERIALIZER = "json"
-CELERY_TASK_SERIALIZER = "json"
-CELERY_TIMEZONE = "Asia/Dhaka"
-CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT = 30 * 60
+# CELERY_ACCEPT_CONTENT = {"application/json"}
+# CELERY_RESULT_SERIALIZER = "json"
+# CELERY_TASK_SERIALIZER = "json"
+# CELERY_TIMEZONE = "Asia/Dhaka"
+# CELERY_TASK_TRACK_STARTED = True
+# CELERY_TASK_TIME_LIMIT = 30 * 60
 
 FRONTEND_BASE_URL = "http://localhost:3000"

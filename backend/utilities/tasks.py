@@ -1,7 +1,10 @@
 from django.core.mail import send_mail
 from django.conf import settings
 
+from celery import shared_task
 
+
+@shared_task
 def send_email(
     subject,
     plain_message,
@@ -15,4 +18,3 @@ def send_email(
         to_email,
         html_message=html_content,
     )
-    return "Done"

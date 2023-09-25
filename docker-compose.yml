@@ -4,6 +4,10 @@ services:
   redis:
     image: redis:7.0.10-alpine
     container_name: coaching_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - coaching_management
 
   db:
     image: postgres:latest
@@ -40,22 +44,22 @@ services:
     networks:
       - coaching_management
 
-  # celery:
-  #   container_name: coaching_celery
-  #   build:
-  #     context: backend
-  #     dockerfile: ./django.Dockerfile
-  #   env_file:
-  #     - ./backend/.env
-  #   command: celery --app=djCelery worker -l INFO -Q tasks
-  #   volumes:
-  #     - ./backend:/app
-  #   depends_on:
-  #     - redis
-  #     - db
-  #     - api
-  #   networks:
-  #     - coaching_management
+  celery:
+    container_name: coaching_celery
+    build:
+      context: backend
+      dockerfile: ./django.Dockerfile
+    env_file:
+      - ./backend/.env
+    command: celery -A backend worker -l INFO
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - redis
+      - db
+      - api
+    networks:
+      - coaching_management
 
   web:
     container_name: coaching_web
