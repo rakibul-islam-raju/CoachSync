@@ -1,0 +1,37 @@
+name: Check and Format Backend Code
+on:
+  push:
+    branches:
+      - "backend/**:main"
+  pull_request:
+    branches:
+      - "backend/**:main"
+
+jobs:
+  check-code-format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.10.12
+
+      - name: Install dependencies
+        run: pip install black
+
+      - name: Check Code Formatting
+        run: black --check ./backend/
+
+      - name: Check for Changes
+        run: git diff-index --quiet HEAD
+
+      - name: Fail if Changes Detected
+        run: |
+          if [ $? -eq 1 ]; then
+            echo "Code formatting issues detected. Please run 'black .' to format your code."
+            exit 1
+          fi
