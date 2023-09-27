@@ -81,3 +81,7 @@ We use pre-commit hooks to automatically format and lint the code in the Django 
    ```
 
 This should provide the complete instructions for both the Django backend and the React frontend, including the Husky setup.
+
+## Contribute
+
+To contribute to this project, please follow the guidelines outlined in [CONTRIBUTING.md](.github/CONTRIBUTING.md).
