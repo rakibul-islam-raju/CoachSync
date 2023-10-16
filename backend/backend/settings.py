@@ -61,6 +61,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "utilities.middleware.logger.StatusCodeLoggerMiddleware",
 ]
 
 ROOT_URLCONF = "backend.urls"
@@ -195,3 +196,48 @@ CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
 # CELERY_TASK_TIME_LIMIT = 30 * 60
 
 FRONTEND_BASE_URL = "http://localhost:3000"
+
+LOGGING_DIR = os.path.join(BASE_DIR, 'logs')
+if not os.path.exists(LOGGING_DIR):
+    os.makedirs(LOGGING_DIR)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        # Note: We may only need this on development mode
+
+        # 'file': {
+        #     'level': 'DEBUG',
+        #     'class': 'logging.FileHandler',
+        #     'filename': os.path.join(LOGGING_DIR, 'debug.log'),
+        #     'formatter': 'verbose',
+        # },
+        'status_code_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGGING_DIR, 'status_codes.log'),
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        # Note: We may only need this on development mode
+
+        # 'django': {
+        #     'handlers': ['file'],
+        #     'level': 'DEBUG',
+        #     'propagate': True,
+        # },
+        'status_logger': {
+            'handlers': ['status_code_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
