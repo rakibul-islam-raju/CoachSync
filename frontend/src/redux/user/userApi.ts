@@ -7,7 +7,8 @@ export const userApi = apiSlice.injectEndpoints({
   endpoints: builder => ({
     getMe: builder.query<IUser, undefined>({
       query: () => ({
-        url: `users/me`,
+        url: `/users/me`,
+        method: "GET",
       }),
       providesTags: ["Me"],
       async onQueryStarted(_arg, { queryFulfilled, dispatch }) {
@@ -22,7 +23,8 @@ export const userApi = apiSlice.injectEndpoints({
 
     getUsers: builder.query<IPaginatedData<IUser[]>, IUserParams>({
       query: params => ({
-        url: `users`,
+        url: `/users`,
+        method: "GET",
         params,
       }),
       providesTags: result => {
@@ -41,9 +43,9 @@ export const userApi = apiSlice.injectEndpoints({
 
     createUser: builder.mutation<IUser, IUserCreateData>({
       query: (data: IUserCreateData) => ({
-        url: `users/`,
+        url: `/users/`,
         method: "POST",
-        body: data,
+        data,
       }),
 
       // pessimistically update cache
@@ -69,9 +71,9 @@ export const userApi = apiSlice.injectEndpoints({
 
     updateUser: builder.mutation<IUser, IUserUpdateData>({
       query: ({ id, user }: IUserUpdateData) => ({
-        url: `users/${id}`,
+        url: `/users/${id}`,
         method: "PATCH",
-        body: user,
+        data: user,
       }),
 
       // pessimistically update cache
@@ -101,7 +103,7 @@ export const userApi = apiSlice.injectEndpoints({
 
     deleteUser: builder.mutation<void, number>({
       query: (id: number) => ({
-        url: `users/${id}`,
+        url: `/users/${id}`,
         method: "DELETE",
       }),
 

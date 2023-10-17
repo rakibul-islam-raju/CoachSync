@@ -12,7 +12,8 @@ export const teacherApi = apiSlice.injectEndpoints({
   endpoints: builder => ({
     getTeachers: builder.query<IPaginatedData<ITeacher[]>, ITeacherParams>({
       query: params => ({
-        url: `organizations/teachers`,
+        url: `/organizations/teachers`,
+        method: "GET",
         params,
       }),
       providesTags: result => {
@@ -31,9 +32,9 @@ export const teacherApi = apiSlice.injectEndpoints({
 
     createTeacher: builder.mutation<ITeacher, ITeacherCreateReqData>({
       query: (data: ITeacherCreateReqData) => ({
-        url: `organizations/teachers`,
+        url: `/organizations/teachers`,
         method: "POST",
-        body: data,
+        data,
       }),
       invalidatesTags: ["OrgStats"],
 
@@ -60,9 +61,9 @@ export const teacherApi = apiSlice.injectEndpoints({
 
     updateTeacher: builder.mutation<ITeacher, Partial<ITeacherUpdateReqData>>({
       query: ({ id, data }: Partial<ITeacherUpdateReqData>) => ({
-        url: `organizations/teachers/${id}`,
+        url: `/organizations/teachers/${id}`,
         method: "PATCH",
-        body: data,
+        data,
       }),
 
       // pessimistically update cache
@@ -95,7 +96,7 @@ export const teacherApi = apiSlice.injectEndpoints({
 
     deleteTeacher: builder.mutation<void, number>({
       query: (id: number) => ({
-        url: `organizations/teachers/${id}`,
+        url: `/organizations/teachers/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["OrgStats"],
@@ -125,7 +126,8 @@ export const teacherApi = apiSlice.injectEndpoints({
 
     searchTeacher: builder.query<IPaginatedData<ITeacher[]>, undefined>({
       query: params => ({
-        url: `organizations/teachers`,
+        url: `/organizations/teachers`,
+        method: "GET",
         params,
       }),
       providesTags: ["TeacherSearch"],

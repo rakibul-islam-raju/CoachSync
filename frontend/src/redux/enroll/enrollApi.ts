@@ -12,7 +12,8 @@ export const enrollApi = apiSlice.injectEndpoints({
   endpoints: builder => ({
     getEnrolls: builder.query<IPaginatedData<IEnroll[]>, IEnrollParams>({
       query: params => ({
-        url: `students/enrolls`,
+        url: `/students/enrolls`,
+        method: "GET",
         params,
       }),
       providesTags: result => {
@@ -31,9 +32,9 @@ export const enrollApi = apiSlice.injectEndpoints({
 
     createEnroll: builder.mutation<IEnroll, IEnrollCreateReqData>({
       query: (data: IEnrollCreateReqData) => ({
-        url: `students/enrolls`,
+        url: `/students/enrolls`,
         method: "POST",
-        body: data,
+        data,
       }),
       invalidatesTags: ["StudentStats"],
 
@@ -60,9 +61,9 @@ export const enrollApi = apiSlice.injectEndpoints({
 
     updateEnroll: builder.mutation<IEnroll, Partial<IEnrollUpdateReqData>>({
       query: ({ id, data }: Partial<IEnrollUpdateReqData>) => ({
-        url: `students/enrolls/${id}`,
+        url: `/students/enrolls/${id}`,
         method: "PATCH",
-        body: data,
+        data,
       }),
 
       // pessimistically update cache

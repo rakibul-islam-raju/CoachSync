@@ -15,7 +15,8 @@ export const transactionApi = apiSlice.injectEndpoints({
       ITransactionParams
     >({
       query: params => ({
-        url: `students/enrolls/${params.enroll}/transactions`,
+        url: `/students/enrolls/${params.enroll}/transactions`,
+        method: "GET",
         params,
       }),
       providesTags: result => {
@@ -37,9 +38,9 @@ export const transactionApi = apiSlice.injectEndpoints({
       ITransactionCreateReqData
     >({
       query: (data: ITransactionCreateReqData) => ({
-        url: `students/enrolls/${data.enroll}/transactions`,
+        url: `/students/enrolls/${data.enroll}/transactions`,
         method: "POST",
-        body: data,
+        data,
       }),
       invalidatesTags: ["TransactionStats"],
 
@@ -66,7 +67,8 @@ export const transactionApi = apiSlice.injectEndpoints({
 
     getTransactionStats: builder.query<ITransactionStats[], number>({
       query: year => ({
-        url: `students/statistics/transactions`,
+        url: `/students/statistics/transactions`,
+        method: "GET",
         params: {
           year,
         },

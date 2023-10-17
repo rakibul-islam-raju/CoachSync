@@ -12,7 +12,8 @@ export const subjectApi = apiSlice.injectEndpoints({
   endpoints: builder => ({
     getSubjects: builder.query<IPaginatedData<ISubject[]>, ISubjectParams>({
       query: params => ({
-        url: `organizations/subjects`,
+        url: `/organizations/subjects`,
+        method: "GET",
         params,
       }),
       providesTags: result => {
@@ -31,9 +32,9 @@ export const subjectApi = apiSlice.injectEndpoints({
 
     createSubject: builder.mutation<ISubject, ISubjectCreateReqData>({
       query: (data: ISubjectCreateReqData) => ({
-        url: `organizations/subjects`,
+        url: `/organizations/subjects`,
         method: "POST",
-        body: data,
+        data,
       }),
 
       // pessimistically update cache
@@ -59,9 +60,9 @@ export const subjectApi = apiSlice.injectEndpoints({
 
     updateSubject: builder.mutation<ISubject, ISubjectUpdateReqData>({
       query: ({ id, data }: ISubjectUpdateReqData) => ({
-        url: `organizations/subjects/${id}`,
+        url: `/organizations/subjects/${id}`,
         method: "PATCH",
-        body: data,
+        data,
       }),
 
       // pessimistically update cache
@@ -91,7 +92,7 @@ export const subjectApi = apiSlice.injectEndpoints({
 
     deleteSubject: builder.mutation<void, number>({
       query: (id: number) => ({
-        url: `organizations/subjects/${id}`,
+        url: `/organizations/subjects/${id}`,
         method: "DELETE",
       }),
 
@@ -120,7 +121,8 @@ export const subjectApi = apiSlice.injectEndpoints({
 
     searchSubject: builder.query<IPaginatedData<ISubject[]>, undefined>({
       query: params => ({
-        url: `organizations/subjects`,
+        url: `/organizations/subjects`,
+        method: "GET",
         params,
       }),
       providesTags: ["SubjectSearch"],

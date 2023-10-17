@@ -14,7 +14,8 @@ export const studentApi = apiSlice.injectEndpoints({
   endpoints: builder => ({
     getStudents: builder.query<IPaginatedData<IStudent[]>, IStudentParams>({
       query: params => ({
-        url: `students`,
+        url: `/students`,
+        method: "GET",
         params,
       }),
       providesTags: result => {
@@ -33,7 +34,8 @@ export const studentApi = apiSlice.injectEndpoints({
 
     getStudent: builder.query<IStudentDetails, string>({
       query: studentId => ({
-        url: `students/${studentId}`,
+        url: `/students/${studentId}`,
+        method: "GET",
       }),
       providesTags: result => {
         if (result) {
@@ -50,9 +52,9 @@ export const studentApi = apiSlice.injectEndpoints({
 
     createStudent: builder.mutation<IStudent, IStudentCreateReqData>({
       query: (data: IStudentCreateReqData) => ({
-        url: `students/`,
+        url: `/students/`,
         method: "POST",
-        body: data,
+        data,
       }),
       invalidatesTags: ["StudentStats"],
 
@@ -79,9 +81,9 @@ export const studentApi = apiSlice.injectEndpoints({
 
     updateStudent: builder.mutation<IStudent, Partial<IStudentUpdateReqData>>({
       query: ({ id, data }: Partial<IStudentUpdateReqData>) => ({
-        url: `students/${id}`,
+        url: `/students/${id}`,
         method: "PATCH",
-        body: data,
+        data,
       }),
 
       // pessimistically update cache
@@ -117,7 +119,7 @@ export const studentApi = apiSlice.injectEndpoints({
 
     deleteStudent: builder.mutation<void, number>({
       query: (id: number) => ({
-        url: `students/${id}`,
+        url: `/students/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["StudentStats"],
@@ -147,7 +149,8 @@ export const studentApi = apiSlice.injectEndpoints({
 
     getStudentShortStats: builder.query<IStudentShortStats, undefined>({
       query: () => ({
-        url: `students/statistics`,
+        url: `/students/statistics`,
+        method: "GET",
       }),
       providesTags: ["StudentStats"],
     }),

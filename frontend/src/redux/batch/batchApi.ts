@@ -12,7 +12,8 @@ export const batchApi = apiSlice.injectEndpoints({
   endpoints: builder => ({
     getBatches: builder.query<IPaginatedData<IBatch[]>, IBatchParams>({
       query: params => ({
-        url: `organizations/batches`,
+        url: `/organizations/batches`,
+        method: "GET",
         params,
       }),
       providesTags: result => {
@@ -31,7 +32,8 @@ export const batchApi = apiSlice.injectEndpoints({
 
     getBatch: builder.query<IBatch, number>({
       query: batchId => ({
-        url: `organizations/batches/${batchId}`,
+        url: `/organizations/batches/${batchId}`,
+        method: "GET",
       }),
       providesTags: result => {
         if (result) {
@@ -48,9 +50,9 @@ export const batchApi = apiSlice.injectEndpoints({
 
     createBatch: builder.mutation<IBatch, IBatchCreateReqData>({
       query: (data: IBatchCreateReqData) => ({
-        url: `organizations/batches`,
+        url: `/organizations/batches`,
         method: "POST",
-        body: data,
+        data,
       }),
       invalidatesTags: ["OrgStats"],
 
@@ -77,9 +79,9 @@ export const batchApi = apiSlice.injectEndpoints({
 
     updateBatch: builder.mutation<IBatch, IBatchUpdateReqData>({
       query: ({ id, data }: IBatchUpdateReqData) => ({
-        url: `organizations/batches/${id}`,
+        url: `/organizations/batches/${id}`,
         method: "PATCH",
-        body: data,
+        data,
       }),
 
       // pessimistically update cache
@@ -116,7 +118,7 @@ export const batchApi = apiSlice.injectEndpoints({
 
     deleteBatch: builder.mutation<void, number>({
       query: (id: number) => ({
-        url: `organizations/batches/${id}`,
+        url: `/organizations/batches/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["OrgStats"],
@@ -146,7 +148,8 @@ export const batchApi = apiSlice.injectEndpoints({
 
     searchBatch: builder.query<IPaginatedData<IBatch[]>, undefined>({
       query: params => ({
-        url: `organizations/Batches`,
+        url: `/organizations/Batches`,
+        method: "GET",
         params,
       }),
       providesTags: ["BatchSearch"],

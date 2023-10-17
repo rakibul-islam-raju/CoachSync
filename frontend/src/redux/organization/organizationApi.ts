@@ -7,7 +7,8 @@ export const organizationApi = apiSlice.injectEndpoints({
   endpoints: builder => ({
     getOrgShortStats: builder.query<IOrgShortStats, undefined>({
       query: () => ({
-        url: `organizations/statistics`,
+        url: `/organizations/statistics`,
+        method: "GET",
       }),
       providesTags: ["OrgStats"],
     }),

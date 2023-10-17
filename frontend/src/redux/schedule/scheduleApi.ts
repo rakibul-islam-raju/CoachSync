@@ -12,7 +12,8 @@ export const scheduleApi = apiSlice.injectEndpoints({
   endpoints: builder => ({
     getSchedules: builder.query<IPaginatedData<ISchedule[]>, IScheduleParams>({
       query: params => ({
-        url: `organizations/schedules`,
+        url: `/organizations/schedules`,
+        method: "GET",
         params,
       }),
       providesTags: result => {
@@ -31,9 +32,9 @@ export const scheduleApi = apiSlice.injectEndpoints({
 
     createSchedule: builder.mutation<ISchedule[], IScheduleCreateReqData[]>({
       query: (data: IScheduleCreateReqData[]) => ({
-        url: `organizations/schedules`,
+        url: `/organizations/schedules`,
         method: "POST",
-        body: data,
+        data,
       }),
 
       // pessimistically update cache
@@ -59,9 +60,9 @@ export const scheduleApi = apiSlice.injectEndpoints({
 
     updateSchedule: builder.mutation<ISchedule, IScheduleUpdateReqData>({
       query: ({ id, data }: IScheduleUpdateReqData) => ({
-        url: `organizations/schedules/${id}`,
+        url: `/organizations/schedules/${id}`,
         method: "PATCH",
-        body: data,
+        data,
       }),
 
       // pessimistically update cache
@@ -80,7 +81,7 @@ export const scheduleApi = apiSlice.injectEndpoints({
 
     deleteSchedule: builder.mutation<void, number>({
       query: (id: number) => ({
-        url: `organizations/schedules/${id}`,
+        url: `/organizations/schedules/${id}`,
         method: "DELETE",
       }),
 

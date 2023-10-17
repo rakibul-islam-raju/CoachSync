@@ -12,7 +12,8 @@ export const classApi = apiSlice.injectEndpoints({
   endpoints: builder => ({
     getClasses: builder.query<IPaginatedData<IClass[]>, IClassParams>({
       query: params => ({
-        url: `organizations/classes`,
+        url: `/organizations/classes`,
+        method: "GET",
         params,
       }),
       providesTags: result => {
@@ -28,9 +29,9 @@ export const classApi = apiSlice.injectEndpoints({
 
     createClass: builder.mutation<IClass, IClassCreateReqData>({
       query: (data: IClassCreateReqData) => ({
-        url: `organizations/classes`,
+        url: `/organizations/classes`,
         method: "POST",
-        body: data,
+        data,
       }),
       invalidatesTags: ["OrgStats"],
 
@@ -57,9 +58,9 @@ export const classApi = apiSlice.injectEndpoints({
 
     updateClass: builder.mutation<IClass, IClassUpdateReqData>({
       query: ({ id, data }: IClassUpdateReqData) => ({
-        url: `organizations/classes/${id}`,
+        url: `/organizations/classes/${id}`,
         method: "PATCH",
-        body: data,
+        data,
       }),
 
       // pessimistically update cache
@@ -96,7 +97,7 @@ export const classApi = apiSlice.injectEndpoints({
 
     deleteClass: builder.mutation<void, number>({
       query: (id: number) => ({
-        url: `organizations/classes/${id}`,
+        url: `/organizations/classes/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["OrgStats"],
@@ -126,7 +127,8 @@ export const classApi = apiSlice.injectEndpoints({
 
     searchClass: builder.query<IPaginatedData<IClass[]>, undefined>({
       query: params => ({
-        url: `organizations/classes`,
+        url: `/organizations/classes`,
+        method: "GET",
         params,
       }),
       providesTags: ["ClassSearch"],

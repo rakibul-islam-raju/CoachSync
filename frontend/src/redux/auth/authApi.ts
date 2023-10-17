@@ -8,7 +8,7 @@ export const authApi = apiSlice.injectEndpoints({
       query: data => ({
         url: "/auth/login",
         method: "POST",
-        body: data,
+        data,
       }),
       async onQueryStarted(_, { queryFulfilled, dispatch }) {
         try {
@@ -32,7 +32,7 @@ export const authApi = apiSlice.injectEndpoints({
       query: data => ({
         url: "/auth/logout",
         method: "POST",
-        body: data,
+        data,
       }),
       async onQueryStarted(_, { queryFulfilled, dispatch }) {
         try {
