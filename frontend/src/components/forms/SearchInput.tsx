@@ -19,9 +19,11 @@ const SearchInput: FC<SearchInputProps> = ({
 }) => {
   return (
     <TextInput
+      type="text"
       value={value}
       onChange={handleChange}
       label={label}
+      autoComplete="off"
       InputProps={{
         startAdornment: (
           <InputAdornment position="start">

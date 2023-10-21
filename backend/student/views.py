@@ -12,7 +12,7 @@ from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView,
     RetrieveUpdateAPIView,
 )
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Student, Enroll, Transaction
@@ -33,7 +33,7 @@ class StudentListView(ListCreateAPIView):
     permission_classes = [IsOrgStaff]
     serializer_class = CreateStudentSerializer
     queryset = Student.objects.all()
-    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["is_active", "blood_group"]
     search_fields = [
         "emergency_contact_no",

@@ -21,6 +21,8 @@ const studentSlice = createSlice({
   initialState,
   reducers: {
     setParams(state, action: PayloadAction<Partial<IStudentParams>>) {
+      console.log(action);
+
       if ("search" in action.payload && action.payload.search !== undefined) {
         state.params = {
           ...state.params,

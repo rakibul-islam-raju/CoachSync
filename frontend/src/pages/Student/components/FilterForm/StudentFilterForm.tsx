@@ -13,16 +13,16 @@ import {
 } from "@mui/material";
 import { ChangeEvent, FC, FormEvent, useState } from "react";
 import { CustomButton } from "../../../../components/CustomButton/CustomButton";
-import { teacherOrderings } from "../../../../constants/teacher.constants";
+import { studentsOrderings } from "../../../../constants/student.constants";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hook";
-import { ITeacherParams } from "../../../../redux/teacher/teacher.type";
-import { resetParams, setParams } from "../../../../redux/teacher/teacherSlice";
+import { IStudentParams } from "../../../../redux/student/student.type";
+import { resetParams, setParams } from "../../../../redux/student/studentSlice";
 
 const StudentFilterForm: FC = () => {
   const dispatch = useAppDispatch();
-  const { params } = useAppSelector(state => state.teacher);
+  const { params } = useAppSelector(state => state.student);
 
-  const [args, setArgs] = useState<Partial<ITeacherParams> | null>(params);
+  const [args, setArgs] = useState<Partial<IStudentParams> | null>(params);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setArgs({ ...args, [e.target.name]: e.target.value });
@@ -30,6 +30,8 @@ const StudentFilterForm: FC = () => {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log("args =>", args);
+
     dispatch(setParams({ ...args }));
   };
 
@@ -40,21 +42,20 @@ const StudentFilterForm: FC = () => {
   return (
     <Box>
       <Typography variant="h5" gutterBottom>
-        Filter Teachers
+        Filter Students
       </Typography>
       <Divider sx={{ my: 2 }} />
       <Stack gap={1} component={"form"} onSubmit={handleSubmit}>
         <FormControl fullWidth>
           <FormLabel id="ordering">Sort by</FormLabel>
           <Select
-            labelId="demo-simple-select-label"
             id="ordering"
             name="ordering"
             onChange={e => setArgs({ ...args, ordering: e.target.value })}
             value={args?.ordering}
             size="small"
           >
-            {teacherOrderings.map(item => (
+            {studentsOrderings.map(item => (
               <MenuItem key={item.value} value={item.value}>
                 {item.label}
               </MenuItem>

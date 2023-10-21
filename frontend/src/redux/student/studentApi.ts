@@ -16,7 +16,7 @@ export const studentApi = apiSlice.injectEndpoints({
       query: params => ({
         url: `/students`,
         method: "GET",
-        params,
+        params: params,
       }),
       providesTags: result => {
         if (result) {

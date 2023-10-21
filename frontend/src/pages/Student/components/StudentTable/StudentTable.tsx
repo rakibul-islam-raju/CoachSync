@@ -19,7 +19,7 @@ import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
 import Loader from "../../../../components/Loader";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hook";
 import { useGetStudentsQuery } from "../../../../redux/student/studentApi";
-import { setPage } from "../../../../redux/teacher/teacherSlice";
+import { setPage } from "../../../../redux/student/studentSlice";
 import { formatDate } from "../../../../utils/formatDate";
 
 const columns = [
@@ -37,7 +37,9 @@ const columns = [
 const StudentTable: FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { params, page } = useAppSelector(state => state.user);
+  const { params, page } = useAppSelector(state => state.student);
+
+  console.log("params  ===>", { ...params });
 
   const { data, isLoading, isError, error } = useGetStudentsQuery({
     ...params,

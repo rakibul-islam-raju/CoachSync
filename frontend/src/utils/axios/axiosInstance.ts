@@ -1,59 +1,71 @@
 import axios from "axios";
 import { BASE_API_URL } from "../../config";
-
-let access: string | null = null;
-let refresh: string | null = null;
+import { localStorageServices } from "../../services/localStorageService";
 
 export const axiosInstance = axios.create({
   baseURL: BASE_API_URL,
   timeout: 10000,
   headers: {
-    "Content-Type": "Application/json",
+    "Content-Type": "application/json",
   },
 });
 
+// Function to refresh the access token
+async function refreshAccessToken() {
+  try {
+    const refreshToken = localStorageServices.getRefreshToken();
+    if (!refreshToken) {
+      localStorageServices.removeAuthTokensFromLocalStorage();
+      throw new Error("No refresh token available");
+    }
+
+    const response = await axios.post(`${BASE_API_URL}/auth/refresh`, {
+      refreshToken: refreshToken,
+    });
+
+    const newTokens = response.data;
+    localStorageServices.setAuthTokensToLocalStorage(JSON.stringify(newTokens));
+
+    return newTokens;
+  } catch (error) {
+    localStorageServices.removeAuthTokensFromLocalStorage();
+    console.error("Token refresh error:", error);
+    throw error;
+  }
+}
+
 // interceptors
 axiosInstance.interceptors.request.use(
-  async req => {
-    const authDataString = localStorage.getItem("cms_auth");
-    if (authDataString) {
-      const authData: {
-        access: string;
-        refresh: string;
-      } = JSON.parse(authDataString);
-      access = authData.access;
-      refresh = authData.refresh;
+  config => {
+    // Get the access token from your storage (e.g., localStorage)
+    const accessToken = localStorageServices.getAccessToken();
+    console.log("accessToken =>", accessToken);
+
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
 
-    if (access) {
-      req.headers.Authorization = `Bearer ${access}`;
-      return req;
-    }
-    return req;
-    // else {
-    //   localStorage.removeItem("cms_auth");
-    //   return Promise.reject(new Error("Access token is missing"));
-    // }
+    return config;
   },
+  error => Promise.reject(error),
+);
 
+axiosInstance.interceptors.response.use(
+  response => response,
   async error => {
-    const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
+    if (error.response && error.response.status === 401) {
       try {
-        const { data } = await axios.post(`${BASE_API_URL}/auth/refresh`, {
-          refresh: refresh,
-        });
+        // Attempt to refresh the access token
+        const newTokens = await refreshAccessToken();
 
-        localStorage.setItem("cms_auth", JSON.stringify(data));
-
-        originalRequest.headers.Authorization = `Bearer ${data?.access}`;
-
+        // Retry the original request with the new access token
+        const originalRequest = error.config;
+        originalRequest.headers.Authorization = `Bearer ${newTokens.access}`;
         return axios(originalRequest);
       } catch (refreshError) {
-        localStorage.removeItem("cms_auth");
-        return Promise.reject(refreshError);
+        localStorageServices.removeAuthTokensFromLocalStorage();
+        console.error("Token refresh failed:", refreshError);
+        throw refreshError;
       }
     }
     return Promise.reject(error);
