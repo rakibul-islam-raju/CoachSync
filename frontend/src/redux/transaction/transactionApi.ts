@@ -42,7 +42,7 @@ export const transactionApi = apiSlice.injectEndpoints({
         method: "POST",
         data,
       }),
-      invalidatesTags: ["TransactionStats"],
+      invalidatesTags: ["TransactionStats", "Student"],
 
       // pessimistically update cache
       async onQueryStarted(_data, { dispatch, queryFulfilled, getState }) {
@@ -53,7 +53,7 @@ export const transactionApi = apiSlice.injectEndpoints({
           dispatch(
             transactionApi.util.updateQueryData(
               "getTransactions",
-              param,
+              { ...param, enroll: _data.enroll },
               (draft: IPaginatedData<ITransaction[]> | undefined) => {
                 if (draft) {
                   draft.results.unshift({ ...data });

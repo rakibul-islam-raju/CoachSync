@@ -1,6 +1,6 @@
 /* eslint-disable no-prototype-builtins */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RESULTS_PER_PAGE } from "../../config";
+// import { RESULTS_PER_PAGE } from "../../config";
 import { ITransactionParams } from "./transaction.type";
 
 type TransactionState = {
@@ -10,7 +10,7 @@ type TransactionState = {
 
 const initialState: TransactionState = {
   params: {
-    limit: RESULTS_PER_PAGE,
+    limit: 10,
     offset: 0,
   },
   page: 1,

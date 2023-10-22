@@ -7,7 +7,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import Modal from "../../../../components/Modal/Modal";
 import {
   IEnrollsForStudentDetails,
@@ -28,6 +28,15 @@ const StudentEnrollments: FC<Props> = ({ studentData }) => {
     setSelectedEnroll(data);
 
   const handleCloseTransactionHistory = () => setSelectedEnroll(null);
+
+  useEffect(() => {
+    if (selectedEnroll) {
+      const updatedEnroll = studentData.enrolls.find(
+        enroll => enroll.id === selectedEnroll.id,
+      );
+      if (updatedEnroll) setSelectedEnroll(updatedEnroll);
+    }
+  }, [studentData]);
 
   return (
     <>

@@ -1,3 +1,5 @@
+import ArrowCircleDownIcon from "@mui/icons-material/ArrowCircleDown";
+import ArrowCircleUpIcon from "@mui/icons-material/ArrowCircleUp";
 import { Box, Chip, TableBody, TableCell, TableRow } from "@mui/material";
 import { FC, useState } from "react";
 import { CustomButton } from "../../../../components/CustomButton/CustomButton";
@@ -10,6 +12,20 @@ import { IEnrollsForStudentDetails } from "../../../../redux/student/student.typ
 import { useGetTransactionsQuery } from "../../../../redux/transaction/transactionApi";
 import { formatDateTime } from "../../../../utils/formatDateTime";
 import TransactionForm from "../StudentForm/TransactionForm";
+
+function amountType(amount: number) {
+  const isNeg = amount < 0;
+  return (
+    <Box display={"flex"} gap={1} alignItems={"center"}>
+      {isNeg ? (
+        <ArrowCircleUpIcon color="error" />
+      ) : (
+        <ArrowCircleDownIcon color="success" />
+      )}
+      {Math.abs(amount)}
+    </Box>
+  );
+}
 
 const columns = ["Date", "Amount", "Remark"];
 
@@ -44,11 +60,11 @@ const TransactionHistory: FC<TransactionHistoryProps> = ({ enrollData }) => {
     <>
       <Box display={"flex"} justifyContent={"space-between"} mb={2}>
         <Chip label={`Total: ${enrollData.total_amount}`} color="primary" />
-        <Chip label={`Pain: ${enrollData.total_paid}`} color="success" />
+        <Chip label={`Paid: ${enrollData.total_paid}`} color="success" />
         <Chip
-          label={`${isReturn ? "Return" : "Due"}: ${
-            Number(enrollData.total_amount) - Number(enrollData.total_paid)
-          }`}
+          label={`${isReturn ? "Return" : "Due"}: ${Math.abs(
+            Number(enrollData.total_amount) - Number(enrollData.total_paid),
+          )}`}
           color={isReturn ? "warning" : "error"}
         />
         <CustomButton size="small" onClick={handleOpenModal}>
@@ -72,7 +88,7 @@ const TransactionHistory: FC<TransactionHistoryProps> = ({ enrollData }) => {
                 <TableCell component="th" scope="row">
                   {formatDateTime(enroll.created_at)}
                 </TableCell>
-                <TableCell>{enroll.amount}</TableCell>
+                <TableCell>{amountType(enroll.amount)}</TableCell>
                 <TableCell>{enroll.remark}</TableCell>
               </TableRow>
             ))}

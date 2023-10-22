@@ -22,13 +22,13 @@ export const studentApi = apiSlice.injectEndpoints({
         if (result) {
           return [
             ...result.results.map(({ id }) => ({
-              type: "Student" as const,
+              type: "Students" as const,
               id,
             })),
-            "Student",
+            "Students",
           ];
         }
-        return ["Student"];
+        return ["Students"];
       },
     }),
 
@@ -44,6 +44,7 @@ export const studentApi = apiSlice.injectEndpoints({
               type: "Student" as const,
               id: result.id,
             },
+            "Student",
           ];
         }
         return ["Student"];
