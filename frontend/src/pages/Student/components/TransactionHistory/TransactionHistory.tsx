@@ -37,16 +37,19 @@ const TransactionHistory: FC<TransactionHistoryProps> = ({ enrollData }) => {
 
   const handleCloseModal = () => setTransactionModal(false);
 
+  const isReturn =
+    Number(enrollData.total_amount) - Number(enrollData.total_paid) < 0;
+
   return (
     <>
       <Box display={"flex"} justifyContent={"space-between"} mb={2}>
         <Chip label={`Total: ${enrollData.total_amount}`} color="primary" />
-        <Chip label={`Paid: ${enrollData.total_paid}`} color="success" />
+        <Chip label={`Pain: ${enrollData.total_paid}`} color="success" />
         <Chip
-          label={`Due: ${
+          label={`${isReturn ? "Return" : "Due"}: ${
             Number(enrollData.total_amount) - Number(enrollData.total_paid)
           }`}
-          color="error"
+          color={isReturn ? "warning" : "error"}
         />
         <CustomButton size="small" onClick={handleOpenModal}>
           New Transaction

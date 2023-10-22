@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { InputProps } from "@mui/material";
+import { InputProps, TextFieldProps } from "@mui/material";
 import { HTMLInputTypeAttribute } from "react";
 import { Controller } from "react-hook-form";
 import TextInput from "./TextInput";
@@ -14,7 +14,7 @@ type FormInputProps = {
   multiline?: boolean;
   helperText?: string | null;
   disabled?: boolean;
-};
+} & TextFieldProps;
 
 export const FormInputText = ({
   name,
@@ -24,6 +24,7 @@ export const FormInputText = ({
   placeholder,
   inputProps,
   helperText,
+  error: err,
   ...rest
 }: FormInputProps) => {
   return (
@@ -34,7 +35,7 @@ export const FormInputText = ({
         <TextInput
           {...rest}
           helperText={error ? error.message : helperText ? helperText : null}
-          error={!!error}
+          error={!!error || err}
           onChange={
             type === "number" ? e => onChange(+e.target.value) : onChange
           }

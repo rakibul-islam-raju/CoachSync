@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, FormControl } from "@mui/material";
-import { FC, useEffect } from "react";
+import { FC, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { CustomButton } from "../../../../components/CustomButton/CustomButton";
@@ -12,25 +12,38 @@ import { ITransactionCreateReqData } from "../../../../redux/transaction/transac
 import { useCreategetTransactionMutation } from "../../../../redux/transaction/transactionApi";
 import { ITransactionFormValues, TransactionSchema } from "../StudentSchema";
 
+function isEnrollsForStudentDetails(
+  data: IEnroll | IEnrollsForStudentDetails,
+): data is IEnrollsForStudentDetails {
+  return (
+    typeof data === "object" && "total_amount" in data && "total_paid" in data
+  );
+}
+
 type TransactionFormProps = {
   onClose: () => void;
   enrollData?: IEnroll | IEnrollsForStudentDetails;
 };
 
 const TransactionForm: FC<TransactionFormProps> = ({ onClose, enrollData }) => {
-  const { control, handleSubmit, reset } = useForm<ITransactionCreateReqData>({
-    resolver: zodResolver(TransactionSchema),
-    defaultValues: {
-      enroll: enrollData?.id,
-      amount: 0,
-      remark: null,
-    },
-  });
+  const { control, handleSubmit, reset, watch } =
+    useForm<ITransactionCreateReqData>({
+      resolver: zodResolver(TransactionSchema),
+      defaultValues: {
+        enroll: enrollData?.id,
+        amount: 0,
+        remark: null,
+      },
+    });
+
+  const transactionAmount = watch("amount");
+
+  console.log("transactionAmount =>", transactionAmount);
 
   const [createTransaction, { isLoading, isError, isSuccess, error }] =
     useCreategetTransactionMutation();
 
-  //   const [due, setDue] = useState<number | null>(null);
+  const [dueAmount, setDueAmount] = useState<number | undefined>();
 
   const onSubmit = (data: ITransactionFormValues) => {
     createTransaction(data);
@@ -43,6 +56,20 @@ const TransactionForm: FC<TransactionFormProps> = ({ onClose, enrollData }) => {
       reset();
     }
   }, [isSuccess]);
+
+  useEffect(() => {
+    if (
+      enrollData &&
+      isEnrollsForStudentDetails(enrollData) &&
+      enrollData?.total_amount &&
+      enrollData?.total_paid
+    ) {
+      const amount =
+        enrollData?.total_amount - (transactionAmount + enrollData?.total_paid);
+
+      setDueAmount(amount);
+    }
+  }, [enrollData, transactionAmount]);
 
   return (
     <Box
@@ -60,6 +87,8 @@ const TransactionForm: FC<TransactionFormProps> = ({ onClose, enrollData }) => {
           control={control}
           placeholder="Enter Amount"
           label="Amount"
+          helperText={`Total Due: ${dueAmount}`}
+          error={!!dueAmount && dueAmount < 0}
         />
       </FormControl>
       <FormControl fullWidth>
