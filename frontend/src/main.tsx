@@ -1,4 +1,5 @@
 // import React from "react";
+import "react-big-calendar/lib/css/react-big-calendar.css";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import App from "./app/App.tsx";

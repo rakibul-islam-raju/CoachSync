@@ -56,6 +56,7 @@ export interface IScheduleParams {
   date?: string;
   start_date?: string;
   end_date?: string;
+  month?: string;
 
   // Index signature for string keys
   [key: string]: string | number | boolean | undefined;

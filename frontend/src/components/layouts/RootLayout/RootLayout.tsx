@@ -1,4 +1,5 @@
 import AccountCircle from "@mui/icons-material/AccountCircle";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import MailIcon from "@mui/icons-material/Mail";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -26,6 +27,8 @@ import { drawerWidth } from "../../../config";
 import { useLogoutMutation } from "../../../redux/auth/authApi";
 import { useAppSelector } from "../../../redux/hook";
 import ErrorDisplay from "../../ErrorDisplay/ErrorDisplay";
+import Modal from "../../Modal/Modal";
+import Calender from "../../calender/Calender";
 import { IMenu, MAIN_MENUS } from "./constants";
 
 const openedMixin = (theme: Theme): CSSObject => ({
@@ -106,6 +109,11 @@ export default function RootLayout() {
 
   const [open, setOpen] = React.useState(true);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [showCalendar, setShowCalendar] = React.useState<boolean>(false);
+
+  const showScheduleCalendar = () => setShowCalendar(true);
+
+  const closeScheduleCalendar = () => setShowCalendar(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -193,6 +201,11 @@ export default function RootLayout() {
       onClose={handleMobileMenuClose}
     >
       <MenuItem>
+        <IconButton size="large" color="inherit" onClick={showScheduleCalendar}>
+          <CalendarMonthIcon />
+        </IconButton>
+      </MenuItem>
+      <MenuItem>
         <IconButton size="large" aria-label="show 4 new mails" color="inherit">
           <Badge badgeContent={4} color="error">
             <MailIcon />
@@ -249,6 +262,13 @@ export default function RootLayout() {
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
+            <IconButton
+              size="large"
+              color="inherit"
+              onClick={showScheduleCalendar}
+            >
+              <CalendarMonthIcon />
+            </IconButton>
             <IconButton
               size="large"
               aria-label="show 4 new mails"
@@ -348,6 +368,14 @@ export default function RootLayout() {
 
         <Outlet />
       </Box>
+
+      <Modal
+        title="Schedules"
+        open={showCalendar}
+        onClose={closeScheduleCalendar}
+        content={<Calender />}
+        fullScreen
+      />
     </Box>
   );
 }

@@ -142,8 +142,10 @@ const ScheduleFilterForm: FC = () => {
           </Select>
         </FormControl>
         <FormControl fullWidth>
+          <Typography color={"GrayText"} component={"label"}>
+            Start Date
+          </Typography>
           <DatePicker
-            label="Start Date"
             value={startDate}
             onChange={newValue => {
               setStartDate(newValue);
@@ -153,8 +155,10 @@ const ScheduleFilterForm: FC = () => {
           />
         </FormControl>
         <FormControl fullWidth>
+          <Typography color={"GrayText"} component={"label"}>
+            End Date
+          </Typography>
           <DatePicker
-            label="End Date"
             value={endDate}
             onChange={newValue => {
               setEndDate(newValue);
