@@ -10,7 +10,7 @@ services:
       - coaching_management
 
   db:
-    image: postgres:latest
+    image: postgres:15-alpine
     container_name: coaching_db
     ports:
       - 5432:5432
@@ -25,9 +25,7 @@ services:
 
   api:
     container_name: coaching_api
-    build:
-      context: backend
-      dockerfile: ./django.Dockerfile
+    build: ./backend
     env_file:
       - ./backend/.env
     command: >
@@ -37,6 +35,11 @@ services:
                python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend:/app
+    # develop:
+    #   watch:
+    #     - path: ./backend
+    #       target: /app
+    #       action: sync
     ports:
       - "8000:8000"
     depends_on:
@@ -44,34 +47,42 @@ services:
     networks:
       - coaching_management
 
-  celery:
-    container_name: coaching_celery
-    build:
-      context: backend
-      dockerfile: ./django.Dockerfile
-    env_file:
-      - ./backend/.env
-    command: celery -A backend worker -l INFO
-    volumes:
-      - ./backend:/app
-    depends_on:
-      - redis
-      - db
-      - api
-    networks:
-      - coaching_management
+  # celery:
+  #   container_name: coaching_celery
+  #   build: ./backend
+  #   env_file:
+  #     - ./backend/.env
+  #   command: celery -A backend worker -l INFO
+  #   volumes:
+  #     - ./backend:/app
+  #   depends_on:
+  #     - redis
+  #     - db
+  #     - api
+  #   networks:
+  #     - coaching_management
 
   web:
     container_name: coaching_web
-    build:
-      context: frontend
-      dockerfile: ./node.Dockerfile
+    build: ./frontend
     ports:
       - "5173:5173"
     env_file:
       - ./frontend/.env
     volumes:
       - ./frontend:/app
+    # develop:
+    #   watch:
+    #     - path: ./frontend/package.json
+    #       action: rebuild
+    #     - path: ./frontend/package-lock.json
+    #       action: rebuild
+    #     - path: ./frontend/yarn.lock
+    #       action: rebuild
+    #     - path: ./frontend
+    #       target: /app
+    #       action: sync
+
     networks:
       - coaching_management
 

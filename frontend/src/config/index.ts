@@ -1,5 +1,5 @@
 export const drawerWidth: number = 240;
-export const RESULTS_PER_PAGE: number = 2;
+export const RESULTS_PER_PAGE: number = 20;
 export const PAGE_SIZE_OPTIONS: number[] = [2, 10, 20, 30];
 
 // env vars
