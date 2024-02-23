@@ -152,6 +152,34 @@ class EnrollSerializer(serializers.ModelSerializer):
         return object.total_paid
 
 
+# class EnrollListBatchSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Batch
+#         fields = ["id", "name"]
+
+
+class EnrollListStudentUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "first_name", "last_name", "full_name"]
+
+
+class EnrollListStudentSerializer(serializers.ModelSerializer):
+    user = EnrollListStudentUserSerializer()
+
+    class Meta:
+        model = Student
+        fields = ["id", "student_id", "user"]
+
+
+class EnrollListSerializer(serializers.ModelSerializer):
+    student = EnrollListStudentSerializer()
+
+    class Meta:
+        model = Enroll
+        fields = ["id", "student", "batch", "total_amount", "discount_amount"]
+
+
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction

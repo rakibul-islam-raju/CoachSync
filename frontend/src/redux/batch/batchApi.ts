@@ -16,18 +16,7 @@ export const batchApi = apiSlice.injectEndpoints({
         method: "GET",
         params,
       }),
-      providesTags: result => {
-        if (result) {
-          return [
-            ...result.results.map(({ id }) => ({
-              type: "Batches" as const,
-              id,
-            })),
-            "Batches",
-          ];
-        }
-        return ["Batches"];
-      },
+      providesTags: ["Batches"],
     }),
 
     getBatch: builder.query<IBatch, number>({
@@ -54,27 +43,7 @@ export const batchApi = apiSlice.injectEndpoints({
         method: "POST",
         data,
       }),
-      invalidatesTags: ["OrgStats"],
-
-      // pessimistically update cache
-      async onQueryStarted(_data, { dispatch, queryFulfilled, getState }) {
-        const param = getState().batch.params;
-
-        try {
-          const { data } = await queryFulfilled;
-          dispatch(
-            batchApi.util.updateQueryData(
-              "getBatches",
-              param,
-              (draft: IPaginatedData<IBatch[]> | undefined) => {
-                if (draft) {
-                  draft.results.unshift({ ...data });
-                }
-              },
-            ),
-          );
-        } catch {}
-      },
+      invalidatesTags: ["OrgStats", "Batches"],
     }),
 
     updateBatch: builder.mutation<IBatch, IBatchUpdateReqData>({
@@ -83,37 +52,7 @@ export const batchApi = apiSlice.injectEndpoints({
         method: "PATCH",
         data,
       }),
-
-      // pessimistically update cache
-      async onQueryStarted(
-        { id, data: postData },
-        { dispatch, queryFulfilled, getState },
-      ) {
-        const param = getState().batch.params;
-
-        try {
-          const { data } = await queryFulfilled;
-
-          dispatch(
-            batchApi.util.updateQueryData(
-              "getBatches",
-              param,
-              (draft: IPaginatedData<IBatch[]> | undefined) => {
-                if (draft) {
-                  const updatedBatchIndex = draft.results.findIndex(
-                    item => item.id === id,
-                  );
-                  draft.results[updatedBatchIndex] = { ...data };
-                }
-              },
-            ),
-          );
-
-          if (postData.is_active) {
-            dispatch(batchApi.util.invalidateTags(["OrgStats"]));
-          }
-        } catch {}
-      },
+      invalidatesTags: ["Batches"],
     }),
 
     deleteBatch: builder.mutation<void, number>({
@@ -121,29 +60,7 @@ export const batchApi = apiSlice.injectEndpoints({
         url: `/organizations/batches/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["OrgStats"],
-
-      // pessimistically update cache
-      async onQueryStarted(id, { dispatch, queryFulfilled, getState }) {
-        const param = getState().batch.params;
-
-        try {
-          await queryFulfilled;
-          dispatch(
-            batchApi.util.updateQueryData(
-              "getBatches",
-              param,
-              (draft: IPaginatedData<IBatch[]> | undefined) => {
-                if (draft) {
-                  draft.results = draft.results.filter(
-                    item => Number(item.id) !== id,
-                  );
-                }
-              },
-            ),
-          );
-        } catch {}
-      },
+      invalidatesTags: ["OrgStats", "Batches"],
     }),
 
     searchBatch: builder.query<IPaginatedData<IBatch[]>, undefined>({

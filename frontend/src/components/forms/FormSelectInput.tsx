@@ -31,25 +31,29 @@ const FormSelectInput: FC<FormSelectInputProps> = ({
     <Controller
       name={name}
       control={control}
-      render={({ field: { onChange, value }, fieldState: { error } }) => (
-        <FormControl fullWidth error={!!error}>
-          {label && <InputLabel>{label}</InputLabel>}
-          <Select
-            {...rest}
-            {...inputProps}
-            label={label}
-            onChange={onChange}
-            value={value}
-          >
-            {options?.map(option => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </Select>
-          {error && <FormHelperText>{error.message}</FormHelperText>}
-        </FormControl>
-      )}
+      render={({ field: { onChange, value }, fieldState: { error } }) => {
+        console.log("vaaaaaaaaaaaaaaalueeeeeeeeeeee=>", value);
+
+        return (
+          <FormControl fullWidth error={!!error}>
+            {label && <InputLabel>{label}</InputLabel>}
+            <Select
+              {...rest}
+              {...inputProps}
+              label={label}
+              onChange={onChange}
+              value={value}
+            >
+              {options?.map(option => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+            {error && <FormHelperText>{error.message}</FormHelperText>}
+          </FormControl>
+        );
+      }}
     />
   );
 };

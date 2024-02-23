@@ -24,10 +24,10 @@ export interface IEnrollUpdateReqData {
 }
 
 export interface IEnrollParams {
-  limit: number;
-  offset: number;
+  limit?: number;
+  offset?: number;
   search?: string;
-  batch?: string;
+  batch?: number;
   ordering?: string;
 
   // Index signature for string keys

@@ -59,7 +59,7 @@ class Batch(BaseModel):
     def __str__(self):
         return self.name
 
-    def get_class_name(self):
+    def class_name(self):
         return self.classs.name
 
 
@@ -108,6 +108,8 @@ class Schedule(BaseModel):
     date = models.DateField()
     time = models.TimeField()
     exam = models.ForeignKey(Exam, models.SET_NULL, blank=True, null=True)
+
+    objects = models.Manager()
 
     class Meta:
         ordering = ["date", "time"]

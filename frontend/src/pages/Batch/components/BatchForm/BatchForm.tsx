@@ -25,6 +25,8 @@ type BatchFormProps = {
 };
 
 const BatchForm: FC<BatchFormProps> = ({ onClose, defaultData }) => {
+  console.log("defaultData?.classs.id =>", defaultData);
+
   const {
     control,
     handleSubmit,

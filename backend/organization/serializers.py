@@ -124,6 +124,7 @@ class BatchCreateSerializer(serializers.ModelSerializer):
             "start_date",
             "end_date",
             "fee",
+            "is_active",
         ]
 
 

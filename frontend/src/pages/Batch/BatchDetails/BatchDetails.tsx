@@ -18,6 +18,7 @@ import {
 import { formatDate } from "../../../utils/formatDate";
 import { formatDateTime } from "../../../utils/formatDateTime";
 import BatchForm from "../components/BatchForm/BatchForm";
+import StudentList from "./components/StudentList";
 
 const breadCrumbList = [
   {
@@ -156,9 +157,7 @@ const BatchDetails: FC = () => {
             </ItemWrapper>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Typography variant="h5" gutterBottom>
-              Students
-            </Typography>
+            <StudentList batchId={Number(batchId)} />
           </Grid>
         </Grid>
       </PageContainer>

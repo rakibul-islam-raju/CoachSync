@@ -20,6 +20,7 @@ from .serializers import (
     StudentSerializer,
     CreateStudentSerializer,
     EnrollSerializer,
+    EnrollListSerializer,
     EnrollCreateSerializer,
     TransactionSerializer,
     StudentsShortStatSerializer,
@@ -85,7 +86,7 @@ class EnrollListCreateView(ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == "POST":
             return EnrollCreateSerializer
-        return EnrollSerializer
+        return EnrollListSerializer
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)

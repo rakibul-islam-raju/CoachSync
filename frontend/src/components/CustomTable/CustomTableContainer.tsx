@@ -16,7 +16,7 @@ interface TableProps {
 const CustomTableContainer: FC<TableProps> = ({ columns, children }) => {
   return (
     <TableContainer component={Paper} variant="outlined">
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+      <Table sx={{ minWidth: 650 }} aria-label="simple table" size="small">
         <TableHead>
           <TableRow>
             {columns.map((column, index) => (

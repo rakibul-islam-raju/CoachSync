@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
+import PreviewIcon from "@mui/icons-material/Preview";
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
-import PreviewIcon from "@mui/icons-material/Preview";
 import {
   ButtonGroup,
   IconButton,
@@ -12,8 +11,6 @@ import {
   Tooltip,
 } from "@mui/material";
 import Box from "@mui/material/Box";
-import { FC } from "react";
-import { useNavigate } from "react-router-dom";
 import CustomPagination from "../../../../components/CustomPagination/CustomPagination";
 import CustomTableContainer from "../../../../components/CustomTable/CustomTableContainer";
 import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
@@ -22,6 +19,7 @@ import { useGetBatchesQuery } from "../../../../redux/batch/batchApi";
 import { setPage } from "../../../../redux/batch/batchSlice";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hook";
 import { formatDate } from "../../../../utils/formatDate";
+import { useNavigate } from "react-router-dom";
 
 const columns = [
   "Name",
@@ -34,18 +32,47 @@ const columns = [
   "Action",
 ];
 
-const BatchTable: FC = () => {
-  const dispatch = useAppDispatch();
+const BatchTable: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { params, page } = useAppSelector(state => state.batch);
 
   const { data, isLoading, isError, error } = useGetBatchesQuery({
     ...params,
   });
 
-  const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  // const [
+  //   deleteBatch,
+  //   { isError: isDeleteError, error: deleteError, isSuccess: deleteSuccess },
+  // ] = useDeleteBatchMutation();
+
+  // const [itemToEdit, setItemToEdit] = useState<IBatch | undefined>();
+  // const [itemToDelete, setItemToDelete] = useState<IBatch | undefined>();
+
+  // const handleOpenEditModal = (data: IBatch) => setItemToEdit(data);
+
+  // const handleCloseEditModal = () => setItemToEdit(undefined);
+
+  // const handleCloseDeleteModal = () => setItemToDelete(undefined);
+
+  // const handleOpenDeleteModal = (data: IBatch) => setItemToDelete(data);
+
+  // const handleDelete = () => {
+  //   if (itemToDelete) {
+  //     deleteBatch(itemToDelete?.id);
+  //   }
+  // };
+
+  const handleChange = (_: React.ChangeEvent<unknown>, value: number) => {
     dispatch(setPage(value));
   };
+
+  // useEffect(() => {
+  //   if (deleteSuccess) {
+  //     toast.success("Batch successfully deleted!");
+  //     handleCloseDeleteModal();
+  //   }
+  // }, [deleteSuccess]);
 
   return isLoading ? (
     <Loader />
@@ -81,6 +108,7 @@ const BatchTable: FC = () => {
                   <ButtonGroup>
                     <Tooltip title="Preview">
                       <IconButton
+                        color="primary"
                         onClick={() =>
                           navigate(`/batches/${row.id}/${row.name}`)
                         }
@@ -88,6 +116,22 @@ const BatchTable: FC = () => {
                         <PreviewIcon />
                       </IconButton>
                     </Tooltip>
+                    {/* <Tooltip title="Edit">
+                      <IconButton
+                        color="primary"
+                        onClick={() => handleOpenEditModal(row)}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                      <IconButton
+                        color="error"
+                        onClick={() => handleOpenDeleteModal(row)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip> */}
                   </ButtonGroup>
                 </TableCell>
               </TableRow>
@@ -100,6 +144,36 @@ const BatchTable: FC = () => {
           handleChange={handleChange}
           count={Math.ceil(data.count / params.limit)}
         />
+
+        {/* edit modal */}
+        {/* {itemToEdit && (
+          <Modal
+            open={!!itemToEdit}
+            onClose={handleCloseEditModal}
+            title="Edit Employee"
+            content={
+              <BatchForm
+                onClose={handleCloseEditModal}
+                defaultData={itemToEdit}
+              />
+            }
+            onConfirm={handleCloseEditModal}
+            onCancel={handleCloseEditModal}
+            maxWidth="sm"
+            fullWidth
+          />
+        )} */}
+
+        {/* delete confirm modal */}
+        {/* {itemToDelete && (
+          <ConfirmDialogue
+            open={!!itemToDelete}
+            title="Delete Batch"
+            message={"Are you want to delete this batch?"}
+            handleSubmit={handleDelete}
+            handleClose={handleCloseDeleteModal}
+          />
+        )} */}
       </Box>
     )
   );
