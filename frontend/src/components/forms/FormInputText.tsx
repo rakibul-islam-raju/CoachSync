@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { InputProps, TextFieldProps } from "@mui/material";
 import { HTMLInputTypeAttribute } from "react";
-import { Controller } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import TextInput from "./TextInput";
 
 type FormInputProps = {
   name: string;
-  control: any;
   label: string;
   type: HTMLInputTypeAttribute;
   placeholder?: string;
@@ -18,24 +17,26 @@ type FormInputProps = {
 
 export const FormInputText = ({
   name,
-  control,
   label,
   type,
   placeholder,
   inputProps,
   helperText,
-  error: err,
+  error,
   ...rest
 }: FormInputProps) => {
+  const { control } = useFormContext();
+
   return (
     <Controller
       name={name}
       control={control}
-      render={({ field: { onChange, value }, fieldState: { error } }) => (
+      render={({ field: { onChange, value }, ...fields }) => (
         <TextInput
+          {...fields}
           {...rest}
-          helperText={error ? error.message : helperText ? helperText : null}
-          error={!!error || err}
+          helperText={helperText}
+          error={error}
           onChange={
             type === "number" ? e => onChange(+e.target.value) : onChange
           }

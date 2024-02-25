@@ -41,38 +41,9 @@ const BatchTable: React.FC = () => {
     ...params,
   });
 
-  // const [
-  //   deleteBatch,
-  //   { isError: isDeleteError, error: deleteError, isSuccess: deleteSuccess },
-  // ] = useDeleteBatchMutation();
-
-  // const [itemToEdit, setItemToEdit] = useState<IBatch | undefined>();
-  // const [itemToDelete, setItemToDelete] = useState<IBatch | undefined>();
-
-  // const handleOpenEditModal = (data: IBatch) => setItemToEdit(data);
-
-  // const handleCloseEditModal = () => setItemToEdit(undefined);
-
-  // const handleCloseDeleteModal = () => setItemToDelete(undefined);
-
-  // const handleOpenDeleteModal = (data: IBatch) => setItemToDelete(data);
-
-  // const handleDelete = () => {
-  //   if (itemToDelete) {
-  //     deleteBatch(itemToDelete?.id);
-  //   }
-  // };
-
   const handleChange = (_: React.ChangeEvent<unknown>, value: number) => {
     dispatch(setPage(value));
   };
-
-  // useEffect(() => {
-  //   if (deleteSuccess) {
-  //     toast.success("Batch successfully deleted!");
-  //     handleCloseDeleteModal();
-  //   }
-  // }, [deleteSuccess]);
 
   return isLoading ? (
     <Loader />
@@ -144,36 +115,6 @@ const BatchTable: React.FC = () => {
           handleChange={handleChange}
           count={Math.ceil(data.count / params.limit)}
         />
-
-        {/* edit modal */}
-        {/* {itemToEdit && (
-          <Modal
-            open={!!itemToEdit}
-            onClose={handleCloseEditModal}
-            title="Edit Employee"
-            content={
-              <BatchForm
-                onClose={handleCloseEditModal}
-                defaultData={itemToEdit}
-              />
-            }
-            onConfirm={handleCloseEditModal}
-            onCancel={handleCloseEditModal}
-            maxWidth="sm"
-            fullWidth
-          />
-        )} */}
-
-        {/* delete confirm modal */}
-        {/* {itemToDelete && (
-          <ConfirmDialogue
-            open={!!itemToDelete}
-            title="Delete Batch"
-            message={"Are you want to delete this batch?"}
-            handleSubmit={handleDelete}
-            handleClose={handleCloseDeleteModal}
-          />
-        )} */}
       </Box>
     )
   );

@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Checkbox, FormControl, FormControlLabel } from "@mui/material";
 import { FC, useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { CustomButton } from "../../../../components/CustomButton/CustomButton";
 import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
@@ -15,6 +15,7 @@ import { getDirtyValues } from "../../../../utils/getDirtyValues";
 import {
   ISubjectCreateFormValues,
   subjectCreateSchema,
+  subjectUpdateSchema,
 } from "../subjectSchema";
 
 type SubjectFormProps = {
@@ -23,19 +24,24 @@ type SubjectFormProps = {
 };
 
 const SubjectForm: FC<SubjectFormProps> = ({ onClose, defaultData }) => {
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { isDirty, dirtyFields },
-  } = useForm<ISubjectCreateFormValues>({
-    resolver: zodResolver(subjectCreateSchema),
+  const methods = useForm<ISubjectCreateFormValues>({
+    resolver: zodResolver(
+      defaultData ? subjectUpdateSchema : subjectCreateSchema,
+    ),
     defaultValues: {
-      name: defaultData?.name ?? "",
-      code: defaultData?.code ?? "",
+      name: defaultData?.name,
+      code: defaultData?.code,
       is_active: defaultData?.is_active ?? true,
     },
   });
+
+  const {
+    handleSubmit,
+    reset,
+    formState: { isDirty, dirtyFields, errors },
+  } = methods;
+
+  console.log("errors =>", methods.formState.errors);
 
   const [createSubject, { isLoading, isError, isSuccess, error }] =
     useCreateSubjectMutation();
@@ -59,6 +65,9 @@ const SubjectForm: FC<SubjectFormProps> = ({ onClose, defaultData }) => {
         updateSubject({ id: defaultData.id, data: dirtyValues });
       }
     } else {
+      console.log("data =>", data);
+
+      return;
       createSubject(data);
     }
   };
@@ -81,66 +90,74 @@ const SubjectForm: FC<SubjectFormProps> = ({ onClose, defaultData }) => {
   }, [isSuccess, isEditSuccess]);
 
   return (
-    <Box
-      display={"flex"}
-      flexDirection={"column"}
-      gap={2}
-      component={"form"}
-      noValidate
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <FormControl fullWidth>
-        <FormInputText
-          name="name"
-          type="text"
-          control={control}
-          placeholder="Enter Subject Name"
-          label="Subject Name"
-        />
-      </FormControl>
-      <FormControl fullWidth>
-        <FormInputText
-          name="code"
-          type="text"
-          control={control}
-          placeholder="Enter Subject Code"
-          label="Code"
-        />
-      </FormControl>
-      <FormControlLabel
-        control={
-          <Controller
-            name={"is_active"}
-            control={control}
-            render={({ field: props }) => (
-              <Checkbox
-                {...props}
-                checked={props.value}
-                onChange={e => props.onChange(e.target.checked)}
-              />
-            )}
+    <FormProvider {...methods}>
+      <Box
+        display={"flex"}
+        flexDirection={"column"}
+        gap={2}
+        component={"form"}
+        noValidate
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <FormControl fullWidth>
+          <FormInputText
+            name="name"
+            type="text"
+            placeholder="Enter Subject Name"
+            label="Subject Name"
+            error={!!errors?.name}
+            helperText={errors?.name?.message}
           />
-        }
-        label={"Active Status"}
-      />
-      <CustomButton
-        onClick={() => setAddAnother(false)}
-        type="submit"
-        disabled={isLoading || isEditLoading}
-      >
-        Save
-      </CustomButton>
-      <CustomButton
-        onClick={() => setAddAnother(true)}
-        type="submit"
-        variant="outlined"
-        disabled={isLoading || isEditLoading}
-      >
-        Save and Add Another
-      </CustomButton>
+        </FormControl>
+        <FormControl fullWidth>
+          <FormInputText
+            name="code"
+            type="text"
+            placeholder="Enter Subject Code"
+            label="Code"
+            error={!!errors?.code}
+            helperText={errors?.code?.message}
+          />
+        </FormControl>
+        <FormControlLabel
+          control={
+            <Controller
+              name={"is_active"}
+              render={({ field: props }) => (
+                <Checkbox
+                  {...props}
+                  checked={props.value}
+                  onChange={e => props.onChange(e.target.checked)}
+                />
+              )}
+            />
+          }
+          label={"Active Status"}
+        />
+        <CustomButton
+          onClick={() => setAddAnother(false)}
+          type="submit"
+          disabled={isLoading || isEditLoading}
+        >
+          Save
+        </CustomButton>
 
-      {(isError || isEditError) && <ErrorDisplay error={error || editError} />}
-    </Box>
+        {!defaultData && (
+          <CustomButton
+            onClick={() => setAddAnother(true)}
+            type="submit"
+            variant="outlined"
+            disabled={isLoading || isEditLoading}
+          >
+            Save and Add Another
+          </CustomButton>
+        )}
+
+        {(isError || isEditError) && (
+          <ErrorDisplay error={error || editError} />
+        )}
+      </Box>
+    </FormProvider>
   );
 };
 

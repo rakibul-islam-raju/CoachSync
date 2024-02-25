@@ -1,10 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Box, Checkbox, FormControl, FormControlLabel } from "@mui/material";
+import { Box, FormControl } from "@mui/material";
 import { FC, useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { CustomButton } from "../../../../components/CustomButton/CustomButton";
 import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
+import CheckboxField from "../../../../components/forms/CheckboxField";
 import { FormInputText } from "../../../../components/forms/FormInputText";
 import FormSelectInput from "../../../../components/forms/FormSelectInput";
 import {
@@ -14,6 +17,7 @@ import {
 import { getDirtyValues } from "../../../../utils/getDirtyValues";
 import {
   EmployeeCreateSchema,
+  EmployeeUpdateSchema,
   IEmployeeCreateFormValues,
 } from "../EmployeeSchema";
 
@@ -23,13 +27,10 @@ type EmployeeFormProps = {
 };
 
 const EmployeeForm: FC<EmployeeFormProps> = ({ onClose, defaultData }) => {
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { isDirty, dirtyFields },
-  } = useForm<IEmployeeCreateFormValues>({
-    resolver: zodResolver(EmployeeCreateSchema),
+  const methods = useForm<IEmployeeCreateFormValues>({
+    resolver: zodResolver(
+      defaultData ? EmployeeUpdateSchema : EmployeeCreateSchema,
+    ),
     defaultValues: {
       first_name: defaultData?.first_name,
       last_name: defaultData?.last_name,
@@ -39,6 +40,12 @@ const EmployeeForm: FC<EmployeeFormProps> = ({ onClose, defaultData }) => {
       is_active: defaultData?.is_active,
     },
   });
+
+  const {
+    handleSubmit,
+    reset,
+    formState: { isDirty, dirtyFields, errors },
+  } = methods;
 
   const [createUser, { isLoading, isError, isSuccess, error }] =
     useCreateUserMutation();
@@ -91,95 +98,89 @@ const EmployeeForm: FC<EmployeeFormProps> = ({ onClose, defaultData }) => {
   }, [isSuccess, isEditSuccess]);
 
   return (
-    <Box
-      display={"flex"}
-      flexDirection={"column"}
-      gap={2}
-      component={"form"}
-      noValidate
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <FormControl fullWidth>
-        <FormInputText
-          name="first_name"
-          type="text"
-          control={control}
-          placeholder="Enter First Name"
-          label="First Name"
-        />
-      </FormControl>
-      <FormControl fullWidth>
-        <FormInputText
-          name="last_name"
-          type="text"
-          control={control}
-          placeholder="Enter Last Name"
-          label="Last Name"
-        />
-      </FormControl>
-      <FormControl fullWidth>
-        <FormInputText
-          name="email"
-          type="email"
-          control={control}
-          placeholder="Enter Email Address"
-          label="Email Address"
-        />
-      </FormControl>
-      <FormControl fullWidth>
-        <FormInputText
-          name="phone"
-          type="text"
-          control={control}
-          placeholder="Enter Phone Number"
-          label="Phone Number"
-        />
-      </FormControl>
-      <FormControl fullWidth>
-        <FormSelectInput
-          name="role"
-          control={control}
-          label="Role"
-          options={roleOptions}
-        />
-      </FormControl>
-      <FormControlLabel
-        control={
-          <Controller
-            name={"is_active"}
-            control={control}
-            render={({ field: props }) => (
-              <Checkbox
-                {...props}
-                checked={props.value}
-                onChange={e => props.onChange(e.target.checked)}
-              />
-            )}
-          />
-        }
-        label={"Active Status"}
-      />
-      <CustomButton
-        onClick={() => setAddAnother(false)}
-        type="submit"
-        disabled={isLoading || isEditLoading}
+    <FormProvider {...methods}>
+      <Box
+        display={"flex"}
+        flexDirection={"column"}
+        gap={2}
+        component={"form"}
+        noValidate
+        onSubmit={handleSubmit(onSubmit)}
       >
-        Save
-      </CustomButton>
-
-      {!defaultData && (
+        <FormControl fullWidth>
+          <FormInputText
+            name="first_name"
+            type="text"
+            placeholder="Enter First Name"
+            label="First Name"
+            error={!!errors.first_name}
+            helperText={errors.first_name?.message}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <FormInputText
+            name="last_name"
+            type="text"
+            placeholder="Enter Last Name"
+            label="Last Name"
+            error={!!errors.last_name}
+            helperText={errors.last_name?.message}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <FormInputText
+            name="email"
+            type="email"
+            placeholder="Enter Email Address"
+            label="Email Address"
+            error={!!errors.email}
+            helperText={errors.email?.message}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <FormInputText
+            name="phone"
+            type="text"
+            placeholder="Enter Phone Number"
+            label="Phone Number"
+            error={!!errors.phone}
+            helperText={errors.phone?.message}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <FormSelectInput
+            name="role"
+            label="Role"
+            options={roleOptions}
+            error={!!errors.role}
+            helperText={errors.role?.message}
+          />
+        </FormControl>
+        <CheckboxField name="is_active" label="Active Status" />
         <CustomButton
-          onClick={() => setAddAnother(true)}
+          onClick={() => setAddAnother(false)}
           type="submit"
-          variant="outlined"
           disabled={isLoading || isEditLoading}
         >
-          Save and Add Another
+          Save
         </CustomButton>
-      )}
 
-      {(isError || isEditError) && <ErrorDisplay error={error || editError} />}
-    </Box>
+        {!defaultData && (
+          <CustomButton
+            onClick={() => setAddAnother(true)}
+            type="submit"
+            variant="outlined"
+            disabled={isLoading || isEditLoading}
+          >
+            Save and Add Another
+          </CustomButton>
+        )}
+
+        {(isError || isEditError) && (
+          <ErrorDisplay error={error || editError} />
+        )}
+      </Box>
+    </FormProvider>
   );
 };
 

@@ -52,7 +52,7 @@ export const batchApi = apiSlice.injectEndpoints({
         method: "PATCH",
         data,
       }),
-      invalidatesTags: ["Batches"],
+      invalidatesTags: result => ["Batches", { id: result?.id, type: "Batch" }],
     }),
 
     deleteBatch: builder.mutation<void, number>({

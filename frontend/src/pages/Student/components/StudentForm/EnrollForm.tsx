@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, FormControl } from "@mui/material";
 import { FC, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CustomButton } from "../../../../components/CustomButton/CustomButton";
@@ -19,7 +20,8 @@ import { useGetUsersQuery } from "../../../../redux/user/userApi";
 import { getDirtyValues } from "../../../../utils/getDirtyValues";
 import {
   IStudentEnrollFormValues,
-  StudentEnrollSchema,
+  studentEnrollSchema,
+  studentEnrollUpdateSchema,
 } from "../StudentSchema";
 
 type EnrollFormProps = {
@@ -38,15 +40,10 @@ const EnrollForm: FC<EnrollFormProps> = ({
   handleShowTransaction,
 }) => {
   const navigate = useNavigate();
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { isDirty, dirtyFields },
-    setValue,
-    watch,
-  } = useForm<IStudentEnrollFormValues>({
-    resolver: zodResolver(StudentEnrollSchema),
+  const methods = useForm<IStudentEnrollFormValues>({
+    resolver: zodResolver(
+      defaultData ? studentEnrollUpdateSchema : studentEnrollSchema,
+    ),
     defaultValues: {
       student: studentData?.id,
       batch: defaultData?.batch.id,
@@ -55,6 +52,14 @@ const EnrollForm: FC<EnrollFormProps> = ({
       reference_by: defaultData?.reference_by.id,
     },
   });
+
+  const {
+    handleSubmit,
+    reset,
+    formState: { isDirty, dirtyFields, errors },
+    setValue,
+    watch,
+  } = methods;
 
   const [
     createEnroll,
@@ -122,60 +127,71 @@ const EnrollForm: FC<EnrollFormProps> = ({
   }, [isSuccess, isEditSuccess]);
 
   return (
-    <Box
-      display={"flex"}
-      flexDirection={"column"}
-      gap={2}
-      component={"form"}
-      noValidate
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      {/* TODO:autocomplete */}
-      <FormControl fullWidth>
-        <FormSelectInput
-          name="batch"
-          control={control}
-          label="Batch"
-          options={batches?.results.map(i => ({ label: i.name, value: i.id }))}
-        />
-      </FormControl>
-      <FormControl fullWidth required>
-        <FormInputText
-          name="total_amount"
-          type="number"
-          control={control}
-          placeholder="Enter Total Amount"
-          label="Total Amount"
-        />
-      </FormControl>
-      <FormControl fullWidth>
-        <FormInputText
-          name="discount_amount"
-          type="number"
-          control={control}
-          placeholder="Enter Discount Amount"
-          label="Discount Amount"
-        />
-      </FormControl>
-      {/* TODO: autocomplete */}
-      <FormControl fullWidth>
-        <FormSelectInput
-          name="reference_by"
-          control={control}
-          label="Reference By"
-          options={users?.results.map(i => ({
-            label: `${i.first_name} ${i.last_name}`,
-            value: i.id,
-          }))}
-        />
-      </FormControl>
+    <FormProvider {...methods}>
+      <Box
+        display={"flex"}
+        flexDirection={"column"}
+        gap={2}
+        component={"form"}
+        noValidate
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        {/* TODO:autocomplete */}
+        <FormControl fullWidth>
+          <FormSelectInput
+            name="batch"
+            label="Batch"
+            options={batches?.results.map(i => ({
+              label: i.name,
+              value: i.id,
+            }))}
+            error={!!errors.batch}
+            helperText={errors.batch?.message}
+          />
+        </FormControl>
+        <FormControl fullWidth required>
+          <FormInputText
+            name="total_amount"
+            type="number"
+            placeholder="Enter Total Amount"
+            label="Total Amount"
+            error={!!errors.total_amount}
+            helperText={errors.total_amount?.message}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <FormInputText
+            name="discount_amount"
+            type="number"
+            placeholder="Enter Discount Amount"
+            label="Discount Amount"
+            error={!!errors.discount_amount}
+            helperText={errors.discount_amount?.message}
+          />
+        </FormControl>
+        {/* TODO: autocomplete */}
+        <FormControl fullWidth>
+          <FormSelectInput
+            name="reference_by"
+            label="Reference By"
+            options={users?.results.map(i => ({
+              label: `${i.first_name} ${i.last_name}`,
+              value: i.id,
+            }))}
+            error={!!errors.reference_by}
+            helperText={errors.reference_by?.message}
+          />
+        </FormControl>
 
-      <CustomButton type="submit" disabled={isLoading || isEditLoading}>
-        Save
-      </CustomButton>
+        <CustomButton type="submit" disabled={isLoading || isEditLoading}>
+          Save
+        </CustomButton>
 
-      {(isError || isEditError) && <ErrorDisplay error={error || editError} />}
-    </Box>
+        {(isError || isEditError) && (
+          <ErrorDisplay error={error || editError} />
+        )}
+      </Box>
+    </FormProvider>
   );
 };
 

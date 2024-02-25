@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-export const TeacherCreateSchema = z.object({
+export const teacherCreateSchema = z.object({
   user: z.object({
     first_name: z.string({ required_error: "First name is required" }),
     last_name: z.string({ required_error: "Last name is required" }),
@@ -12,4 +12,6 @@ export const TeacherCreateSchema = z.object({
   is_active: z.boolean(),
 });
 
-export type ITeacherCreateFormValues = z.infer<typeof TeacherCreateSchema>;
+export type ITeacherCreateFormValues = z.infer<typeof teacherCreateSchema>;
+
+export const teacherUpdateSchema = teacherCreateSchema.deepPartial();

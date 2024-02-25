@@ -1,7 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, FormControl } from "@mui/material";
 import { FC, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { CustomButton } from "../../../../components/CustomButton/CustomButton";
 import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
@@ -26,15 +27,21 @@ type TransactionFormProps = {
 };
 
 const TransactionForm: FC<TransactionFormProps> = ({ onClose, enrollData }) => {
-  const { control, handleSubmit, reset, watch } =
-    useForm<ITransactionCreateReqData>({
-      resolver: zodResolver(TransactionSchema),
-      defaultValues: {
-        enroll: enrollData?.id,
-        amount: 0,
-        remark: null,
-      },
-    });
+  const methods = useForm<ITransactionCreateReqData>({
+    resolver: zodResolver(TransactionSchema),
+    defaultValues: {
+      enroll: enrollData?.id,
+      amount: 0,
+      remark: null,
+    },
+  });
+
+  const {
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = methods;
 
   const transactionAmount = watch("amount");
 
@@ -72,41 +79,43 @@ const TransactionForm: FC<TransactionFormProps> = ({ onClose, enrollData }) => {
   }, [enrollData, transactionAmount]);
 
   return (
-    <Box
-      display={"flex"}
-      flexDirection={"column"}
-      gap={2}
-      component={"form"}
-      noValidate
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <FormControl fullWidth required>
-        <FormInputText
-          name="amount"
-          type="number"
-          control={control}
-          placeholder="Enter Amount"
-          label="Amount"
-          helperText={`Total Due: ${dueAmount}`}
-          error={!!dueAmount && dueAmount < 0}
-        />
-      </FormControl>
-      <FormControl fullWidth>
-        <FormInputText
-          name="remark"
-          type="text"
-          control={control}
-          placeholder="Enter Remark"
-          label="Remark"
-        />
-      </FormControl>
+    <FormProvider {...methods}>
+      <Box
+        display={"flex"}
+        flexDirection={"column"}
+        gap={2}
+        component={"form"}
+        noValidate
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <FormControl fullWidth required>
+          <FormInputText
+            name="amount"
+            type="number"
+            placeholder="Enter Amount"
+            label="Amount"
+            error={!!errors.amount || (!!dueAmount && dueAmount < 0)}
+            helperText={errors.amount?.message || `Total Due: ${dueAmount}`}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <FormInputText
+            name="remark"
+            type="text"
+            placeholder="Enter Remark"
+            label="Remark"
+            error={!!errors.remark}
+            helperText={errors.remark?.message}
+          />
+        </FormControl>
 
-      <CustomButton type="submit" disabled={isLoading}>
-        Save
-      </CustomButton>
+        <CustomButton type="submit" disabled={isLoading}>
+          Save
+        </CustomButton>
 
-      {isError && <ErrorDisplay error={error} />}
-    </Box>
+        {isError && <ErrorDisplay error={error} />}
+      </Box>
+    </FormProvider>
   );
 };
 

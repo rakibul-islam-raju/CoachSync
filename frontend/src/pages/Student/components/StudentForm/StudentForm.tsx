@@ -1,12 +1,14 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Box, Checkbox, FormControl, FormControlLabel } from "@mui/material";
+import { Box, FormControl } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { FC, useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { CustomButton } from "../../../../components/CustomButton/CustomButton";
 import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
+import CheckboxField from "../../../../components/forms/CheckboxField";
 import DateInput from "../../../../components/forms/DateInput";
 import { FormInputText } from "../../../../components/forms/FormInputText";
 import FormSelectInput from "../../../../components/forms/FormSelectInput";
@@ -19,7 +21,7 @@ import {
 import { getDirtyValues } from "../../../../utils/getDirtyValues";
 import {
   IStudentCreateFormValues,
-  StudentCreateSchema,
+  studentCreateSchema,
 } from "../StudentSchema";
 
 type StudentFormProps = {
@@ -29,14 +31,10 @@ type StudentFormProps = {
 
 const StudentForm: FC<StudentFormProps> = ({ onClose, defaultData }) => {
   const navigate = useNavigate();
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { isDirty, dirtyFields },
-    setValue,
-  } = useForm<IStudentCreateFormValues>({
-    resolver: zodResolver(StudentCreateSchema),
+  const methods = useForm<IStudentCreateFormValues>({
+    resolver: zodResolver(
+      defaultData ? studentCreateSchema : studentCreateSchema,
+    ),
     defaultValues: {
       user: {
         first_name: defaultData?.user.first_name,
@@ -52,6 +50,13 @@ const StudentForm: FC<StudentFormProps> = ({ onClose, defaultData }) => {
       is_active: defaultData?.is_active,
     },
   });
+
+  const {
+    handleSubmit,
+    reset,
+    formState: { isDirty, dirtyFields, errors },
+    setValue,
+  } = methods;
 
   const [
     createStudent,
@@ -106,119 +111,117 @@ const StudentForm: FC<StudentFormProps> = ({ onClose, defaultData }) => {
   }, [isSuccess, isEditSuccess, createdData]);
 
   return (
-    <Box
-      display={"flex"}
-      flexDirection={"column"}
-      gap={2}
-      component={"form"}
-      noValidate
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <FormControl fullWidth required>
-        <FormInputText
-          name="user.first_name"
-          type="text"
-          control={control}
-          placeholder="Enter First Name"
-          label="First Name"
-        />
-      </FormControl>
-      <FormControl fullWidth required>
-        <FormInputText
-          name="user.last_name"
-          type="text"
-          control={control}
-          placeholder="Enter Last Name"
-          label="Last Name"
-        />
-      </FormControl>
-      <FormControl fullWidth required>
-        <FormInputText
-          name="user.email"
-          type="email"
-          control={control}
-          placeholder="Enter Email Address"
-          label="Email Address"
-        />
-      </FormControl>
-      <FormControl fullWidth required>
-        <FormInputText
-          name="user.phone"
-          type="text"
-          control={control}
-          placeholder="Enter Phone Number"
-          label="Phone Number"
-        />
-      </FormControl>
-      <FormControl fullWidth>
-        <FormInputText
-          name="emergency_contact_no"
-          type="text"
-          control={control}
-          placeholder="Enter Emergency Phone Number"
-          label="Emergency Phone Number"
-        />
-      </FormControl>
-      <FormControl fullWidth>
-        <FormSelectInput
-          name="blood_group"
-          control={control}
-          label="Blood Group"
-          options={BLOOD_GROUPS.map(i => ({ label: i, value: i }))}
-        />
-      </FormControl>
-      <FormControl fullWidth>
-        <DateInput
-          name="date_of_birth"
-          label="Date of Birth"
-          control={control}
-          value={dob}
-          onChange={newVal => dateChangeHandler(newVal)}
-        />
-      </FormControl>
-      <FormControl fullWidth>
-        <FormInputText
-          multiline
-          name="address"
-          type="text"
-          control={control}
-          placeholder="Enter Address"
-          label="Address"
-        />
-      </FormControl>
-      <FormControl fullWidth>
-        <FormInputText
-          multiline
-          name="description"
-          type="text"
-          control={control}
-          placeholder="Enter Description"
-          label="Description"
-        />
-      </FormControl>
-      <FormControlLabel
-        control={
-          <Controller
-            name={"is_active"}
-            control={control}
-            defaultValue={defaultData?.is_active ?? true}
-            render={({ field: props }) => (
-              <Checkbox
-                {...props}
-                checked={props.value}
-                onChange={e => props.onChange(e.target.checked)}
-              />
-            )}
+    <FormProvider {...methods}>
+      <Box
+        display={"flex"}
+        flexDirection={"column"}
+        gap={2}
+        component={"form"}
+        noValidate
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <FormControl fullWidth required>
+          <FormInputText
+            name="user.first_name"
+            type="text"
+            placeholder="Enter First Name"
+            label="First Name"
+            error={!!errors.user?.first_name}
+            helperText={errors.user?.first_name?.message}
           />
-        }
-        label={"Active Status"}
-      />
-      <CustomButton type="submit" disabled={isLoading || isEditLoading}>
-        Save
-      </CustomButton>
+        </FormControl>
+        <FormControl fullWidth>
+          <FormInputText
+            name="user.last_name"
+            type="text"
+            placeholder="Enter Last Name"
+            label="Last Name"
+            error={!!errors.user?.last_name}
+            helperText={errors.user?.last_name?.message}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <FormInputText
+            name="user.email"
+            type="email"
+            placeholder="Enter Email Address"
+            label="Email Address"
+            error={!!errors.user?.email}
+            helperText={errors.user?.email?.message}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <FormInputText
+            name="user.phone"
+            type="text"
+            placeholder="Enter Phone Number"
+            label="Phone Number"
+            error={!!errors.user?.phone}
+            helperText={errors.user?.phone?.message}
+          />
+        </FormControl>
 
-      {(isError || isEditError) && <ErrorDisplay error={error || editError} />}
-    </Box>
+        <FormControl fullWidth>
+          <FormInputText
+            name="emergency_contact_no"
+            type="text"
+            placeholder="Enter Emergency Phone Number"
+            label="Emergency Phone Number"
+            error={!!errors.emergency_contact_no}
+            helperText={errors.emergency_contact_no?.message}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <FormSelectInput
+            name="blood_group"
+            label="Blood Group"
+            options={BLOOD_GROUPS.map(i => ({ label: i, value: i }))}
+            error={!!errors.blood_group}
+            helperText={errors.blood_group?.message}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <DateInput
+            name="date_of_birth"
+            label="Date of Birth"
+            value={dob}
+            onChange={newVal => dateChangeHandler(newVal)}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <FormInputText
+            multiline
+            name="address"
+            type="text"
+            placeholder="Enter Address"
+            label="Address"
+            error={!!errors.address}
+            helperText={errors.address?.message}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <FormInputText
+            multiline
+            rows={3}
+            name="description"
+            type="text"
+            placeholder="Enter Description"
+            label="Description"
+            error={!!errors.description}
+            helperText={errors.description?.message}
+          />
+        </FormControl>
+        <CheckboxField name="is_active" label="Active Status" />
+
+        <CustomButton type="submit" disabled={isLoading || isEditLoading}>
+          Save
+        </CustomButton>
+
+        {(isError || isEditError) && (
+          <ErrorDisplay error={error || editError} />
+        )}
+      </Box>
+    </FormProvider>
   );
 };
 

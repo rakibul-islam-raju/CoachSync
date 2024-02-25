@@ -75,7 +75,7 @@ const SubjectTable: FC = () => {
     }
   };
 
-  const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  const handleChange = (_: React.ChangeEvent<unknown>, value: number) => {
     dispatch(setPage(value));
   };
 
@@ -143,7 +143,7 @@ const SubjectTable: FC = () => {
         <Modal
           open={!!itemToEdit}
           onClose={handleCloseEditModal}
-          title="Edit Batch"
+          title="Edit Subject"
           content={
             <SubjectForm
               onClose={handleCloseEditModal}

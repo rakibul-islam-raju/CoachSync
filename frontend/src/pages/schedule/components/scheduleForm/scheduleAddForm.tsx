@@ -1,9 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, FormControl } from "@mui/material";
 import { parse } from "date-fns";
 import dayjs, { Dayjs } from "dayjs";
 import { FC, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { CustomButton } from "../../../../components/CustomButton/CustomButton";
 import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
@@ -50,21 +51,28 @@ const ScheduleAddForm: FC<Props> = ({
   const dispatch = useAppDispatch();
 
   // Use the useForm hook with default values
-  const { control, handleSubmit, setValue, watch, reset } =
-    useForm<IScheduleCreateFormValues>({
-      resolver: zodResolver(scheduleCreateSchema),
-      defaultValues: {
-        // Initialize default values based on editData
-        title: editData?.title || "",
-        batch: editData?.batch?.id || undefined,
-        subject: editData?.subject?.id || undefined,
-        teacher: editData?.teacher?.id || undefined,
-        exam: editData?.exam?.id || undefined,
-        duration: editData?.duration || undefined,
-        date: editData?.date || undefined,
-        time: editData?.time || undefined,
-      },
-    });
+  const methods = useForm<IScheduleCreateFormValues>({
+    resolver: zodResolver(scheduleCreateSchema),
+    defaultValues: {
+      // Initialize default values based on editData
+      title: editData?.title || "",
+      batch: editData?.batch?.id || undefined,
+      subject: editData?.subject?.id || undefined,
+      teacher: editData?.teacher?.id || undefined,
+      exam: editData?.exam?.id || undefined,
+      duration: editData?.duration || undefined,
+      date: editData?.date || undefined,
+      time: editData?.time || undefined,
+    },
+  });
+
+  const {
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors },
+  } = methods;
 
   const { data: batches } = useGetBatchesQuery({ limit: 50, offset: 0 });
   const { data: subjects } = useGetSubjectsQuery({ limit: 50, offset: 0 });
@@ -180,84 +188,89 @@ const ScheduleAddForm: FC<Props> = ({
   }, [isSuccess]);
 
   return (
-    <Box
-      display={"flex"}
-      flexDirection={"column"}
-      gap={2}
-      component={"form"}
-      noValidate
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <FormSelectInput
-        control={control}
-        name="batch"
-        label="Select Batch"
-        options={batches?.results.map(option => ({
-          label: String(option.name),
-          value: option.id,
-        }))}
-      />
-      <FormSelectInput
-        control={control}
-        name="subject"
-        label="Select Subject"
-        options={subjects?.results.map(option => ({
-          label: String(option.name),
-          value: option.id,
-        }))}
-      />
-      <FormSelectInput
-        control={control}
-        name="teacher"
-        label="Select Teacher"
-        options={teachers?.results.map(option => ({
-          label: String(option.user.first_name + " " + option.user.last_name),
-          value: option.id,
-        }))}
-      />
-      <FormControl fullWidth>
-        <DateInput
-          label="Date"
-          name={"date"}
-          value={date}
-          control={control}
-          onChange={newDate => dateChangeHandler(newDate)}
+    <FormProvider {...methods}>
+      <Box
+        display={"flex"}
+        flexDirection={"column"}
+        gap={2}
+        component={"form"}
+        noValidate
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <FormSelectInput
+          name="batch"
+          label="Select Batch"
+          options={batches?.results.map(option => ({
+            label: String(option.name),
+            value: option.id,
+          }))}
+          error={!!errors.batch}
+          helperText={errors.batch?.message}
         />
-      </FormControl>
-      <FormControl fullWidth>
-        <TimeInput
-          label="Time"
-          name={"time"}
-          value={time}
-          control={control}
-          onChange={newTime => timeChangeHandler(newTime)}
+        <FormSelectInput
+          name="subject"
+          label="Select Subject"
+          options={subjects?.results.map(option => ({
+            label: String(option.name),
+            value: option.id,
+          }))}
+          error={!!errors.subject}
+          helperText={errors.subject?.message}
         />
-      </FormControl>
-      <FormControl fullWidth required>
-        <FormInputText
-          name="duration"
-          type="number"
-          control={control}
-          placeholder="Enter Duration"
-          label="Duration"
+        <FormSelectInput
+          name="teacher"
+          label="Select Teacher"
+          options={teachers?.results.map(option => ({
+            label: String(option.user.first_name + " " + option.user.last_name),
+            value: option.id,
+          }))}
+          error={!!errors.teacher}
+          helperText={errors.teacher?.message}
         />
-      </FormControl>
-      <FormControl fullWidth required>
-        <FormInputText
-          name="title"
-          type="text"
-          control={control}
-          placeholder="Enter Title"
-          label="Title"
-        />
-      </FormControl>
+        <FormControl fullWidth>
+          <DateInput
+            label="Date"
+            name={"date"}
+            value={date}
+            onChange={newDate => dateChangeHandler(newDate)}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <TimeInput
+            label="Time"
+            name={"time"}
+            value={time}
+            onChange={newTime => timeChangeHandler(newTime)}
+          />
+        </FormControl>
+        <FormControl fullWidth required>
+          <FormInputText
+            name="duration"
+            type="number"
+            placeholder="Enter Duration"
+            label="Duration"
+            error={!!errors.duration}
+            helperText={errors.duration?.message}
+          />
+        </FormControl>
+        <FormControl fullWidth required>
+          <FormInputText
+            name="title"
+            type="text"
+            placeholder="Enter Title"
+            label="Title"
+            error={!!errors.title}
+            helperText={errors.title?.message}
+          />
+        </FormControl>
 
-      <CustomButton type="submit" disabled={isLoading}>
-        Save
-      </CustomButton>
+        <CustomButton type="submit" disabled={isLoading}>
+          Save
+        </CustomButton>
 
-      {isError && <ErrorDisplay error={error} />}
-    </Box>
+        {isError && <ErrorDisplay error={error} />}
+      </Box>
+    </FormProvider>
   );
 };
 

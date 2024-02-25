@@ -11,4 +11,6 @@ export const EmployeeCreateSchema = z.object({
   is_active: z.boolean(),
 });
 
+export const EmployeeUpdateSchema = EmployeeCreateSchema.partial();
+
 export type IEmployeeCreateFormValues = z.infer<typeof EmployeeCreateSchema>;

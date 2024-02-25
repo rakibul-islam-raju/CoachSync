@@ -4,12 +4,11 @@
 import { TimePicker } from "@mui/x-date-pickers";
 import { Dayjs } from "dayjs";
 import React from "react";
-import { Controller } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 
 type TimeInputProps = {
   name: string;
   label: string;
-  control: any;
   value: Dayjs | null;
   onChange: (newTime: Dayjs | null) => void;
 };
@@ -18,9 +17,10 @@ const TimeInput: React.FC<TimeInputProps> = ({
   name,
   label,
   value,
-  control,
   onChange,
 }) => {
+  const { control } = useFormContext();
+
   return (
     <Controller
       name={name}

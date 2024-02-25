@@ -3,43 +3,42 @@ import {
   FormControl,
   FormHelperText,
   InputLabel,
-  InputProps,
   MenuItem,
   Select,
+  SelectProps,
 } from "@mui/material";
 import { FC } from "react";
-import { Controller } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 
 type FormSelectInputProps = {
   name: string;
-  control: any;
   label?: string;
   options?: { value: string | number; label: string }[];
-  inputProps?: InputProps;
   size?: "small" | "medium";
-};
+  helperText?: string;
+} & SelectProps;
 
 const FormSelectInput: FC<FormSelectInputProps> = ({
   name,
-  control,
   label,
   options,
-  inputProps,
+  error,
+  helperText,
   ...rest
 }) => {
+  const { control } = useFormContext();
+
   return (
     <Controller
       name={name}
       control={control}
-      render={({ field: { onChange, value }, fieldState: { error } }) => {
-        console.log("vaaaaaaaaaaaaaaalueeeeeeeeeeee=>", value);
-
+      render={({ field: { onChange, value }, ...fields }) => {
         return (
           <FormControl fullWidth error={!!error}>
             {label && <InputLabel>{label}</InputLabel>}
             <Select
+              {...fields}
               {...rest}
-              {...inputProps}
               label={label}
               onChange={onChange}
               value={value}
@@ -50,7 +49,9 @@ const FormSelectInput: FC<FormSelectInputProps> = ({
                 </MenuItem>
               ))}
             </Select>
-            {error && <FormHelperText>{error.message}</FormHelperText>}
+            {helperText && (
+              <FormHelperText error={error}>{helperText}</FormHelperText>
+            )}
           </FormControl>
         );
       }}

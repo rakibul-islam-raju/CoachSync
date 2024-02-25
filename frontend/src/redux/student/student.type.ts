@@ -36,7 +36,7 @@ export interface IStudentCreateReqData {
   date_of_birth: string;
   blood_group?: string | null;
   address: string;
-  description: string;
+  description?: string | null;
   is_active: boolean;
 }
 

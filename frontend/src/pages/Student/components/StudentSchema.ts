@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-export const StudentCreateSchema = z.object({
+export const studentCreateSchema = z.object({
   user: z.object({
     first_name: z.string({ required_error: "First name is required" }),
     last_name: z.string({ required_error: "Last name is required" }),
@@ -14,14 +14,16 @@ export const StudentCreateSchema = z.object({
     .regex(new RegExp("^(01){1}[3-9]{1}\\d{8}$"), "Invalid phone number"),
   date_of_birth: z.string(),
   blood_group: z.string().optional().nullable(),
-  address: z.string(),
-  description: z.string(),
+  address: z.string({ required_error: "Address is required" }),
+  description: z.string().optional().nullable(),
   is_active: z.boolean(),
 });
 
-export type IStudentCreateFormValues = z.infer<typeof StudentCreateSchema>;
+export const updateSchema = studentCreateSchema.deepPartial();
 
-export const StudentEnrollSchema = z.object({
+export type IStudentCreateFormValues = z.infer<typeof studentCreateSchema>;
+
+export const studentEnrollSchema = z.object({
   student: z.number(),
   batch: z.number({ required_error: "Batch is required" }),
   total_amount: z.number({ required_error: "Total amount is required" }),
@@ -29,11 +31,13 @@ export const StudentEnrollSchema = z.object({
   reference_by: z.number().optional().nullable(),
 });
 
-export type IStudentEnrollFormValues = z.infer<typeof StudentEnrollSchema>;
+export type IStudentEnrollFormValues = z.infer<typeof studentEnrollSchema>;
+
+export const studentEnrollUpdateSchema = studentEnrollSchema.partial();
 
 export const TransactionSchema = z.object({
   enroll: z.number(),
-  amount: z.number({ required_error: "Amount is required" }),
+  amount: z.number({ required_error: "Amount is required" }).min(10),
   remark: z.string().optional().nullable(),
 });
 
