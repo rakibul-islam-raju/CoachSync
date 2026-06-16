@@ -22,7 +22,7 @@ function App() {
       ) : (
         <ThemeProvider theme={theme}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <RouterProvider router={router} fallbackElement={<Loader />} />
+            <RouterProvider router={router} />
           </LocalizationProvider>
         </ThemeProvider>
       )}

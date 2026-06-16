@@ -1,5 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { zodResolver } from "@hookform/resolvers/zod";
+ 
+import { createZodResolver } from "../../../../utils/formResolver";
 import { Box, FormControl } from "@mui/material";
 import { FC, useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -41,7 +41,7 @@ const EnrollForm: FC<EnrollFormProps> = ({
 }) => {
   const navigate = useNavigate();
   const methods = useForm<IStudentEnrollFormValues>({
-    resolver: zodResolver(
+    resolver: createZodResolver<IStudentEnrollFormValues>(
       defaultData ? studentEnrollUpdateSchema : studentEnrollSchema,
     ),
     defaultValues: {
@@ -115,13 +115,17 @@ const EnrollForm: FC<EnrollFormProps> = ({
       }
       toast.success("Student successfully enrolled!");
       navigate(`/students/${studentData.student_id}`);
-      onClose && onClose();
+      if (onClose) {
+        onClose();
+      }
       reset();
     }
 
     if (isEditSuccess) {
       toast.success("Enroll successfully updated!");
-      onClose && onClose();
+      if (onClose) {
+        onClose();
+      }
       reset();
     }
   }, [isSuccess, isEditSuccess]);
@@ -129,13 +133,14 @@ const EnrollForm: FC<EnrollFormProps> = ({
   return (
     <FormProvider {...methods}>
       <Box
-        display={"flex"}
-        flexDirection={"column"}
-        gap={2}
         component={"form"}
         noValidate
         onSubmit={handleSubmit(onSubmit)}
-      >
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2
+        }}>
         {/* TODO:autocomplete */}
         <FormControl fullWidth>
           <FormSelectInput

@@ -41,17 +41,23 @@ const StudentEnrollments: FC<Props> = ({ studentData }) => {
   return (
     <>
       <Box sx={{ maxHeight: 565, overflowY: "auto" }}>
-        <Stack gap={1}>
+        <Stack sx={{
+          gap: 1
+        }}>
           {studentData.enrolls.map(enroll => (
             <Card key={enroll.id} variant="outlined">
               <CardContent>
-                <Stack direction={"row"} justifyContent={"space-between"}>
+                <Stack direction={"row"} sx={{
+                  justifyContent: "space-between"
+                }}>
                   <Typography variant="h6">{`Batch: ${enroll.batch.name} (${enroll.batch.classs.numeric})`}</Typography>
                   <IconButton onClick={() => handleSelectEnroll(enroll)}>
                     <PreviewIcon />
                   </IconButton>
                 </Stack>
-                <Stack direction={"row"} justifyContent={"space-between"}>
+                <Stack direction={"row"} sx={{
+                  justifyContent: "space-between"
+                }}>
                   <Box>
                     <Typography variant="body2">
                       Start Date:

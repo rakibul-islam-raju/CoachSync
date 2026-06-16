@@ -62,22 +62,23 @@ export default function Employee() {
   return (
     <>
       <CustomBreadcrumb list={breadCrumbList} />
-
       <PageContainer>
         <Stack
           direction={"row"}
-          justifyContent={"space-between"}
-          alignItems={"center"}
-          flexWrap={"wrap"}
-          gap={2}
-        >
+          sx={{
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 2
+          }}>
           <Typography variant="h4">Employees</Typography>
           <Stack
             direction={"row"}
-            alignItems={"center"}
-            gap={1}
-            flexWrap={"wrap"}
-          >
+            sx={{
+              alignItems: "center",
+              gap: 1,
+              flexWrap: "wrap"
+            }}>
             <SearchInput
               label="Search Employee"
               value={searchText}
@@ -98,7 +99,6 @@ export default function Employee() {
 
         <EmployeeTable />
       </PageContainer>
-
       {/* create modal */}
       {createEmp && (
         <Modal
@@ -112,7 +112,6 @@ export default function Employee() {
           fullWidth
         />
       )}
-
       {/* Drawer */}
       {openDrawer && (
         <CustomDrawer

@@ -8,11 +8,12 @@ import {
   SelectProps,
 } from "@mui/material";
 import { FC } from "react";
-import { Controller, useFormContext } from "react-hook-form";
+import { Control, Controller, useFormContext } from "react-hook-form";
 
 type FormSelectInputProps = {
   name: string;
   label?: string;
+  control?: unknown;
   options?: { value: string | number; label: string }[];
   size?: "small" | "medium";
   helperText?: string;
@@ -21,17 +22,19 @@ type FormSelectInputProps = {
 const FormSelectInput: FC<FormSelectInputProps> = ({
   name,
   label,
+  control,
   options,
   error,
   helperText,
   ...rest
 }) => {
-  const { control } = useFormContext();
+  const methods = useFormContext();
+  const formControl = (control ?? methods?.control) as Control<any, any, any>;
 
   return (
     <Controller
       name={name}
-      control={control}
+      control={formControl}
       render={({ field: { onChange, value }, ...fields }) => {
         return (
           <FormControl fullWidth error={!!error}>

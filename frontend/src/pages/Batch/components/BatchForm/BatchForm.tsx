@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { zodResolver } from "@hookform/resolvers/zod";
+ 
+import { createZodResolver } from "../../../../utils/formResolver";
 import { Box, Checkbox, FormControl, FormControlLabel } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { FC, useEffect, useState } from "react";
@@ -34,7 +34,7 @@ const BatchForm: FC<BatchFormProps> = ({ onClose, defaultData }) => {
     setValue,
     formState: { isDirty, dirtyFields },
   } = useForm<IBatchCreateFormValues>({
-    resolver: zodResolver(batchCreateSchema),
+    resolver: createZodResolver<IBatchCreateFormValues>(batchCreateSchema),
     defaultValues: {
       name: defaultData?.name,
       code: defaultData?.code,
@@ -115,13 +115,14 @@ const BatchForm: FC<BatchFormProps> = ({ onClose, defaultData }) => {
 
   return (
     <Box
-      display={"flex"}
-      flexDirection={"column"}
-      gap={2}
       component={"form"}
       noValidate
       onSubmit={handleSubmit(onSubmit)}
-    >
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 2
+      }}>
       <FormControl fullWidth required>
         <FormInputText
           name="name"
@@ -209,7 +210,6 @@ const BatchForm: FC<BatchFormProps> = ({ onClose, defaultData }) => {
           Save and Add Another
         </CustomButton>
       )}
-
       {(isError || isEditError) && <ErrorDisplay error={error || editError} />}
     </Box>
   );

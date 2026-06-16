@@ -19,5 +19,7 @@ export const Drawer: Story = {
     open: true,
     position: "right",
     content: "hello world",
+    onOpen: () => {},
+    onClose: () => {},
   },
 };

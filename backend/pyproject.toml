@@ -1,0 +1,21 @@
+[project]
+name = "coaching-management-backend"
+version = "0.1.0"
+description = "Backend API for the Coaching Management System."
+requires-python = ">=3.14,<3.15"
+dependencies = [
+    "celery",
+    "django",
+    "django-celery-results",
+    "django-cors-headers",
+    "django-environ",
+    "django-filter",
+    "djangorestframework",
+    "djangorestframework-simplejwt",
+    "drf-spectacular",
+    "faker",
+    "redis",
+]
+
+[tool.uv]
+package = false

@@ -11,14 +11,14 @@ const ErrorDisplay: React.FC<IErrorDisplayProps> = ({
   error,
   severity = "error",
 }) => {
-  let errorMessage: string = "";
+  let errorMessage: string;
   if (typeof error === "string") {
     errorMessage = error;
   } else if (error?.data?.detail) {
     errorMessage = error.data.detail;
   } else if (error?.data?.non_field_errors) {
     errorMessage = error.data.non_field_errors;
-  } else if (typeof error.data === "object") {
+  } else if (typeof error?.data === "object") {
     const errors = [];
     for (const key in error.data) {
       errors.push(`${key.toUpperCase()}: ${error.data[key][0]}`);

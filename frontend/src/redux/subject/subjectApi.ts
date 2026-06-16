@@ -1,6 +1,7 @@
 /* eslint-disable no-empty */
 
 import { apiSlice } from "../api/apiSlice";
+import type { RootState } from "../store";
 import {
   ISubject,
   ISubjectCreateReqData,
@@ -39,7 +40,7 @@ export const subjectApi = apiSlice.injectEndpoints({
 
       // pessimistically update cache
       async onQueryStarted(_data, { dispatch, queryFulfilled, getState }) {
-        const param = getState().subject.params;
+        const param = (getState() as RootState).subject.params;
 
         try {
           const { data } = await queryFulfilled;
@@ -67,7 +68,7 @@ export const subjectApi = apiSlice.injectEndpoints({
 
       // pessimistically update cache
       async onQueryStarted({ id }, { dispatch, queryFulfilled, getState }) {
-        const param = getState().subject.params;
+        const param = (getState() as RootState).subject.params;
 
         try {
           const { data } = await queryFulfilled;
@@ -98,7 +99,7 @@ export const subjectApi = apiSlice.injectEndpoints({
 
       // pessimistically update cache
       async onQueryStarted(id, { dispatch, queryFulfilled, getState }) {
-        const param = getState().subject.params;
+        const param = (getState() as RootState).subject.params;
 
         try {
           await queryFulfilled;

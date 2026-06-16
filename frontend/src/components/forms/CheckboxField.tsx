@@ -1,20 +1,28 @@
 import { Checkbox, FormControlLabel } from "@mui/material";
 import React from "react";
-import { Controller, useFormContext } from "react-hook-form";
+import {
+  Control,
+  Controller,
+  FieldValues,
+  useFormContext,
+} from "react-hook-form";
 
 type Props = {
   name: string;
   label: string;
+  control?: unknown;
 };
 
-const CheckboxField: React.FC<Props> = ({ name, label }) => {
-  const { control } = useFormContext();
+const CheckboxField: React.FC<Props> = ({ name, label, control }) => {
+  const methods = useFormContext();
+  const formControl = (control ?? methods?.control) as Control<FieldValues>;
+
   return (
     <FormControlLabel
       control={
         <Controller
           name={name}
-          control={control}
+          control={formControl}
           render={({ field: props }) => (
             <Checkbox
               {...props}

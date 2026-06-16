@@ -92,13 +92,19 @@ const StudentDetails: FC = () => {
 
         <Stack
           direction={"row"}
-          justifyContent={"space-between"}
-          alignItems={"baseline"}
-        >
+          sx={{
+            justifyContent: "space-between",
+            alignItems: "baseline"
+          }}>
           <Typography variant="h4">
             {student?.user.first_name} {student?.user.last_name}
           </Typography>
-          <Stack direction={"row"} justifyContent={"flex-end"} gap={1}>
+          <Stack
+            direction={"row"}
+            sx={{
+              justifyContent: "flex-end",
+              gap: 1
+            }}>
             <CustomButton
               size="small"
               variant="outlined"
@@ -121,7 +127,11 @@ const StudentDetails: FC = () => {
         <Divider sx={{ my: 2 }} />
 
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 6
+            }}>
             <Typography variant="h5" gutterBottom>
               Student Info
             </Typography>
@@ -176,8 +186,17 @@ const StudentDetails: FC = () => {
               </Typography>
             </ItemWrapper>
           </Grid>
-          <Grid item xs={12} md={6}>
-            <Stack direction={"row"} justifyContent={"space-between"} mb={2}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 6
+            }}>
+            <Stack
+              direction={"row"}
+              sx={{
+                justifyContent: "space-between",
+                mb: 2
+              }}>
               <Typography variant="h5" gutterBottom>
                 Enrollments
               </Typography>
@@ -197,7 +216,6 @@ const StudentDetails: FC = () => {
           </Grid>
         </Grid>
       </PageContainer>
-
       {/* enroll modal */}
       {enrollModal && (
         <Modal
@@ -216,7 +234,6 @@ const StudentDetails: FC = () => {
           fullWidth
         />
       )}
-
       {/* create modal */}
       {editStudent && student && (
         <Modal
@@ -235,7 +252,6 @@ const StudentDetails: FC = () => {
           fullWidth
         />
       )}
-
       {/* delete confirm modal */}
       <ConfirmDialogue
         open={deleteStudentModal}

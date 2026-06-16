@@ -22,7 +22,7 @@ export const authApi = apiSlice.injectEndpoints({
               }),
             );
           }
-        } catch (err) {
+        } catch {
           // do nothing
         }
       },
@@ -40,7 +40,7 @@ export const authApi = apiSlice.injectEndpoints({
           if (data?.detail) {
             dispatch(userLoggedOut());
           }
-        } catch (err) {
+        } catch {
           // do nothing
         }
       },

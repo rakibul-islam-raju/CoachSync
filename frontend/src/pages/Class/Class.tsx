@@ -62,22 +62,23 @@ export default function Class() {
   return (
     <>
       <CustomBreadcrumb list={breadCrumbList} />
-
       <PageContainer>
         <Stack
           direction={"row"}
-          justifyContent={"space-between"}
-          alignItems={"center"}
-          flexWrap={"wrap"}
-          gap={2}
-        >
+          sx={{
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 2
+          }}>
           <Typography variant="h4">Classes</Typography>
           <Stack
             direction={"row"}
-            alignItems={"center"}
-            gap={1}
-            flexWrap={"wrap"}
-          >
+            sx={{
+              alignItems: "center",
+              gap: 1,
+              flexWrap: "wrap"
+            }}>
             <SearchInput
               label="Search Class"
               value={searchText}
@@ -97,7 +98,6 @@ export default function Class() {
         <Divider sx={{ my: 3 }} />
         <ClassTable />
       </PageContainer>
-
       {/* create modal */}
       {createClass && (
         <Modal
@@ -111,7 +111,6 @@ export default function Class() {
           fullWidth
         />
       )}
-
       {/* Drawer */}
       {openDrawer && (
         <CustomDrawer

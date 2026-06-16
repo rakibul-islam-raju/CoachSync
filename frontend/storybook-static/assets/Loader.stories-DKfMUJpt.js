@@ -1,0 +1,5 @@
+import{i as e}from"./preload-helper-xPQekRTU.js";import{At as t,_t as n,l as r,t as i}from"./material-MzOQpQ2u.js";var a,o,s=e((()=>{i(),a=t(),o=({color:e=`primary`,...t})=>(0,a.jsx)(r,{direction:`row`,sx:{justifyContent:`center`},children:(0,a.jsx)(n,{...t,color:e})}),o.__docgenInfo={description:``,methods:[],displayName:`Loader`,props:{color:{defaultValue:{value:`"primary"`,computed:!1},required:!1}}}})),c,l,u;e((()=>{s(),c={title:`Loader`,component:o,parameters:{layout:`centered`},tags:[`autodocs`],argTypes:{color:{control:`select`,options:[`primary`,`secondary`,`success`,`error`,`info`]}}},l={args:{color:`primary`}},l.parameters={...l.parameters,docs:{...l.parameters?.docs,source:{originalSource:`{
+  args: {
+    color: "primary"
+  }
+}`,...l.parameters?.docs?.source}}},u=[`Loader`]}))();export{l as Loader,u as __namedExportsOrder,c as default};

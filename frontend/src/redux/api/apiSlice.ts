@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { BASE_API_URL } from "../../config";
 import { axiosBaseQuery } from "../../utils/axios/axiosBaseQuery";

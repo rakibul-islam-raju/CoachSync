@@ -1,5 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { zodResolver } from "@hookform/resolvers/zod";
+ 
+import { createZodResolver } from "../../../../utils/formResolver";
 import { Box, FormControl } from "@mui/material";
 import { FC, useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -27,7 +27,7 @@ type TeacherFormProps = {
 
 const TeacherForm: FC<TeacherFormProps> = ({ onClose, defaultData }) => {
   const methods = useForm<ITeacherCreateFormValues>({
-    resolver: zodResolver(
+    resolver: createZodResolver<ITeacherCreateFormValues>(
       defaultData ? teacherUpdateSchema : teacherCreateSchema,
     ),
     defaultValues: {
@@ -93,13 +93,14 @@ const TeacherForm: FC<TeacherFormProps> = ({ onClose, defaultData }) => {
   return (
     <FormProvider {...methods}>
       <Box
-        display={"flex"}
-        flexDirection={"column"}
-        gap={2}
         component={"form"}
         noValidate
         onSubmit={handleSubmit(onSubmit)}
-      >
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2
+        }}>
         <FormControl fullWidth>
           <FormInputText
             name="user.first_name"

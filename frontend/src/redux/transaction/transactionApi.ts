@@ -1,6 +1,7 @@
 /* eslint-disable no-empty */
 
 import { apiSlice } from "../api/apiSlice";
+import type { RootState } from "../store";
 import {
   ITransaction,
   ITransactionCreateReqData,
@@ -46,7 +47,7 @@ export const transactionApi = apiSlice.injectEndpoints({
 
       // pessimistically update cache
       async onQueryStarted(_data, { dispatch, queryFulfilled, getState }) {
-        const param = getState().transaction.params;
+        const param = (getState() as RootState).transaction.params;
 
         try {
           const { data } = await queryFulfilled;

@@ -1,6 +1,6 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+ 
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import { createZodResolver } from "../../../../utils/formResolver";
 import { Box, FormControl } from "@mui/material";
 import { FC, useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -28,7 +28,7 @@ type EmployeeFormProps = {
 
 const EmployeeForm: FC<EmployeeFormProps> = ({ onClose, defaultData }) => {
   const methods = useForm<IEmployeeCreateFormValues>({
-    resolver: zodResolver(
+    resolver: createZodResolver<IEmployeeCreateFormValues>(
       defaultData ? EmployeeUpdateSchema : EmployeeCreateSchema,
     ),
     defaultValues: {
@@ -100,13 +100,14 @@ const EmployeeForm: FC<EmployeeFormProps> = ({ onClose, defaultData }) => {
   return (
     <FormProvider {...methods}>
       <Box
-        display={"flex"}
-        flexDirection={"column"}
-        gap={2}
         component={"form"}
         noValidate
         onSubmit={handleSubmit(onSubmit)}
-      >
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2
+        }}>
         <FormControl fullWidth>
           <FormInputText
             name="first_name"

@@ -1,6 +1,7 @@
 /* eslint-disable no-empty */
 
 import { apiSlice } from "../api/apiSlice";
+import type { RootState } from "../store";
 import {
   ISchedule,
   IScheduleCreateReqData,
@@ -39,7 +40,7 @@ export const scheduleApi = apiSlice.injectEndpoints({
 
       // pessimistically update cache
       async onQueryStarted(_data, { dispatch, queryFulfilled, getState }) {
-        const param = getState().schedule.params;
+        const param = (getState() as RootState).schedule.params;
 
         try {
           const { data } = await queryFulfilled;
@@ -87,7 +88,7 @@ export const scheduleApi = apiSlice.injectEndpoints({
 
       // pessimistically update cache
       async onQueryStarted(id, { dispatch, queryFulfilled, getState }) {
-        const param = getState().schedule.params;
+        const param = (getState() as RootState).schedule.params;
 
         try {
           await queryFulfilled;

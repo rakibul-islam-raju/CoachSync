@@ -1,5 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { zodResolver } from "@hookform/resolvers/zod";
+ 
+import { createZodResolver } from "../../../../utils/formResolver";
 import { Box, FormControl } from "@mui/material";
 import { parse } from "date-fns";
 import dayjs, { Dayjs } from "dayjs";
@@ -52,7 +52,9 @@ const ScheduleAddForm: FC<Props> = ({
 
   // Use the useForm hook with default values
   const methods = useForm<IScheduleCreateFormValues>({
-    resolver: zodResolver(scheduleCreateSchema),
+    resolver: createZodResolver<IScheduleCreateFormValues>(
+      scheduleCreateSchema,
+    ),
     defaultValues: {
       // Initialize default values based on editData
       title: editData?.title || "",
@@ -83,7 +85,7 @@ const ScheduleAddForm: FC<Props> = ({
   const [selectedSub, setSelectedSub] = useState<ISubject | null>(null);
   const [selectedBatch, setSelectedBatch] = useState<IBatch | null>(null);
   const [selectedTeacher, setSelectedTeacher] = useState<ITeacher | null>(null);
-  const [selectedExam, setSelectedExam] = useState<IExam | null>(null);
+  const [selectedExam] = useState<IExam | null>(null);
   const [date, setDate] = useState<Dayjs | null>(null);
   const [time, setTime] = useState<Dayjs | null>(null);
 
@@ -183,20 +185,23 @@ const ScheduleAddForm: FC<Props> = ({
   useEffect(() => {
     if (isSuccess) {
       toast.success("Schedule successfully updated!");
-      onClose && onClose();
+      if (onClose) {
+        onClose();
+      }
     }
   }, [isSuccess]);
 
   return (
     <FormProvider {...methods}>
       <Box
-        display={"flex"}
-        flexDirection={"column"}
-        gap={2}
         component={"form"}
         noValidate
         onSubmit={handleSubmit(onSubmit)}
-      >
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2
+        }}>
         <FormSelectInput
           name="batch"
           label="Select Batch"

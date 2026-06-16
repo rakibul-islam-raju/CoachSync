@@ -1,8 +1,10 @@
 import { TextField, TextFieldProps } from "@mui/material";
-import { FC } from "react";
+import { forwardRef } from "react";
 
-const TextInput: FC<TextFieldProps> = ({ ...rest }) => {
-  return <TextField {...rest} size="small" variant="outlined" />;
-};
+const TextInput = forwardRef<HTMLDivElement, TextFieldProps>((props, ref) => (
+  <TextField {...props} ref={ref} size="small" variant="outlined" />
+));
+
+TextInput.displayName = "TextInput";
 
 export default TextInput;

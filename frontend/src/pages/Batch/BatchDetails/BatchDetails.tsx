@@ -86,11 +86,17 @@ const BatchDetails: FC = () => {
 
         <Stack
           direction={"row"}
-          justifyContent={"space-between"}
-          alignItems={"baseline"}
-        >
+          sx={{
+            justifyContent: "space-between",
+            alignItems: "baseline"
+          }}>
           <Typography variant="h4">{batch?.name}</Typography>
-          <Stack direction={"row"} justifyContent={"flex-end"} gap={1}>
+          <Stack
+            direction={"row"}
+            sx={{
+              justifyContent: "flex-end",
+              gap: 1
+            }}>
             <CustomButton
               size="small"
               variant="outlined"
@@ -113,7 +119,11 @@ const BatchDetails: FC = () => {
         <Divider sx={{ my: 2 }} />
 
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 6
+            }}>
             <Typography variant="h5" gutterBottom>
               Batch Info
             </Typography>
@@ -156,12 +166,15 @@ const BatchDetails: FC = () => {
               </Typography>
             </ItemWrapper>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 6
+            }}>
             <StudentList batchId={Number(batchId)} />
           </Grid>
         </Grid>
       </PageContainer>
-
       {/* create modal */}
       {editBatch && batch && (
         <Modal
@@ -177,7 +190,6 @@ const BatchDetails: FC = () => {
           fullWidth
         />
       )}
-
       {/* delete confirm modal */}
       <ConfirmDialogue
         open={deleteBatchModal}

@@ -72,7 +72,9 @@ const NewScheduleList: FC<Props> = ({ handleAddToEdit }) => {
         </Typography>
         <Divider sx={{ my: 1 }} />
         {isError && <ErrorDisplay error={error} />}
-        <Box mt={2}>
+        <Box sx={{
+          mt: 2
+        }}>
           {draftSchedules.length === 0 ? (
             <ErrorDisplay severity="warning" error="Please add new schedule" />
           ) : (
@@ -81,9 +83,10 @@ const NewScheduleList: FC<Props> = ({ handleAddToEdit }) => {
                 <Box key={index} sx={{ borderBottom: "1px solid #ddd" }}>
                   <Stack
                     direction={"row"}
-                    justifyContent={"space-between"}
-                    alignItems={"baseline"}
-                  >
+                    sx={{
+                      justifyContent: "space-between",
+                      alignItems: "baseline"
+                    }}>
                     <Box>
                       <Typography>Title: {schedule.title}</Typography>
                       <Typography variant="body2">
@@ -113,7 +116,9 @@ const NewScheduleList: FC<Props> = ({ handleAddToEdit }) => {
                         </Typography>
                       )}
                     </Box>
-                    <Stack direction={"row"} gap={1}>
+                    <Stack direction={"row"} sx={{
+                      gap: 1
+                    }}>
                       <IconButton onClick={() => handleAddToEdit(schedule)}>
                         <EditIcon color="warning" />
                       </IconButton>

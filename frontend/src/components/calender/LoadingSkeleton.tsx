@@ -11,9 +11,9 @@ const LoadingSkeleton: FC<Props> = ({ rows = 1, cols = 4 }) => {
     <Box sx={{ opacity: 0.5 }}>
       <Grid container spacing={1}>
         {[...Array(rows).keys()].map(row => (
-          <Grid key={row} container item spacing={1}>
+          <Grid key={row} container spacing={1}>
             {[...Array(cols).keys()].map(col => (
-              <Grid key={col} item xs={12 / cols}>
+              <Grid key={col} size={12 / cols}>
                 <Skeleton variant="rectangular" height={100} animation="wave" />
               </Grid>
             ))}

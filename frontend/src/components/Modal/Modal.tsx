@@ -52,9 +52,18 @@ const Modal: FC<Props> = ({
           alignItems: "center",
         }}
       >
-        <Box display={"flex"} gap={2} alignItems={"center"}>
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            alignItems: "center"
+          }}>
           {image ? <img src={image} alt={title} /> : <DriveFolderUploadIcon />}
-          <Box display={"flex"} flexDirection={"column"}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column"
+            }}>
             {title}
             {subtitle && (
               <Typography sx={{ display: "block" }}>{subtitle}</Typography>

@@ -1,6 +1,7 @@
 /* eslint-disable no-empty */
 
 import { apiSlice } from "../api/apiSlice";
+import type { RootState } from "../store";
 import {
   IEnroll,
   IEnrollCreateReqData,
@@ -40,7 +41,7 @@ export const enrollApi = apiSlice.injectEndpoints({
 
       // pessimistically update cache
       async onQueryStarted(_data, { dispatch, queryFulfilled, getState }) {
-        const param = getState().enroll.params;
+        const param = (getState() as RootState).enroll.params;
 
         try {
           const { data } = await queryFulfilled;
@@ -68,7 +69,7 @@ export const enrollApi = apiSlice.injectEndpoints({
 
       // pessimistically update cache
       async onQueryStarted({ id }, { dispatch, queryFulfilled, getState }) {
-        const param = getState().enroll.params;
+        const param = (getState() as RootState).enroll.params;
 
         try {
           const { data } = await queryFulfilled;

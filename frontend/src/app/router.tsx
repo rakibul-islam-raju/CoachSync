@@ -1,21 +1,38 @@
+import { ComponentType, LazyExoticComponent, lazy, Suspense } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import AuthLayout from "../components/layouts/AuthLayout";
+import Loader from "../components/Loader";
 import ProtectedLayout from "../components/layouts/ProtectedLayout/ProtectedLayout";
 import PublicLayout from "../components/layouts/PublicLayout/PublicLayout";
 import RootLayout from "../components/layouts/RootLayout/RootLayout";
-import Batch from "../pages/Batch/Batch";
-import BatchDetails from "../pages/Batch/BatchDetails/BatchDetails";
-import Class from "../pages/Class/Class";
-import Dashboard from "../pages/Dashboard/Dashboard";
-import Employee from "../pages/Employee/Employee";
-import ForgetPassword from "../pages/ForgetPassword/ForgetPassword";
-import Login from "../pages/Login/Login";
-import Student from "../pages/Student/Student";
-import StudentDetails from "../pages/Student/StudentDetails/StudentDetails";
-import Subject from "../pages/Subject/Subject";
-import Teacher from "../pages/Teacher/Teacher";
-import AddSchedule from "../pages/schedule/AddSchedule/AddSchedule";
-import Schedule from "../pages/schedule/schedule";
+
+const Dashboard = lazy(() => import("../pages/Dashboard/Dashboard"));
+const Schedule = lazy(() => import("../pages/schedule/schedule"));
+const AddSchedule = lazy(
+  () => import("../pages/schedule/AddSchedule/AddSchedule"),
+);
+const Batch = lazy(() => import("../pages/Batch/Batch"));
+const BatchDetails = lazy(
+  () => import("../pages/Batch/BatchDetails/BatchDetails"),
+);
+const Student = lazy(() => import("../pages/Student/Student"));
+const StudentDetails = lazy(
+  () => import("../pages/Student/StudentDetails/StudentDetails"),
+);
+const Teacher = lazy(() => import("../pages/Teacher/Teacher"));
+const Class = lazy(() => import("../pages/Class/Class"));
+const Subject = lazy(() => import("../pages/Subject/Subject"));
+const Employee = lazy(() => import("../pages/Employee/Employee"));
+const Login = lazy(() => import("../pages/Login/Login"));
+const ForgetPassword = lazy(() => import("../pages/ForgetPassword/ForgetPassword"));
+
+const lazyElement = (
+  Component: LazyExoticComponent<ComponentType<object>>,
+) => (
+  <Suspense fallback={<Loader />}>
+    <Component />
+  </Suspense>
+);
 
 export const router = createBrowserRouter([
   // protected routes
@@ -28,47 +45,47 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Dashboard />,
+            element: lazyElement(Dashboard),
           },
           {
             path: "schedules",
-            element: <Schedule />,
+            element: lazyElement(Schedule),
           },
           {
             path: "add-schedules",
-            element: <AddSchedule />,
+            element: lazyElement(AddSchedule),
           },
           {
             path: "batches",
-            element: <Batch />,
+            element: lazyElement(Batch),
           },
           {
             path: "batches/:batchId/:batchName",
-            element: <BatchDetails />,
+            element: lazyElement(BatchDetails),
           },
           {
             path: "students",
-            element: <Student />,
+            element: lazyElement(Student),
           },
           {
             path: "students/:studentId",
-            element: <StudentDetails />,
+            element: lazyElement(StudentDetails),
           },
           {
             path: "teachers",
-            element: <Teacher />,
+            element: lazyElement(Teacher),
           },
           {
             path: "classes",
-            element: <Class />,
+            element: lazyElement(Class),
           },
           {
             path: "subjects",
-            element: <Subject />,
+            element: lazyElement(Subject),
           },
           {
             path: "employees",
-            element: <Employee />,
+            element: lazyElement(Employee),
           },
         ],
       },
@@ -84,11 +101,11 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "login",
-            element: <Login />,
+            element: lazyElement(Login),
           },
           {
             path: "/reset-password",
-            element: <ForgetPassword />,
+            element: lazyElement(ForgetPassword),
           },
         ],
       },

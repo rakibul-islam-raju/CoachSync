@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import jwt_decode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 interface IAuthState {
   access: string | null;
@@ -37,7 +37,7 @@ const authSlice = createSlice({
       state,
       action: PayloadAction<{ access: string; refresh: string }>,
     ) {
-      const decodedtoken: IDecodedType = jwt_decode(action.payload.access);
+      const decodedtoken: IDecodedType = jwtDecode(action.payload.access);
 
       state.access = action.payload.access;
       state.refresh = action.payload.refresh;

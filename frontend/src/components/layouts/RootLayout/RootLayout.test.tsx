@@ -2,8 +2,19 @@ import { describe, it, expect, afterEach } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 // import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
+import { Provider } from "react-redux";
 import RootLayout from "./RootLayout";
 import { MAIN_MENUS } from "./constants";
+import store from "../../../redux/store";
+
+const renderRootLayout = () =>
+  render(
+    <Provider store={store}>
+      <MemoryRouter>
+        <RootLayout />
+      </MemoryRouter>
+    </Provider>,
+  );
 
 describe("Login Page", () => {
   afterEach(() => {
@@ -12,14 +23,10 @@ describe("Login Page", () => {
   // const user = userEvent.setup();
 
   it("should render correctly", () => {
-    render(
-      <MemoryRouter>
-        <RootLayout />
-      </MemoryRouter>,
-    );
+    renderRootLayout();
 
     // Check if Login header is rendered
-    expect(screen.getByText("Coaching Management System")).toBeInTheDocument();
+    expect(screen.getByText("CoachSync")).toBeInTheDocument();
 
     // Check if main menus are rendered
     MAIN_MENUS.forEach(item => {
@@ -29,16 +36,10 @@ describe("Login Page", () => {
   });
 
   it("should toggle the drawer", () => {
-    render(<RootLayout />);
+    renderRootLayout();
     const menuOpenButton = screen.getByLabelText("open drawer");
 
     // drawer should be initially open
-    expect(menuOpenButton).not.toBeVisible();
-
-    // click the menu button to open the drawer
-    fireEvent.click(menuOpenButton);
-
-    // drawer should be open
     expect(menuOpenButton).not.toBeVisible();
 
     // Click the chevron icon to close the drawer
@@ -47,10 +48,16 @@ describe("Login Page", () => {
 
     // Drawer should be closed again
     expect(menuOpenButton).toBeVisible();
+
+    // click the menu button to open the drawer
+    fireEvent.click(menuOpenButton);
+
+    // drawer should be open
+    expect(menuOpenButton).not.toBeVisible();
   });
 
   it("should show profile menu on click", () => {
-    render(<RootLayout />);
+    renderRootLayout();
 
     const profileIcon = screen.getByTestId("account-menu-button");
     const profileMenu = screen.getByTestId("user-menu");

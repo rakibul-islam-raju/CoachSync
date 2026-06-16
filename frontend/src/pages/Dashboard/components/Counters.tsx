@@ -15,21 +15,33 @@ const Counters = () => {
   ) : (
     data && (
       <Grid container spacing={2}>
-        <Grid item xs={12} md={4}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 4
+          }}>
           <CountCard
             count={data.active_batches}
             label="Active Batches"
             link="/batches"
           />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 4
+          }}>
           <CountCard
             count={data.active_classes}
             label="Active Classes"
             link="/batches"
           />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 4
+          }}>
           <CountCard
             count={data.active_teachers}
             label="Active Teachers"

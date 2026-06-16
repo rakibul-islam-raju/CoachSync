@@ -1,12 +1,16 @@
 import { Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { addMinutes, isBefore, isSameDay } from "date-fns";
-import format from "date-fns/format";
-import getDay from "date-fns/getDay";
-import enUS from "date-fns/locale/en-US";
-import parse from "date-fns/parse";
-import startOfWeek from "date-fns/startOfWeek";
-import { CSSProperties, useMemo, useState } from "react";
+import {
+  addMinutes,
+  format,
+  getDay,
+  isBefore,
+  isSameDay,
+  parse,
+  startOfWeek,
+} from "date-fns";
+import { enUS } from "date-fns/locale";
+import { useMemo, useState } from "react";
 import {
   Calendar as BigCalendar,
   EventPropGetter,
@@ -81,13 +85,13 @@ const Calender = () => {
   }, [data]);
 
   // Event color styles
-  const eventStyleGetter: EventPropGetter<IEvent> = (event, start) => {
+  const eventStyleGetter: EventPropGetter<IEvent> = (_event, start) => {
     const currentDate = new Date(); // Get the current date
     const isEventInPast = isBefore(start, currentDate);
     // const isEventInFuture = isAfter(start, currentDate);
     const isEventToday = isSameDay(start, currentDate);
 
-    const style: CSSProperties = {
+    const style = {
       backgroundColor: isEventInPast ? "#8e9396" : theme.palette.success.main,
       borderColor: "gray",
       textDecoration: isEventInPast ? "line-through" : "none",
@@ -99,7 +103,7 @@ const Calender = () => {
 
     return {
       style,
-    };
+    } as ReturnType<EventPropGetter<IEvent>>;
   };
 
   return (

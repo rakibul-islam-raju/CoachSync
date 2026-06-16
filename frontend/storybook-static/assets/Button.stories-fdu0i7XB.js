@@ -1,0 +1,6 @@
+import{i as e}from"./preload-helper-xPQekRTU.js";import{At as t,Tt as n,Z as r,t as i}from"./material-MzOQpQ2u.js";var a,o,s,c=e((()=>{i(),a=t(),o=n(r)(({variant:e})=>({borderRadius:`4px`,...e===`contained`&&{},...e===`outlined`&&{}})),s=({variant:e=`contained`,children:t,...n})=>(0,a.jsx)(o,{...n,variant:e,children:t}),s.__docgenInfo={description:``,methods:[],displayName:`CustomButton`,props:{variant:{required:!1,tsType:{name:`union`,raw:`"contained" | "outlined" | "text"`,elements:[{name:`literal`,value:`"contained"`},{name:`literal`,value:`"outlined"`},{name:`literal`,value:`"text"`}]},description:``,defaultValue:{value:`"contained"`,computed:!1}}}}})),l,u,d;e((()=>{c(),l={title:`Button`,component:s,parameters:{layout:`centered`},tags:[`autodocs`]},u={args:{variant:`contained`,children:`Button`}},u.parameters={...u.parameters,docs:{...u.parameters?.docs,source:{originalSource:`{
+  args: {
+    variant: "contained",
+    children: "Button"
+  }
+}`,...u.parameters?.docs?.source}}},d=[`Button`]}))();export{u as Button,d as __namedExportsOrder,l as default};

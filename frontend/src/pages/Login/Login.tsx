@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { LoginFormValues, loginSchema } from "./components/LoginSchema";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { createZodResolver } from "../../utils/formResolver";
 import {
   Box,
   Divider,
@@ -26,7 +26,7 @@ export default function Login() {
   const [showPass, setShowPass] = useState(false);
 
   const { control, handleSubmit } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+    resolver: createZodResolver<LoginFormValues>(loginSchema),
   });
 
   const [login, { isLoading, isError, isSuccess, error }] = useLoginMutation();
@@ -49,7 +49,11 @@ export default function Login() {
           Login
         </Typography>
         <Divider />
-        <Stack rowGap={3} mt={4}>
+        <Stack
+          sx={{
+            rowGap: 3,
+            mt: 4
+          }}>
           <FormControl fullWidth>
             <FormInputText
               name="email"
@@ -83,14 +87,13 @@ export default function Login() {
           <CustomButton type="submit" disabled={isLoading}>
             Submit
           </CustomButton>
-          <Typography paragraph align="center">
+          <Typography component="p" align="center" sx={{ mb: 2 }}>
             <Link component={RouterLink} underline="hover" to="/reset-password">
               Forgot Password?
             </Link>
           </Typography>
         </Stack>
       </Box>
-
       {isError && <ErrorDisplay error={error} />}
     </>
   );

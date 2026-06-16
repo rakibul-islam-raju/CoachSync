@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/rules-of-hooks */
+ 
 import AddIcon from "@mui/icons-material/Add";
 import TuneIcon from "@mui/icons-material/Tune";
 import { Divider, Stack, Typography } from "@mui/material";
@@ -63,22 +63,23 @@ export default function Student() {
   return (
     <>
       <CustomBreadcrumb list={breadCrumbList} />
-
       <PageContainer>
         <Stack
           direction={"row"}
-          justifyContent={"space-between"}
-          alignItems={"center"}
-          flexWrap={"wrap"}
-          gap={2}
-        >
+          sx={{
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 2
+          }}>
           <Typography variant="h4">Students</Typography>
           <Stack
             direction={"row"}
-            alignItems={"center"}
-            gap={1}
-            flexWrap={"wrap"}
-          >
+            sx={{
+              alignItems: "center",
+              gap: 1,
+              flexWrap: "wrap"
+            }}>
             <SearchInput
               label="Search Student"
               value={searchText}
@@ -98,7 +99,6 @@ export default function Student() {
         <Divider sx={{ my: 3 }} />
         <StudentTable />
       </PageContainer>
-
       {/* create modal */}
       {createSub && (
         <Modal
@@ -112,7 +112,6 @@ export default function Student() {
           fullWidth
         />
       )}
-
       {/* Drawer */}
       {openDrawer && (
         <CustomDrawer

@@ -16,7 +16,12 @@ import TransactionForm from "../StudentForm/TransactionForm";
 function amountType(amount: number) {
   const isNeg = amount < 0;
   return (
-    <Box display={"flex"} gap={1} alignItems={"center"}>
+    <Box
+      sx={{
+        display: "flex",
+        gap: 1,
+        alignItems: "center"
+      }}>
       {isNeg ? (
         <ArrowCircleUpIcon color="error" />
       ) : (
@@ -58,7 +63,12 @@ const TransactionHistory: FC<TransactionHistoryProps> = ({ enrollData }) => {
 
   return (
     <>
-      <Box display={"flex"} justifyContent={"space-between"} mb={2}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          mb: 2
+        }}>
         <Chip label={`Total: ${enrollData.total_amount}`} color="primary" />
         <Chip label={`Paid: ${enrollData.total_paid}`} color="success" />
         <Chip
@@ -95,7 +105,6 @@ const TransactionHistory: FC<TransactionHistoryProps> = ({ enrollData }) => {
           </TableBody>
         </CustomTableContainer>
       )}
-
       {transactionModal && (
         <Modal
           open={transactionModal}

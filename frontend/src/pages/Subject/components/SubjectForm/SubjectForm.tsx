@@ -1,4 +1,4 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { createZodResolver } from "../../../../utils/formResolver";
 import { Box, Checkbox, FormControl, FormControlLabel } from "@mui/material";
 import { FC, useEffect, useState } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
@@ -25,7 +25,7 @@ type SubjectFormProps = {
 
 const SubjectForm: FC<SubjectFormProps> = ({ onClose, defaultData }) => {
   const methods = useForm<ISubjectCreateFormValues>({
-    resolver: zodResolver(
+    resolver: createZodResolver<ISubjectCreateFormValues>(
       defaultData ? subjectUpdateSchema : subjectCreateSchema,
     ),
     defaultValues: {
@@ -92,13 +92,14 @@ const SubjectForm: FC<SubjectFormProps> = ({ onClose, defaultData }) => {
   return (
     <FormProvider {...methods}>
       <Box
-        display={"flex"}
-        flexDirection={"column"}
-        gap={2}
         component={"form"}
         noValidate
         onSubmit={handleSubmit(onSubmit)}
-      >
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2
+        }}>
         <FormControl fullWidth>
           <FormInputText
             name="name"

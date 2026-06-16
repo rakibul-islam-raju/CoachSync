@@ -13,7 +13,12 @@ const CustomPagination: FC<CustomPaginationProps> = ({
   handleChange,
 }) => {
   return (
-    <Stack direction={"row"} justifyContent={"space-between"} marginY={3}>
+    <Stack
+      direction={"row"}
+      sx={{
+        justifyContent: "space-between",
+        marginY: 3
+      }}>
       <Typography>Page: {page}</Typography>
       <Pagination count={count} page={page} onChange={handleChange} />
     </Stack>

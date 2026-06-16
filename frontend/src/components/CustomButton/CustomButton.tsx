@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 import { Button, ButtonProps, styled } from "@mui/material";
 import { FC } from "react";
 
@@ -7,7 +7,7 @@ type CustomButtonProps = ButtonProps & {
 };
 
 const StyledButton = styled(Button)<CustomButtonProps>(
-  ({ theme, variant }) => ({
+  ({ variant }) => ({
     borderRadius: "4px",
 
     ...(variant === "contained" && {}),

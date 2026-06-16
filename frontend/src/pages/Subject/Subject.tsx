@@ -62,22 +62,23 @@ export default function Subject() {
   return (
     <>
       <CustomBreadcrumb list={breadCrumbList} />
-
       <PageContainer>
         <Stack
           direction={"row"}
-          justifyContent={"space-between"}
-          alignItems={"center"}
-          flexWrap={"wrap"}
-          gap={2}
-        >
+          sx={{
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 2
+          }}>
           <Typography variant="h4">Subjects</Typography>
           <Stack
             direction={"row"}
-            alignItems={"center"}
-            gap={1}
-            flexWrap={"wrap"}
-          >
+            sx={{
+              alignItems: "center",
+              gap: 1,
+              flexWrap: "wrap"
+            }}>
             <SearchInput
               label="Search Subject"
               value={searchText}
@@ -97,7 +98,6 @@ export default function Subject() {
         <Divider sx={{ my: 3 }} />
         <SubjectTable />
       </PageContainer>
-
       {/* create modal */}
       {createSub && (
         <Modal
@@ -111,7 +111,6 @@ export default function Subject() {
           fullWidth
         />
       )}
-
       {/* Drawer */}
       {openDrawer && (
         <CustomDrawer

@@ -40,7 +40,11 @@ const AddSchedule = () => {
       <CustomBreadcrumb list={breadCrumbList} />
       <PageContainer>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 6
+            }}>
             <Typography variant="h5" gutterBottom>
               Add Schedules
             </Typography>
@@ -50,7 +54,11 @@ const AddSchedule = () => {
               handleRemoveFromEdit={handleRemoveFromEdit}
             />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid
+            size={{
+              xs: 12,
+              md: 6
+            }}>
             <NewScheduleList handleAddToEdit={handleAddToEdit} />
           </Grid>
         </Grid>

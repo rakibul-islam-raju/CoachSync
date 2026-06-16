@@ -25,11 +25,12 @@ const MonthlyTransactionBarChart = () => {
     data && (
       <Box>
         <Box
-          display={"flex"}
-          gap={2}
-          justifyContent={"space-between"}
-          alignItems={"center"}
-        >
+          sx={{
+            display: "flex",
+            gap: 2,
+            justifyContent: "space-between",
+            alignItems: "center"
+          }}>
           <Typography variant="h5">Monthly Transactions</Typography>
           <DatePicker
             label={"Year"}
@@ -38,7 +39,9 @@ const MonthlyTransactionBarChart = () => {
             onChange={newYear => setYear(dayjs(newYear))}
           />
         </Box>
-        <Box height={"500px"}>
+        <Box sx={{
+          height: "500px"
+        }}>
           <ResponsiveBar
             data={data}
             keys={["total_amount"]}

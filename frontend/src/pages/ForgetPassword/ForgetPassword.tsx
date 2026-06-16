@@ -9,14 +9,14 @@ import {
 } from "@mui/material";
 import { CustomButton } from "../../components/CustomButton/CustomButton";
 import { Link as RouterLink } from "react-router-dom";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { createZodResolver } from "../../utils/formResolver";
 import * as z from "zod";
 import { FormInputText } from "../../components/forms/FormInputText";
 
 const schema = z.object({
   email: z
-    .string({ required_error: "Email is required" })
-    .email()
+    .string({ error: "Email is required" })
+    .email("Invalid email")
     .nonempty("Email is required"),
 });
 
@@ -24,7 +24,7 @@ type FormValues = z.infer<typeof schema>;
 
 export default function ForgetPassword() {
   const { control, handleSubmit } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: createZodResolver<FormValues>(schema),
   });
 
   const onSubmit = (data: FormValues) => {
@@ -46,7 +46,11 @@ export default function ForgetPassword() {
         Reset Password
       </Typography>
       <Divider />
-      <Stack rowGap={3} mt={4}>
+      <Stack
+        sx={{
+          rowGap: 3,
+          mt: 4
+        }}>
         <FormControl fullWidth>
           <FormInputText
             name="email"
@@ -58,7 +62,7 @@ export default function ForgetPassword() {
         </FormControl>
 
         <CustomButton type="submit">Submit</CustomButton>
-        <Typography paragraph align="center">
+        <Typography component="p" align="center" sx={{ mb: 2 }}>
           <Link component={RouterLink} underline="hover" to="/login">
             Remembered password?
           </Link>

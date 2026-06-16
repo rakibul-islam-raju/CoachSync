@@ -1,14 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { TimePicker } from "@mui/x-date-pickers";
 import { Dayjs } from "dayjs";
 import React from "react";
-import { Controller, useFormContext } from "react-hook-form";
+import { Control, Controller, useFormContext } from "react-hook-form";
 
 type TimeInputProps = {
   name: string;
   label: string;
+  control?: unknown;
   value: Dayjs | null;
   onChange: (newTime: Dayjs | null) => void;
 };
@@ -16,16 +17,18 @@ type TimeInputProps = {
 const TimeInput: React.FC<TimeInputProps> = ({
   name,
   label,
+  control,
   value,
   onChange,
 }) => {
-  const { control } = useFormContext();
+  const methods = useFormContext();
+  const formControl = (control ?? methods?.control) as Control<any, any, any>;
 
   return (
     <Controller
       name={name}
-      control={control}
-      render={({ field, fieldState: { error } }) => (
+      control={formControl}
+      render={({ fieldState: { error } }) => (
         <TimePicker
           label={label}
           value={value}

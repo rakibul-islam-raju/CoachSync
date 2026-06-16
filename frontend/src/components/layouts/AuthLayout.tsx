@@ -6,17 +6,19 @@ export default function AuthLayout() {
     <Box>
       <Stack
         direction={"row"}
-        alignItems={"center"}
-        justifyContent={"center"}
-        minHeight={"100vh"}
-      >
+        sx={{
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh"
+        }}>
         <Box
-          width={{ xs: 12 / 12, md: 6 / 12, xl: 4 / 12 }}
           component={Paper}
-          padding={2}
           elevation={1}
           variant="outlined"
-        >
+          sx={{
+            width: { xs: 12 / 12, md: 6 / 12, xl: 4 / 12 },
+            padding: 2
+          }}>
           <Outlet />
         </Box>
       </Stack>

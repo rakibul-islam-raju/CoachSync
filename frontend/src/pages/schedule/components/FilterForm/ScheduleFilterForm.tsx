@@ -68,7 +68,9 @@ const ScheduleFilterForm: FC = () => {
         Filter Schedule
       </Typography>
       <Divider sx={{ my: 2 }} />
-      <Stack gap={1} component={"form"} onSubmit={handleSubmit}>
+      <Stack component={"form"} onSubmit={handleSubmit} sx={{
+        gap: 1
+      }}>
         <FormControl fullWidth>
           <FormLabel id="ordering">Sort by</FormLabel>
           <Select
@@ -168,7 +170,13 @@ const ScheduleFilterForm: FC = () => {
           />
         </FormControl>
 
-        <Stack direction={"row"} mt={2} gap={1} justifyContent={"flex-end"}>
+        <Stack
+          direction={"row"}
+          sx={{
+            mt: 2,
+            gap: 1,
+            justifyContent: "flex-end"
+          }}>
           <CustomButton
             type="button"
             variant="outlined"

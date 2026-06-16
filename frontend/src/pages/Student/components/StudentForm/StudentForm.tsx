@@ -1,5 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { zodResolver } from "@hookform/resolvers/zod";
+ 
+import { createZodResolver } from "../../../../utils/formResolver";
 import { Box, FormControl } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { FC, useEffect, useState } from "react";
@@ -32,7 +32,7 @@ type StudentFormProps = {
 const StudentForm: FC<StudentFormProps> = ({ onClose, defaultData }) => {
   const navigate = useNavigate();
   const methods = useForm<IStudentCreateFormValues>({
-    resolver: zodResolver(
+    resolver: createZodResolver<IStudentCreateFormValues>(
       defaultData ? studentCreateSchema : studentCreateSchema,
     ),
     defaultValues: {
@@ -113,13 +113,14 @@ const StudentForm: FC<StudentFormProps> = ({ onClose, defaultData }) => {
   return (
     <FormProvider {...methods}>
       <Box
-        display={"flex"}
-        flexDirection={"column"}
-        gap={2}
         component={"form"}
         noValidate
         onSubmit={handleSubmit(onSubmit)}
-      >
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2
+        }}>
         <FormControl fullWidth required>
           <FormInputText
             name="user.first_name"

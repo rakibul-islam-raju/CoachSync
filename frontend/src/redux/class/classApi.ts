@@ -1,6 +1,7 @@
 /* eslint-disable no-empty */
 
 import { apiSlice } from "../api/apiSlice";
+import type { RootState } from "../store";
 import {
   IClass,
   IClassCreateReqData,
@@ -37,7 +38,7 @@ export const classApi = apiSlice.injectEndpoints({
 
       // pessimistically update cache
       async onQueryStarted(_data, { dispatch, queryFulfilled, getState }) {
-        const param = getState().class.params;
+        const param = (getState() as RootState).class.params;
 
         try {
           const { data } = await queryFulfilled;
@@ -68,7 +69,7 @@ export const classApi = apiSlice.injectEndpoints({
         { id, data: postData },
         { dispatch, queryFulfilled, getState },
       ) {
-        const param = getState().class.params;
+        const param = (getState() as RootState).class.params;
 
         try {
           const { data } = await queryFulfilled;
@@ -104,7 +105,7 @@ export const classApi = apiSlice.injectEndpoints({
 
       // pessimistically update cache
       async onQueryStarted(id, { dispatch, queryFulfilled, getState }) {
-        const param = getState().class.params;
+        const param = (getState() as RootState).class.params;
 
         try {
           await queryFulfilled;

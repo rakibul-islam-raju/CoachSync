@@ -1,5 +1,6 @@
 /* eslint-disable no-empty */
 import { apiSlice } from "../api/apiSlice";
+import type { RootState } from "../store";
 import { setUserInfo } from "../auth/authSlice";
 import { IUserCreateData, IUserParams, IUserUpdateData } from "./user.type";
 
@@ -15,7 +16,7 @@ export const userApi = apiSlice.injectEndpoints({
         try {
           const { data } = await queryFulfilled;
           dispatch(setUserInfo(data));
-        } catch (err) {
+        } catch {
           // do nothing
         }
       },
@@ -50,7 +51,7 @@ export const userApi = apiSlice.injectEndpoints({
 
       // pessimistically update cache
       async onQueryStarted(_data, { dispatch, queryFulfilled, getState }) {
-        const param = getState().user.params;
+        const param = (getState() as RootState).user.params;
 
         try {
           const { data } = await queryFulfilled;
@@ -78,7 +79,7 @@ export const userApi = apiSlice.injectEndpoints({
 
       // pessimistically update cache
       async onQueryStarted({ id }, { dispatch, queryFulfilled, getState }) {
-        const param = getState().user.params;
+        const param = (getState() as RootState).user.params;
 
         try {
           const { data } = await queryFulfilled;
@@ -109,7 +110,7 @@ export const userApi = apiSlice.injectEndpoints({
 
       // pessimistically update cache
       async onQueryStarted(id, { dispatch, queryFulfilled, getState }) {
-        const param = getState().user.params;
+        const param = (getState() as RootState).user.params;
 
         try {
           await queryFulfilled;

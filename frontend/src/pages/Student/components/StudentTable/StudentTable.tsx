@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import CloseIcon from "@mui/icons-material/Close";
 import DoneIcon from "@mui/icons-material/Done";
 import PreviewIcon from "@mui/icons-material/Preview";
@@ -45,7 +45,7 @@ const StudentTable: FC = () => {
     ...params,
   });
 
-  const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  const handleChange = (_event: React.ChangeEvent<unknown>, value: number) => {
     dispatch(setPage(value));
   };
 

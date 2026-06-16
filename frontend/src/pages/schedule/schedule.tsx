@@ -57,22 +57,23 @@ export default function Schedule() {
   return (
     <>
       <CustomBreadcrumb list={breadCrumbList} />
-
       <PageContainer>
         <Stack
           direction={"row"}
-          justifyContent={"space-between"}
-          alignItems={"center"}
-          flexWrap={"wrap"}
-          gap={2}
-        >
+          sx={{
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 2
+          }}>
           <Typography variant="h4">Schedules</Typography>
           <Stack
             direction={"row"}
-            alignItems={"center"}
-            gap={1}
-            flexWrap={"wrap"}
-          >
+            sx={{
+              alignItems: "center",
+              gap: 1,
+              flexWrap: "wrap"
+            }}>
             <SearchInput
               label="Search Subject"
               value={searchText}
@@ -95,7 +96,6 @@ export default function Schedule() {
         <Divider sx={{ my: 3 }} />
         <ScheduleTable />
       </PageContainer>
-
       {/* Drawer */}
       {openDrawer && (
         <CustomDrawer

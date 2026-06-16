@@ -24,21 +24,23 @@ const SearchInput: FC<SearchInputProps> = ({
       onChange={handleChange}
       label={label}
       autoComplete="off"
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <SearchIcon />
-          </InputAdornment>
-        ),
-        endAdornment: (
-          <InputAdornment position="end">
-            {value && (
-              <IconButton onClick={handleCancelSearch}>
-                <CloseIcon />
-              </IconButton>
-            )}
-          </InputAdornment>
-        ),
+      slotProps={{
+        input: {
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon />
+            </InputAdornment>
+          ),
+          endAdornment: (
+            <InputAdornment position="end">
+              {value && (
+                <IconButton onClick={handleCancelSearch}>
+                  <CloseIcon />
+                </IconButton>
+              )}
+            </InputAdornment>
+          ),
+        },
       }}
     />
   );

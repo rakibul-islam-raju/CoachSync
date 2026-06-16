@@ -3,6 +3,17 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 // import userEvent from "@testing-library/user-event";
 import Login from "./Login";
 import { MemoryRouter } from "react-router-dom";
+import { Provider } from "react-redux";
+import store from "../../redux/store";
+
+const renderLogin = () =>
+  render(
+    <Provider store={store}>
+      <MemoryRouter>
+        <Login />
+      </MemoryRouter>
+    </Provider>,
+  );
 
 describe("Login Page", () => {
   afterEach(() => {
@@ -11,11 +22,7 @@ describe("Login Page", () => {
   // const user = userEvent.setup();
 
   it("should render correctly", () => {
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>,
-    );
+    renderLogin();
 
     // Check if Login header is rendered
     expect(screen.getByText("Login")).toBeInTheDocument();
@@ -33,11 +40,7 @@ describe("Login Page", () => {
   });
 
   it("should toggle password visibility", () => {
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>,
-    );
+    renderLogin();
 
     // Initially, password should be hidden
     const passwordInput = screen.getByPlaceholderText("Enter Password");
@@ -52,11 +55,7 @@ describe("Login Page", () => {
   });
 
   it("should show error for invalid email and password submission", async () => {
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>,
-    );
+    renderLogin();
 
     const emailInput = screen.getByPlaceholderText("Enter Email Address");
     const passwordInput = screen.getByPlaceholderText("Enter Password");

@@ -1,5 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { zodResolver } from "@hookform/resolvers/zod";
+ 
+import { createZodResolver } from "../../../../utils/formResolver";
 import { Box, FormControl } from "@mui/material";
 import { FC, useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -28,7 +28,7 @@ type TransactionFormProps = {
 
 const TransactionForm: FC<TransactionFormProps> = ({ onClose, enrollData }) => {
   const methods = useForm<ITransactionCreateReqData>({
-    resolver: zodResolver(TransactionSchema),
+    resolver: createZodResolver<ITransactionCreateReqData>(TransactionSchema),
     defaultValues: {
       enroll: enrollData?.id,
       amount: 0,
@@ -81,13 +81,14 @@ const TransactionForm: FC<TransactionFormProps> = ({ onClose, enrollData }) => {
   return (
     <FormProvider {...methods}>
       <Box
-        display={"flex"}
-        flexDirection={"column"}
-        gap={2}
         component={"form"}
         noValidate
         onSubmit={handleSubmit(onSubmit)}
-      >
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2
+        }}>
         <FormControl fullWidth required>
           <FormInputText
             name="amount"

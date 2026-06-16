@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { InputProps, TextFieldProps } from "@mui/material";
+import { TextFieldProps } from "@mui/material";
 import { HTMLInputTypeAttribute } from "react";
-import { Controller, useFormContext } from "react-hook-form";
+import { Control, Controller, useFormContext } from "react-hook-form";
 import TextInput from "./TextInput";
 
 type FormInputProps = {
   name: string;
   label: string;
   type: HTMLInputTypeAttribute;
+  control?: unknown;
   placeholder?: string;
-  inputProps?: InputProps;
+  inputProps?: Record<string, unknown>;
   multiline?: boolean;
   helperText?: string | null;
   disabled?: boolean;
@@ -19,32 +20,37 @@ export const FormInputText = ({
   name,
   label,
   type,
+  control,
   placeholder,
   inputProps,
   helperText,
   error,
   ...rest
 }: FormInputProps) => {
-  const { control } = useFormContext();
+  const methods = useFormContext();
+  const formControl = (control ?? methods?.control) as Control<any, any, any>;
 
   return (
     <Controller
       name={name}
-      control={control}
-      render={({ field: { onChange, value }, ...fields }) => (
+      control={formControl}
+      render={({
+        field: { onChange, value, ...field },
+        fieldState: { error: fieldError },
+      }) => (
         <TextInput
-          {...fields}
+          {...field}
           {...rest}
-          helperText={helperText}
-          error={error}
+          helperText={helperText ?? fieldError?.message}
+          error={error ?? !!fieldError}
           onChange={
             type === "number" ? e => onChange(+e.target.value) : onChange
           }
-          value={value}
+          value={value ?? ""}
           label={label}
           type={type}
           placeholder={placeholder}
-          InputProps={inputProps}
+          slotProps={{ input: inputProps } as TextFieldProps["slotProps"]}
         />
       )}
     />
