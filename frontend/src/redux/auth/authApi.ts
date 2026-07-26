@@ -1,5 +1,12 @@
 import { apiSlice } from "../api/apiSlice";
-import { ILoginReqData, ILoginResData } from "./auth.type";
+import {
+  IChangePasswordReqData,
+  IForgetPasswordReqData,
+  ILoginReqData,
+  ILoginResData,
+  IMessageResponse,
+  ISetPasswordReqData,
+} from "./auth.type";
 import { userLoggedIn, userLoggedOut } from "./authSlice";
 
 export const authApi = apiSlice.injectEndpoints({
@@ -45,7 +52,40 @@ export const authApi = apiSlice.injectEndpoints({
         }
       },
     }),
+
+    forgetPassword: builder.mutation<
+      IForgetPasswordReqData,
+      IForgetPasswordReqData
+    >({
+      query: data => ({
+        url: "/auth/forget-password",
+        method: "POST",
+        data,
+      }),
+    }),
+
+    setPassword: builder.mutation<IMessageResponse, ISetPasswordReqData>({
+      query: data => ({
+        url: "/auth/set-password",
+        method: "POST",
+        data,
+      }),
+    }),
+
+    changePassword: builder.mutation<IMessageResponse, IChangePasswordReqData>({
+      query: data => ({
+        url: "/auth/change-password",
+        method: "POST",
+        data,
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useLogoutMutation } = authApi;
+export const {
+  useLoginMutation,
+  useLogoutMutation,
+  useForgetPasswordMutation,
+  useSetPasswordMutation,
+  useChangePasswordMutation,
+} = authApi;

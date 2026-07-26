@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   redis:
     image: redis:7.0.10-alpine
@@ -44,23 +42,24 @@ services:
       - "8000:8000"
     depends_on:
       - db
+      - redis
     networks:
       - coaching_management
 
-  # celery:
-  #   container_name: coaching_celery
-  #   build: ./backend
-  #   env_file:
-  #     - ./backend/.env
-  #   command: celery -A backend worker -l INFO
-  #   volumes:
-  #     - ./backend:/app
-  #   depends_on:
-  #     - redis
-  #     - db
-  #     - api
-  #   networks:
-  #     - coaching_management
+  celery:
+    container_name: coaching_celery
+    build: ./backend
+    env_file:
+      - ./backend/.env
+    command: celery -A backend worker -l INFO
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - redis
+      - db
+      - api
+    networks:
+      - coaching_management
 
   web:
     container_name: coaching_web

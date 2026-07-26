@@ -183,7 +183,15 @@ SIMPLE_JWT = {
 # cors headers
 CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS")
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+EMAIL_BACKEND = env(
+    "EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
+)
+EMAIL_HOST = env("EMAIL_HOST", default="")
+EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="webmaster@localhost")
 
 # CELERY SETTINGS
 CELERY_BROKER_URL = env("CELERY_BROKER_URL")
@@ -195,7 +203,10 @@ CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
 # CELERY_TASK_TRACK_STARTED = True
 # CELERY_TASK_TIME_LIMIT = 30 * 60
 
-FRONTEND_BASE_URL = "http://localhost:3000"
+FRONTEND_BASE_URL = env("FRONTEND_BASE_URL", default="http://localhost:5173")
+if not FRONTEND_BASE_URL.startswith(("http://", "https://")):
+    FRONTEND_BASE_URL = f"http://{FRONTEND_BASE_URL}"
+FRONTEND_BASE_URL = FRONTEND_BASE_URL.rstrip("/")
 
 LOGGING_DIR = os.path.join(BASE_DIR, 'logs')
 if not os.path.exists(LOGGING_DIR):

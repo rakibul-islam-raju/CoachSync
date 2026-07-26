@@ -95,14 +95,15 @@ class CreateStudentSerializer(serializers.ModelSerializer):
         return new_student
 
     def update(self, instance, validated_data):
-        user_data = validated_data.pop("user")
+        user_data = validated_data.pop("user", None)
 
         try:
             # Update user data
-            user_instance = instance.user
-            for attr, value in user_data.items():
-                setattr(user_instance, attr, value)
-            user_instance.save()
+            if user_data:
+                user_instance = instance.user
+                for attr, value in user_data.items():
+                    setattr(user_instance, attr, value)
+                user_instance.save()
 
             # Update student instance
             for attr, value in validated_data.items():

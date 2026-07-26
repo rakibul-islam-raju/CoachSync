@@ -87,10 +87,11 @@ export const studentApi = apiSlice.injectEndpoints({
         method: "PATCH",
         data,
       }),
+      invalidatesTags: ["Student"],
 
       // pessimistically update cache
       async onQueryStarted(
-        { id, data: postData },
+        { data: postData },
         { dispatch, queryFulfilled, getState },
       ) {
         const param = (getState() as RootState).student.params;
@@ -105,9 +106,11 @@ export const studentApi = apiSlice.injectEndpoints({
               (draft: IPaginatedData<IStudent[]> | undefined) => {
                 if (draft) {
                   const updatedStudentIndex = draft.results.findIndex(
-                    item => item.id === id,
+                    item => item.id === data.id,
                   );
-                  draft.results[updatedStudentIndex] = { ...data };
+                  if (updatedStudentIndex >= 0) {
+                    draft.results[updatedStudentIndex] = { ...data };
+                  }
                 }
               },
             ),
@@ -119,15 +122,15 @@ export const studentApi = apiSlice.injectEndpoints({
       },
     }),
 
-    deleteStudent: builder.mutation<void, number>({
-      query: (id: number) => ({
-        url: `/students/${id}`,
+    deleteStudent: builder.mutation<void, string>({
+      query: studentId => ({
+        url: `/students/${studentId}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["StudentStats"],
+      invalidatesTags: ["StudentStats", "Student"],
 
       // pessimistically update cache
-      async onQueryStarted(id, { dispatch, queryFulfilled, getState }) {
+      async onQueryStarted(studentId, { dispatch, queryFulfilled, getState }) {
         const param = (getState() as RootState).student.params;
 
         try {
@@ -139,7 +142,7 @@ export const studentApi = apiSlice.injectEndpoints({
               (draft: IPaginatedData<IStudent[]> | undefined) => {
                 if (draft) {
                   draft.results = draft.results.filter(
-                    item => Number(item.id) !== id,
+                    item => item.student_id !== studentId,
                   );
                 }
               },

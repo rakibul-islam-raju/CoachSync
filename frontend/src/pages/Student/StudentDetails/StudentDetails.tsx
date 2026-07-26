@@ -4,7 +4,8 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { Box, BoxProps, Divider, Grid, Stack, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FC, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import ConfirmDialogue from "../../../components/ConfirmDialogue/ConfirmDialogue";
 import CustomBreadcrumb from "../../../components/CustomBreadcrumb";
 import { CustomButton } from "../../../components/CustomButton/CustomButton";
@@ -44,6 +45,7 @@ const ItemWrapper = styled(Box)<BoxProps>({
 
 const StudentDetails: FC = () => {
   const { studentId } = useParams();
+  const navigate = useNavigate();
 
   const {
     data: student,
@@ -56,7 +58,12 @@ const StudentDetails: FC = () => {
 
   const [
     deleteStudent,
-    { isLoading: deleteLoading, isError: isDeleteError, error: deleteError },
+    {
+      isLoading: deleteLoading,
+      isError: isDeleteError,
+      isSuccess: isDeleteSuccess,
+      error: deleteError,
+    },
   ] = useDeleteStudentMutation();
 
   const [editStudent, setEditStudent] = useState<boolean>(false);
@@ -74,12 +81,19 @@ const StudentDetails: FC = () => {
   const handleCloseModal = () => setDeleteStudentModal(false);
 
   const handleDeleteStudent = () => {
-    if (student?.id) deleteStudent(student?.id);
+    if (student?.student_id) deleteStudent(student.student_id);
   };
 
   useEffect(() => {
     if (studentId) breadCrumbList[breadCrumbList.length - 1].label = studentId;
   }, [studentId]);
+
+  useEffect(() => {
+    if (isDeleteSuccess) {
+      toast.success("Student successfully deleted.");
+      navigate("/students", { replace: true });
+    }
+  }, [isDeleteSuccess, navigate]);
 
   return (
     <>
@@ -94,8 +108,9 @@ const StudentDetails: FC = () => {
           direction={"row"}
           sx={{
             justifyContent: "space-between",
-            alignItems: "baseline"
-          }}>
+            alignItems: "baseline",
+          }}
+        >
           <Typography variant="h4">
             {student?.user.first_name} {student?.user.last_name}
           </Typography>
@@ -103,8 +118,9 @@ const StudentDetails: FC = () => {
             direction={"row"}
             sx={{
               justifyContent: "flex-end",
-              gap: 1
-            }}>
+              gap: 1,
+            }}
+          >
             <CustomButton
               size="small"
               variant="outlined"
@@ -130,8 +146,9 @@ const StudentDetails: FC = () => {
           <Grid
             size={{
               xs: 12,
-              md: 6
-            }}>
+              md: 6,
+            }}
+          >
             <Typography variant="h5" gutterBottom>
               Student Info
             </Typography>
@@ -189,14 +206,16 @@ const StudentDetails: FC = () => {
           <Grid
             size={{
               xs: 12,
-              md: 6
-            }}>
+              md: 6,
+            }}
+          >
             <Stack
               direction={"row"}
               sx={{
                 justifyContent: "space-between",
-                mb: 2
-              }}>
+                mb: 2,
+              }}
+            >
               <Typography variant="h5" gutterBottom>
                 Enrollments
               </Typography>

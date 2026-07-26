@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import {
   Box,
@@ -12,6 +13,9 @@ import { Link as RouterLink } from "react-router-dom";
 import { createZodResolver } from "../../utils/formResolver";
 import * as z from "zod";
 import { FormInputText } from "../../components/forms/FormInputText";
+import ErrorDisplay from "../../components/ErrorDisplay/ErrorDisplay";
+import { useForgetPasswordMutation } from "../../redux/auth/authApi";
+import { toast } from "react-toastify";
 
 const schema = z.object({
   email: z
@@ -27,19 +31,19 @@ export default function ForgetPassword() {
     resolver: createZodResolver<FormValues>(schema),
   });
 
-  const onSubmit = (data: FormValues) => {
-    console.log(data);
+  const [forgetPassword, { isLoading, isError, isSuccess, error }] =
+    useForgetPasswordMutation();
 
-    // TODO: login
-    // login(data);
+  const onSubmit = (data: FormValues) => {
+    forgetPassword(data);
   };
 
-  //   useEffect(() => {
-  // 	if (isSuccess) {
-  // 	  toast.success("Login successful");
-  // 	  navigate("/");
-  // 	}
-  //   }, [isSuccess, navigate]);
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success("Password reset instructions have been sent.");
+    }
+  }, [isSuccess]);
+
   return (
     <Box component={"form"} onSubmit={handleSubmit(onSubmit)} noValidate>
       <Typography variant="h4" gutterBottom>
@@ -49,8 +53,9 @@ export default function ForgetPassword() {
       <Stack
         sx={{
           rowGap: 3,
-          mt: 4
-        }}>
+          mt: 4,
+        }}
+      >
         <FormControl fullWidth>
           <FormInputText
             name="email"
@@ -61,7 +66,10 @@ export default function ForgetPassword() {
           />
         </FormControl>
 
-        <CustomButton type="submit">Submit</CustomButton>
+        <CustomButton type="submit" disabled={isLoading}>
+          Submit
+        </CustomButton>
+        {isError && <ErrorDisplay error={error} />}
         <Typography component="p" align="center" sx={{ mb: 2 }}>
           <Link component={RouterLink} underline="hover" to="/login">
             Remembered password?

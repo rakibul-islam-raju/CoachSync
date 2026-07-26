@@ -43,16 +43,14 @@ class Student(BaseModel):
 
     def save(self, *args, **kwargs):
         if not self.student_id:
-            # Generate a unique student ID based on current date and UUID
             today = date.today()
             formatted_year = str(today.year)[-2:]
             formatted_date = today.strftime("%m%d")
 
-            # Check if the instance has an ID (has been saved to the database)
-            if self.id is None:
-                super().save(*args, **kwargs)  # Save the instance to get an ID
-
+            super().save(*args, **kwargs)
             self.student_id = f"ST{self.id}-{formatted_year}{formatted_date}"
+            super().save(update_fields=["student_id"])
+            return
 
         super().save(*args, **kwargs)
 

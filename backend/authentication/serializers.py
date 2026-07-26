@@ -1,3 +1,6 @@
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
+
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -55,6 +58,13 @@ class UserSetPasswordSerializer(serializers.Serializer):
     token = serializers.CharField(max_length=100)
     password = serializers.CharField(max_length=128)
 
+    def validate_password(self, value):
+        try:
+            validate_password(value)
+        except DjangoValidationError as error:
+            raise serializers.ValidationError(error.messages) from error
+        return value
+
 
 class ForgetPasswordSerializer(serializers.Serializer):
     """
@@ -71,6 +81,13 @@ class ChangePasswordSerializer(serializers.Serializer):
 
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
+
+    def validate_new_password(self, value):
+        try:
+            validate_password(value, user=self.context.get("user"))
+        except DjangoValidationError as error:
+            raise serializers.ValidationError(error.messages) from error
+        return value
 
 
 class LogoutSerializer(serializers.Serializer):

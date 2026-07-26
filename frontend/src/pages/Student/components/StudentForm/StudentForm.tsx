@@ -1,4 +1,3 @@
- 
 import { createZodResolver } from "../../../../utils/formResolver";
 import { Box, FormControl } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
@@ -45,7 +44,7 @@ const StudentForm: FC<StudentFormProps> = ({ onClose, defaultData }) => {
       emergency_contact_no: defaultData?.emergency_contact_no,
       date_of_birth: defaultData?.date_of_birth,
       blood_group: defaultData?.blood_group,
-      address: defaultData?.blood_group,
+      address: defaultData?.address,
       description: defaultData?.description,
       is_active: defaultData?.is_active,
     },
@@ -89,7 +88,7 @@ const StudentForm: FC<StudentFormProps> = ({ onClose, defaultData }) => {
     if (defaultData) {
       if (isDirty) {
         const dirtyValues = getDirtyValues(dirtyFields, data);
-        updateStudent({ id: defaultData.id, data: dirtyValues });
+        updateStudent({ id: defaultData.student_id, data: dirtyValues });
       }
     } else {
       createStudent(data);
@@ -119,8 +118,9 @@ const StudentForm: FC<StudentFormProps> = ({ onClose, defaultData }) => {
         sx={{
           display: "flex",
           flexDirection: "column",
-          gap: 2
-        }}>
+          gap: 2,
+        }}
+      >
         <FormControl fullWidth required>
           <FormInputText
             name="user.first_name"

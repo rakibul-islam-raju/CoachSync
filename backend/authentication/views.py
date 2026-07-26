@@ -4,7 +4,7 @@ from django.conf import settings
 from django.utils.html import strip_tags
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework.views import APIView
 from rest_framework import generics, status
@@ -50,7 +50,7 @@ class LogoutView(APIView):
 
 class ForgetPasswordView(APIView):
     permission_classes = [AllowAny]
-    serializer_class = ForgetPasswordSerializer()
+    serializer_class = ForgetPasswordSerializer
 
     def post(self, request):
         serializer = ForgetPasswordSerializer(data=request.data)
@@ -79,10 +79,7 @@ class ForgetPasswordView(APIView):
                 html_content=html_content,
             )
 
-            headers = self.get_success_headers(serializer.data)
-            return Response(
-                serializer.data, status=status.HTTP_201_CREATED, headers=headers
-            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -113,17 +110,23 @@ class UserSetPasswordView(generics.GenericAPIView):
 
 
 class ChangePasswordView(APIView):
-    def post(self, request, *args, **kwargs):
-        user = get_object_or_404(User, pk=self.kwargs.get("pk"))
+    permission_classes = [IsAuthenticated]
+    serializer_class = ChangePasswordSerializer
 
-        serializer = ChangePasswordSerializer(data=request.data)
+    def post(self, request, *args, **kwargs):
+        user = request.user
+
+        serializer = self.serializer_class(data=request.data, context={"user": user})
         serializer.is_valid(raise_exception=True)
 
         old_password = serializer.validated_data["old_password"]
         new_password = serializer.validated_data["new_password"]
 
         if not user.check_password(old_password):
-            raise ValidationError("Invalid old password.")
+            return Response(
+                {"old_password": ["Invalid old password."]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         user.set_password(new_password)
         user.save()

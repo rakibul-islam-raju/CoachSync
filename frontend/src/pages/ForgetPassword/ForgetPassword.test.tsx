@@ -2,7 +2,18 @@ import { describe, it, expect, afterEach } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 // import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
+import { Provider } from "react-redux";
+import store from "../../redux/store";
 import ForgetPassword from "./ForgetPassword";
+
+const renderForgetPassword = () =>
+  render(
+    <Provider store={store}>
+      <MemoryRouter>
+        <ForgetPassword />
+      </MemoryRouter>
+    </Provider>,
+  );
 
 describe("Login Page", () => {
   afterEach(() => {
@@ -11,11 +22,7 @@ describe("Login Page", () => {
   // const user = userEvent.setup();
 
   it("should render correctly", () => {
-    render(
-      <MemoryRouter>
-        <ForgetPassword />
-      </MemoryRouter>,
-    );
+    renderForgetPassword();
 
     // Check if header is rendered
     expect(screen.getByText("Reset Password")).toBeInTheDocument();
@@ -30,11 +37,7 @@ describe("Login Page", () => {
   });
 
   it("should show error for invalid email and password submission", async () => {
-    render(
-      <MemoryRouter>
-        <ForgetPassword />
-      </MemoryRouter>,
-    );
+    renderForgetPassword();
 
     const emailInput = screen.getByPlaceholderText("Enter Email Address");
     const submitButton = screen.getByRole("button", { name: "Submit" });

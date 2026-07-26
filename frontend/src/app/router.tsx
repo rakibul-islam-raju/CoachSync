@@ -24,11 +24,15 @@ const Class = lazy(() => import("../pages/Class/Class"));
 const Subject = lazy(() => import("../pages/Subject/Subject"));
 const Employee = lazy(() => import("../pages/Employee/Employee"));
 const Login = lazy(() => import("../pages/Login/Login"));
-const ForgetPassword = lazy(() => import("../pages/ForgetPassword/ForgetPassword"));
+const ForgetPassword = lazy(
+  () => import("../pages/ForgetPassword/ForgetPassword"),
+);
+const SetPassword = lazy(() => import("../pages/SetPassword/SetPassword"));
+const ChangePassword = lazy(
+  () => import("../pages/ChangePassword/ChangePassword"),
+);
 
-const lazyElement = (
-  Component: LazyExoticComponent<ComponentType<object>>,
-) => (
+const lazyElement = (Component: LazyExoticComponent<ComponentType<object>>) => (
   <Suspense fallback={<Loader />}>
     <Component />
   </Suspense>
@@ -87,6 +91,10 @@ export const router = createBrowserRouter([
             path: "employees",
             element: lazyElement(Employee),
           },
+          {
+            path: "change-password",
+            element: lazyElement(ChangePassword),
+          },
         ],
       },
     ],
@@ -106,6 +114,10 @@ export const router = createBrowserRouter([
           {
             path: "/reset-password",
             element: lazyElement(ForgetPassword),
+          },
+          {
+            path: "/set-password/:token",
+            element: lazyElement(SetPassword),
           },
         ],
       },

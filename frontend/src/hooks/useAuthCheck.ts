@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { setUserInfo, userLoggedIn } from "../redux/auth/authSlice";
+import {
+  setUserInfo,
+  userLoggedIn,
+  userLoggedOut,
+} from "../redux/auth/authSlice";
 import { useAppDispatch } from "../redux/hook";
 import { useGetMeQuery } from "../redux/user/userApi";
 
@@ -29,7 +33,23 @@ export default function useAuthCheck() {
     }
 
     setAuthChecked(true);
-  }, [isSuccess]);
+  }, [data, dispatch, isSuccess]);
+
+  useEffect(() => {
+    const handleAuthRefreshed = (event: Event) => {
+      const { access, refresh } = (event as CustomEvent).detail;
+      dispatch(userLoggedIn({ access, refresh }));
+    };
+    const handleAuthExpired = () => dispatch(userLoggedOut());
+
+    window.addEventListener("cms-auth-refreshed", handleAuthRefreshed);
+    window.addEventListener("cms-auth-expired", handleAuthExpired);
+
+    return () => {
+      window.removeEventListener("cms-auth-refreshed", handleAuthRefreshed);
+      window.removeEventListener("cms-auth-expired", handleAuthExpired);
+    };
+  }, [dispatch]);
 
   return authChecked;
 }

@@ -41,7 +41,7 @@ export interface IStudentCreateReqData {
 }
 
 export interface IStudentUpdateReqData {
-  id: number;
+  id: string;
   data: Partial<IStudentCreateReqData>;
 }
 

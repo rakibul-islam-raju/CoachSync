@@ -1,5 +1,3 @@
- 
-
 import React, { useState } from "react";
 import { useGetEnrollsQuery } from "../../../../redux/enroll/enrollApi";
 import Loader from "../../../../components/Loader";
@@ -53,7 +51,7 @@ const StudentList: React.FC<Props> = ({ batchId }) => {
               dense
               key={enroll.id}
               component={Link}
-              to={`/students/${enroll.student.id}`}
+              to={`/students/${enroll.student.student_id}`}
             >
               <ListItemText
                 primary={`${enroll.student.user.full_name} (${enroll.student.student_id})`}
