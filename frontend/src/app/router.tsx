@@ -5,6 +5,8 @@ import Loader from "../components/Loader";
 import ProtectedLayout from "../components/layouts/ProtectedLayout/ProtectedLayout";
 import PublicLayout from "../components/layouts/PublicLayout/PublicLayout";
 import RootLayout from "../components/layouts/RootLayout/RootLayout";
+import RoleProtectedLayout from "../components/layouts/ProtectedLayout/RoleProtectedLayout";
+import { OPERATIONAL_ROLES } from "../constants/roles.constants";
 
 const Dashboard = lazy(() => import("../pages/Dashboard/Dashboard"));
 const Schedule = lazy(() => import("../pages/schedule/schedule"));
@@ -31,6 +33,7 @@ const SetPassword = lazy(() => import("../pages/SetPassword/SetPassword"));
 const ChangePassword = lazy(
   () => import("../pages/ChangePassword/ChangePassword"),
 );
+const Unauthorized = lazy(() => import("../pages/Unauthorized/Unauthorized"));
 
 const lazyElement = (Component: LazyExoticComponent<ComponentType<object>>) => (
   <Suspense fallback={<Loader />}>
@@ -44,56 +47,65 @@ export const router = createBrowserRouter([
     element: <ProtectedLayout />,
     children: [
       {
-        path: "/",
-        element: <RootLayout />,
+        path: "unauthorized",
+        element: lazyElement(Unauthorized),
+      },
+      {
+        element: <RoleProtectedLayout allowedRoles={OPERATIONAL_ROLES} />,
         children: [
           {
-            index: true,
-            element: lazyElement(Dashboard),
-          },
-          {
-            path: "schedules",
-            element: lazyElement(Schedule),
-          },
-          {
-            path: "add-schedules",
-            element: lazyElement(AddSchedule),
-          },
-          {
-            path: "batches",
-            element: lazyElement(Batch),
-          },
-          {
-            path: "batches/:batchId/:batchName",
-            element: lazyElement(BatchDetails),
-          },
-          {
-            path: "students",
-            element: lazyElement(Student),
-          },
-          {
-            path: "students/:studentId",
-            element: lazyElement(StudentDetails),
-          },
-          {
-            path: "teachers",
-            element: lazyElement(Teacher),
-          },
-          {
-            path: "classes",
-            element: lazyElement(Class),
-          },
-          {
-            path: "subjects",
-            element: lazyElement(Subject),
-          },
-          {
-            path: "employees",
-            element: lazyElement(Employee),
-          },
-          {
-            path: "change-password",
-            element: lazyElement(ChangePassword),
+            path: "/",
+            element: <RootLayout />,
+            children: [
+              {
+                index: true,
+                element: lazyElement(Dashboard),
+              },
+              {
+                path: "schedules",
+                element: lazyElement(Schedule),
+              },
+              {
+                path: "add-schedules",
+                element: lazyElement(AddSchedule),
+              },
+              {
+                path: "batches",
+                element: lazyElement(Batch),
+              },
+              {
+                path: "batches/:batchId/:batchName",
+                element: lazyElement(BatchDetails),
+              },
+              {
+                path: "students",
+                element: lazyElement(Student),
+              },
+              {
+                path: "students/:studentId",
+                element: lazyElement(StudentDetails),
+              },
+              {
+                path: "teachers",
+                element: lazyElement(Teacher),
+              },
+              {
+                path: "classes",
+                element: lazyElement(Class),
+              },
+              {
+                path: "subjects",
+                element: lazyElement(Subject),
+              },
+              {
+                path: "employees",
+                element: lazyElement(Employee),
+              },
+              {
+                path: "change-password",
+                element: lazyElement(ChangePassword),
+              },
+            ],
           },
         ],
       },

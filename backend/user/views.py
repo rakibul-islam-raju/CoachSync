@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import User, ADMIN, ADMIN_STAFF, ORG_ADMIN, ORG_STAFF
-from .permissions import IsSuperUser, IsOrgStaff
+from .permissions import EmployeePermission
 from .serializers import UserSerializer
 
 
@@ -23,8 +23,9 @@ class MeApiView(APIView):
 
 
 class UserListCreateView(ListCreateAPIView):
-    permission_classes = [IsOrgStaff]
+    permission_classes = [EmployeePermission]
     serializer_class = UserSerializer
+    queryset = User.objects.all()
     filterset_fields = ["is_active", "is_staff", "is_superuser", "role"]
     search_fields = ["email", "first_name", "last_name", "phone"]
     ordering_fields = [
@@ -35,16 +36,30 @@ class UserListCreateView(ListCreateAPIView):
     ]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return self.queryset
+
         user = self.request.user
         queryset = User.get_non_student_teacher_users()
 
-        if user.role == ORG_ADMIN or user.role == ORG_STAFF:
-            queryset.exclude(role__in=[ADMIN, ADMIN_STAFF])
+        if user.role in {ADMIN_STAFF, ORG_ADMIN, ORG_STAFF}:
+            queryset = queryset.exclude(role__in=[ADMIN, ADMIN_STAFF])
 
         return queryset
 
 
 class UserDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = UserSerializer
-    permission_classes = [IsSuperUser]
+    permission_classes = [EmployeePermission]
     queryset = User.objects.all()
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return self.queryset
+
+        user = self.request.user
+        queryset = User.get_non_student_teacher_users()
+
+        if user.role in {ADMIN_STAFF, ORG_ADMIN, ORG_STAFF}:
+            return queryset.exclude(role__in=[ADMIN, ADMIN_STAFF])
+        return queryset

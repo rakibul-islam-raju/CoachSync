@@ -24,6 +24,7 @@ import * as React from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { drawerWidth } from "../../../config";
+import { isRole } from "../../../constants/roles.constants";
 import { useLogoutMutation } from "../../../redux/auth/authApi";
 import { useAppSelector } from "../../../redux/hook";
 import ErrorDisplay from "../../ErrorDisplay/ErrorDisplay";
@@ -103,7 +104,14 @@ const Drawer = styled(MuiDrawer, {
 export default function RootLayout() {
   const navigate = useNavigate();
 
-  const { refresh } = useAppSelector(state => state.auth);
+  const { refresh, user } = useAppSelector(state => state.auth);
+  const visibleMenus = React.useMemo(
+    () =>
+      MAIN_MENUS.filter(
+        item => isRole(user?.role) && item.allowedRoles.includes(user.role),
+      ),
+    [user?.role],
+  );
 
   const [logout, { isSuccess, isError, error }] = useLogoutMutation();
 
@@ -340,8 +348,8 @@ export default function RootLayout() {
         </DrawerHeader>
         <Divider />
         <List>
-          {MAIN_MENUS.map((item: IMenu, index) => (
-            <ListItem key={index} disablePadding sx={{ display: "block" }}>
+          {visibleMenus.map((item: IMenu) => (
+            <ListItem key={item.path} disablePadding sx={{ display: "block" }}>
               <ListItemButton
                 sx={{
                   minHeight: 48,

@@ -16,17 +16,23 @@ const authDataString = localStorage.getItem("cms_auth");
 
 let access: string | null = null;
 let refresh: string | null = null;
+let user: IUser | null = null;
 
 if (authDataString) {
-  const authData: ITokens = JSON.parse(authDataString);
-  access = authData.access;
-  refresh = authData.refresh;
+  try {
+    const authData: ITokens = JSON.parse(authDataString);
+    access = authData.access;
+    refresh = authData.refresh;
+    user = jwtDecode<IDecodedType>(authData.access).user;
+  } catch {
+    localStorage.removeItem("cms_auth");
+  }
 }
 
 const initialState: IAuthState = {
   access: access ?? null,
   refresh: refresh ?? null,
-  user: null,
+  user,
 };
 
 const authSlice = createSlice({

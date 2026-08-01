@@ -1,5 +1,3 @@
- 
-
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DoneIcon from "@mui/icons-material/Done";
@@ -21,6 +19,10 @@ import CustomTableContainer from "../../../../components/CustomTable/CustomTable
 import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
 import Loader from "../../../../components/Loader";
 import Modal from "../../../../components/Modal/Modal";
+import {
+  canCreateEmployee,
+  canManageEmployee,
+} from "../../../../constants/roles.constants";
 import { mapRole } from "../../../../helpers/mapRoles";
 import { useAppDispatch, useAppSelector } from "../../../../redux/hook";
 import {
@@ -30,19 +32,21 @@ import {
 import { setPage } from "../../../../redux/user/userSlice";
 import EmployeeForm from "../EmployeeForm/EmployeeForm";
 
-const columns = [
+const baseColumns = [
   "First Name",
   "Last Name",
   "Email",
   "Phone",
   "Role",
   "Active",
-  "Action",
 ];
 
 const EmployeeTable: FC = () => {
   const dispatch = useAppDispatch();
   const { params, page } = useAppSelector(state => state.user);
+  const currentUser = useAppSelector(state => state.auth.user);
+  const showActions = canCreateEmployee(currentUser?.role);
+  const columns = showActions ? [...baseColumns, "Action"] : baseColumns;
 
   const { data, isLoading, isError, error } = useGetUsersQuery({
     ...params,
@@ -111,23 +115,31 @@ const EmployeeTable: FC = () => {
               <TableCell>
                 {row.is_active ? <DoneIcon /> : <CloseIcon />}
               </TableCell>
-              <TableCell>
-                <ButtonGroup>
-                  <Tooltip title="Edit">
-                    <IconButton onClick={() => handleOpenEditModal(row)}>
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Delete">
-                    <IconButton
-                      onClick={() => handleOpenDeleteModal(row)}
-                      disabled={deleteLoading}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
-                </ButtonGroup>
-              </TableCell>
+              {showActions && (
+                <TableCell>
+                  {canManageEmployee(currentUser, row) && (
+                    <ButtonGroup>
+                      <Tooltip title="Edit">
+                        <IconButton
+                          aria-label={`edit ${row.email}`}
+                          onClick={() => handleOpenEditModal(row)}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete">
+                        <IconButton
+                          aria-label={`delete ${row.email}`}
+                          onClick={() => handleOpenDeleteModal(row)}
+                          disabled={deleteLoading}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </ButtonGroup>
+                  )}
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>

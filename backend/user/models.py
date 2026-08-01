@@ -48,10 +48,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
     def save(self, *args, **kwargs):
-        if not self.role and self.is_staff:
-            self.role = ADMIN_STAFF
-        elif not self.role and self.is_superuser:
+        if self.is_superuser:
             self.role = ADMIN
+            self.is_staff = True
+        elif not self.role and self.is_staff:
+            self.role = ADMIN_STAFF
 
         super().save(*args, **kwargs)
 

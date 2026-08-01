@@ -8,6 +8,7 @@ import CustomDrawer from "../../components/CustomDrawer/CustomDrawer";
 import Modal from "../../components/Modal/Modal";
 import PageContainer from "../../components/PageContainer/PageContainer";
 import SearchInput from "../../components/forms/SearchInput";
+import { canCreateEmployee } from "../../constants/roles.constants";
 import { useDebounce } from "../../hooks/useDebounce";
 import { useAppDispatch, useAppSelector } from "../../redux/hook";
 import { removeParam, setParams } from "../../redux/subject/subjectSlice";
@@ -30,6 +31,7 @@ export default function Employee() {
   const dispatch = useAppDispatch();
 
   const { params } = useAppSelector(state => state.user);
+  const currentUser = useAppSelector(state => state.auth.user);
 
   const [createEmp, setCreateEmp] = useState<boolean>(false);
   const [searchText, setSearchText] = useState<string>(params.search ?? "");
@@ -69,16 +71,18 @@ export default function Employee() {
             justifyContent: "space-between",
             alignItems: "center",
             flexWrap: "wrap",
-            gap: 2
-          }}>
+            gap: 2,
+          }}
+        >
           <Typography variant="h4">Employees</Typography>
           <Stack
             direction={"row"}
             sx={{
               alignItems: "center",
               gap: 1,
-              flexWrap: "wrap"
-            }}>
+              flexWrap: "wrap",
+            }}
+          >
             <SearchInput
               label="Search Employee"
               value={searchText}
@@ -87,9 +91,15 @@ export default function Employee() {
               }
               handleCancelSearch={handleCancelSearch}
             />
-            <CustomButton variant="contained" onClick={handleOpenCreateModal}>
-              <AddIcon />
-            </CustomButton>
+            {canCreateEmployee(currentUser?.role) && (
+              <CustomButton
+                variant="contained"
+                onClick={handleOpenCreateModal}
+                aria-label="add employee"
+              >
+                <AddIcon />
+              </CustomButton>
+            )}
             <CustomButton variant="contained" onClick={handleOpenDrawer}>
               <TuneIcon />
             </CustomButton>

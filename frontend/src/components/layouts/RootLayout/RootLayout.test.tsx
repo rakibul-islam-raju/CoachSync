@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 // import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
@@ -6,6 +6,22 @@ import { Provider } from "react-redux";
 import RootLayout from "./RootLayout";
 import { MAIN_MENUS } from "./constants";
 import store from "../../../redux/store";
+import { setUserInfo, userLoggedOut } from "../../../redux/auth/authSlice";
+
+const operationalUser: IUser = {
+  id: 1,
+  first_name: "Operations",
+  last_name: "User",
+  full_name: "Operations User",
+  phone: "01700000001",
+  email: "operations@example.com",
+  is_active: true,
+  is_staff: false,
+  is_superuser: false,
+  role: "org_staff",
+  created_at: new Date(),
+  updated_at: new Date(),
+};
 
 const renderRootLayout = () =>
   render(
@@ -17,8 +33,13 @@ const renderRootLayout = () =>
   );
 
 describe("Login Page", () => {
+  beforeEach(() => {
+    store.dispatch(setUserInfo(operationalUser));
+  });
+
   afterEach(() => {
     cleanup();
+    store.dispatch(userLoggedOut());
   });
   // const user = userEvent.setup();
 
@@ -70,5 +91,22 @@ describe("Login Page", () => {
 
     // Profile menu should be visible
     expect(profileMenu).toBeVisible();
+  });
+
+  it("should hide administration menus from a student", () => {
+    store.dispatch(
+      setUserInfo({
+        ...operationalUser,
+        id: 2,
+        role: "student",
+        email: "student@example.com",
+      }),
+    );
+
+    renderRootLayout();
+
+    MAIN_MENUS.forEach(item => {
+      expect(screen.queryByText(item.label)).not.toBeInTheDocument();
+    });
   });
 });

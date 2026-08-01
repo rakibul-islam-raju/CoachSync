@@ -4,36 +4,33 @@ import {
   userLoggedIn,
   userLoggedOut,
 } from "../redux/auth/authSlice";
-import { useAppDispatch } from "../redux/hook";
+import { useAppDispatch, useAppSelector } from "../redux/hook";
 import { useGetMeQuery } from "../redux/user/userApi";
 
 export default function useAuthCheck() {
   const dispatch = useAppDispatch();
+  const { access } = useAppSelector(state => state.auth);
 
-  const { data, isSuccess } = useGetMeQuery(undefined);
+  const { data, isSuccess, isError } = useGetMeQuery(undefined, {
+    skip: !access,
+  });
 
   const [authChecked, setAuthChecked] = useState<boolean>(false);
 
   useEffect(() => {
-    const localAuth = localStorage?.getItem("cms_auth");
-
-    if (localAuth && isSuccess) {
-      const auth = JSON.parse(localAuth);
-
-      if (auth?.access && auth?.refresh && data) {
-        dispatch(
-          userLoggedIn({
-            access: auth.access,
-            refresh: auth.refresh,
-          }),
-        );
-
-        dispatch(setUserInfo(data));
-      }
+    if (!access) {
+      setAuthChecked(true);
+      return;
     }
 
-    setAuthChecked(true);
-  }, [data, dispatch, isSuccess]);
+    if (isSuccess && data) {
+      dispatch(setUserInfo(data));
+      setAuthChecked(true);
+    } else if (isError) {
+      dispatch(userLoggedOut());
+      setAuthChecked(true);
+    }
+  }, [access, data, dispatch, isError, isSuccess]);
 
   useEffect(() => {
     const handleAuthRefreshed = (event: Event) => {

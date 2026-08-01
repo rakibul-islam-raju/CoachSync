@@ -1,5 +1,3 @@
- 
-
 import { createZodResolver } from "../../../../utils/formResolver";
 import { Box, FormControl } from "@mui/material";
 import { FC, useEffect, useState } from "react";
@@ -10,6 +8,8 @@ import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
 import CheckboxField from "../../../../components/forms/CheckboxField";
 import { FormInputText } from "../../../../components/forms/FormInputText";
 import FormSelectInput from "../../../../components/forms/FormSelectInput";
+import { getManageableRoles } from "../../../../helpers/mapRoles";
+import { useAppSelector } from "../../../../redux/hook";
 import {
   useCreateUserMutation,
   useUpdateUserMutation,
@@ -27,6 +27,7 @@ type EmployeeFormProps = {
 };
 
 const EmployeeForm: FC<EmployeeFormProps> = ({ onClose, defaultData }) => {
+  const currentUser = useAppSelector(state => state.auth.user);
   const methods = useForm<IEmployeeCreateFormValues>({
     resolver: createZodResolver<IEmployeeCreateFormValues>(
       defaultData ? EmployeeUpdateSchema : EmployeeCreateSchema,
@@ -73,12 +74,10 @@ const EmployeeForm: FC<EmployeeFormProps> = ({ onClose, defaultData }) => {
     }
   };
 
-  const roleOptions = [
-    { value: "admin", label: "Admin" },
-    { value: "admin_staff", label: "Admin Staff" },
-    { value: "org_admin", label: "Organization Admin" },
-    { value: "org_staff", label: "Organization Staff" },
-  ];
+  const roleOptions = getManageableRoles(currentUser?.role).map(option => ({
+    value: option.role,
+    label: option.label,
+  }));
 
   useEffect(() => {
     if (isSuccess) {
@@ -106,8 +105,9 @@ const EmployeeForm: FC<EmployeeFormProps> = ({ onClose, defaultData }) => {
         sx={{
           display: "flex",
           flexDirection: "column",
-          gap: 2
-        }}>
+          gap: 2,
+        }}
+      >
         <FormControl fullWidth>
           <FormInputText
             name="first_name"

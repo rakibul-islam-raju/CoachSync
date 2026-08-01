@@ -46,9 +46,13 @@ const EmployeeFilterForm: FC = () => {
         Filter Employees
       </Typography>
       <Divider sx={{ my: 2 }} />
-      <Stack component={"form"} onSubmit={handleSubmit} sx={{
-        gap: 1
-      }}>
+      <Stack
+        component={"form"}
+        onSubmit={handleSubmit}
+        sx={{
+          gap: 1,
+        }}
+      >
         <FormControl fullWidth>
           <FormLabel id="ordering">Sort by</FormLabel>
           <Select
@@ -78,7 +82,7 @@ const EmployeeFilterForm: FC = () => {
             <FormControlLabel value={false} control={<Radio />} label="False" />
           </RadioGroup>
         </FormControl>
-        {(user?.role === "admin" || user?.role === "admin_staff") && (
+        {user?.role === "admin" && (
           <>
             <FormControl>
               <FormLabel id="is_staff">Staff</FormLabel>
@@ -127,7 +131,7 @@ const EmployeeFilterForm: FC = () => {
           <Select
             labelId="demo-simple-select-label"
             id="role"
-            name="is_superuser"
+            name="role"
             onChange={e => setArgs({ ...args, role: e.target.value })}
             value={args?.role}
             size="small"
@@ -144,8 +148,9 @@ const EmployeeFilterForm: FC = () => {
           sx={{
             mt: 2,
             gap: 1,
-            justifyContent: "flex-end"
-          }}>
+            justifyContent: "flex-end",
+          }}
+        >
           <CustomButton
             type="button"
             variant="outlined"

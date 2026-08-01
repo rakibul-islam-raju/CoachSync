@@ -3,6 +3,7 @@ from unittest.mock import patch
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
+from rest_framework_simplejwt.tokens import AccessToken
 
 from user.models import User
 
@@ -42,6 +43,14 @@ class AuthenticationApiTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("access", response.data)
         self.assertIn("refresh", response.data)
+
+    def test_access_token_contains_role_for_client_authorization(self):
+        tokens = self.login()
+
+        user_claim = AccessToken(tokens["access"])["user"]
+
+        self.assertEqual(user_claim["id"], self.user.id)
+        self.assertEqual(user_claim["role"], self.user.role)
 
     def test_authenticated_user_can_change_own_password(self):
         tokens = self.login()

@@ -7,41 +7,62 @@ export enum ROLES {
   teacher = "teacher",
 }
 
+export type Role = keyof typeof ROLES;
+
 export type PermissionRoles = {
   label: string;
-  role: keyof typeof ROLES;
-  notVisibleTo: (keyof typeof ROLES)[] | [];
+  role: Role;
 };
 
-export const permissionRoles: PermissionRoles[] = [
-  {
-    label: "Admin",
-    role: "admin",
-    notVisibleTo: ["org_admin", "org_staff", "teacher", "student"],
-  },
-  {
-    label: "Admin Staff",
-    role: "admin_staff",
-    notVisibleTo: ["org_admin", "org_staff", "teacher", "student"],
-  },
-  {
-    label: "Organization Admin",
-    role: "org_admin",
-    notVisibleTo: ["teacher", "student"],
-  },
-  {
-    label: "Organization Staff",
-    role: "org_staff",
-    notVisibleTo: ["teacher", "student"],
-  },
-  {
-    label: "Student",
-    role: "student",
-    notVisibleTo: [],
-  },
-  {
-    label: "Teacher",
-    role: "teacher",
-    notVisibleTo: [],
-  },
+export const OPERATIONAL_ROLES: Role[] = [
+  "admin",
+  "admin_staff",
+  "org_admin",
+  "org_staff",
 ];
+
+export const EMPLOYEE_ROLE_OPTIONS: PermissionRoles[] = [
+  { label: "Admin", role: "admin" },
+  { label: "Admin Staff", role: "admin_staff" },
+  { label: "Organization Admin", role: "org_admin" },
+  { label: "Organization Staff", role: "org_staff" },
+];
+
+export const VISIBLE_EMPLOYEE_ROLES: Record<Role, Role[]> = {
+  admin: ["admin", "admin_staff", "org_admin", "org_staff"],
+  admin_staff: ["org_admin", "org_staff"],
+  org_admin: ["org_admin", "org_staff"],
+  org_staff: ["org_admin", "org_staff"],
+  student: [],
+  teacher: [],
+};
+
+export const MANAGEABLE_EMPLOYEE_ROLES: Record<Role, Role[]> = {
+  admin: ["admin_staff", "org_admin", "org_staff"],
+  admin_staff: ["org_admin", "org_staff"],
+  org_admin: ["org_staff"],
+  org_staff: [],
+  student: [],
+  teacher: [],
+};
+
+export function isRole(role?: string): role is Role {
+  return Boolean(role && role in ROLES);
+}
+
+export function hasOperationalAccess(role?: string): boolean {
+  return isRole(role) && OPERATIONAL_ROLES.includes(role);
+}
+
+export function canCreateEmployee(role?: string): boolean {
+  return isRole(role) && MANAGEABLE_EMPLOYEE_ROLES[role].length > 0;
+}
+
+export function canManageEmployee(
+  actor: IUser | null | undefined,
+  employee: IUser,
+): boolean {
+  if (!actor || actor.id === employee.id || employee.is_superuser) return false;
+  if (!isRole(actor.role) || !isRole(employee.role)) return false;
+  return MANAGEABLE_EMPLOYEE_ROLES[actor.role].includes(employee.role);
+}
