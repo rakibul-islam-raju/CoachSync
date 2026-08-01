@@ -8,6 +8,10 @@ export interface IEnroll extends IEntityGenericProps {
   total_amount: number;
   discount_amount: number;
   reference_by: IUser;
+  net_payable: number;
+  total_paid: number;
+  balance: number;
+  status: "active" | "cancelled";
 }
 
 export interface IEnrollCreateReqData {

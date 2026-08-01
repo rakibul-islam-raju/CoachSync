@@ -91,6 +91,14 @@ export const enrollApi = apiSlice.injectEndpoints({
         } catch {}
       },
     }),
+    cancelEnroll: builder.mutation<IEnroll, { id: number; reason: string }>({
+      query: ({ id, reason }) => ({
+        url: `/students/enrolls/${id}/cancel`,
+        method: "POST",
+        data: { reason },
+      }),
+      invalidatesTags: ["Enroll", "Student", "StudentStats"],
+    }),
   }),
 });
 
@@ -98,4 +106,5 @@ export const {
   useGetEnrollsQuery,
   useCreateEnrollMutation,
   useUpdateEnrollMutation,
+  useCancelEnrollMutation,
 } = enrollApi;

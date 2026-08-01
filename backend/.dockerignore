@@ -1,4 +1,11 @@
+.env
 .venv
-venv
-.vscode
-.idea
+__pycache__
+*.py[cod]
+*.sqlite3
+*.sqlite3-*
+.coverage
+htmlcov
+logs
+media
+staticfiles

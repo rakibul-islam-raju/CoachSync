@@ -7,6 +7,7 @@ import {
   ITransactionCreateReqData,
   ITransactionParams,
   ITransactionStats,
+  ITransactionReversalReqData,
 } from "./transaction.type";
 
 export const transactionApi = apiSlice.injectEndpoints({
@@ -76,6 +77,17 @@ export const transactionApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["TransactionStats"],
     }),
+    reverseTransaction: builder.mutation<
+      { reversal: ITransaction; replacement?: ITransaction | null },
+      ITransactionReversalReqData
+    >({
+      query: ({ enroll, transaction, ...data }) => ({
+        url: `/students/enrolls/${enroll}/transactions/${transaction}/reverse`,
+        method: "POST",
+        data,
+      }),
+      invalidatesTags: ["Transaction", "TransactionStats", "Student", "Enroll"],
+    }),
   }),
 });
 
@@ -83,4 +95,5 @@ export const {
   useGetTransactionsQuery,
   useCreategetTransactionMutation,
   useGetTransactionStatsQuery,
+  useReverseTransactionMutation,
 } = transactionApi;

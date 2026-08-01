@@ -88,15 +88,17 @@ const BatchDetails: FC = () => {
           direction={"row"}
           sx={{
             justifyContent: "space-between",
-            alignItems: "baseline"
-          }}>
+            alignItems: "baseline",
+          }}
+        >
           <Typography variant="h4">{batch?.name}</Typography>
           <Stack
             direction={"row"}
             sx={{
               justifyContent: "flex-end",
-              gap: 1
-            }}>
+              gap: 1,
+            }}
+          >
             <CustomButton
               size="small"
               variant="outlined"
@@ -122,8 +124,9 @@ const BatchDetails: FC = () => {
           <Grid
             size={{
               xs: 12,
-              md: 6
-            }}>
+              md: 6,
+            }}
+          >
             <Typography variant="h5" gutterBottom>
               Batch Info
             </Typography>
@@ -169,8 +172,9 @@ const BatchDetails: FC = () => {
           <Grid
             size={{
               xs: 12,
-              md: 6
-            }}>
+              md: 6,
+            }}
+          >
             <StudentList batchId={Number(batchId)} />
           </Grid>
         </Grid>

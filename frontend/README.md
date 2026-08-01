@@ -1,27 +1,26 @@
-# React + TypeScript + Vite
+# CoachSync frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The frontend uses React, TypeScript, Vite, Redux Toolkit, Material UI, Vitest,
+Testing Library, and Storybook. pnpm is the only supported package manager.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
+```bash
+corepack enable
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+Set `VITE_BASE_API_URL` and `VITE_BASE_URL` in `.env`; see `.env.example`.
+
+Verification commands:
+
+```bash
+pnpm format:check
+pnpm lint
+pnpm test:run
+pnpm build
+pnpm build-storybook
+```
+
+`storybook-static/` and `dist/` are generated artifacts and must not be
+committed. The production Docker image compiles the app with pnpm and serves the
+result through Nginx with SPA routing and immutable asset caching.

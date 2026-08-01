@@ -25,6 +25,7 @@ interface IUser {
   role: string;
   created_at: Date;
   updated_at: Date;
+  organizations?: number[];
 }
 
 interface IDecodedType {

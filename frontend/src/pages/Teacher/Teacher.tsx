@@ -1,4 +1,3 @@
- 
 import AddIcon from "@mui/icons-material/Add";
 import TuneIcon from "@mui/icons-material/Tune";
 import { Divider, Stack, Typography } from "@mui/material";
@@ -70,16 +69,18 @@ export default function Teacher() {
             justifyContent: "space-between",
             alignItems: "center",
             flexWrap: "wrap",
-            gap: 2
-          }}>
+            gap: 2,
+          }}
+        >
           <Typography variant="h4">Teachers</Typography>
           <Stack
             direction={"row"}
             sx={{
               alignItems: "center",
               gap: 1,
-              flexWrap: "wrap"
-            }}>
+              flexWrap: "wrap",
+            }}
+          >
             <SearchInput
               label="Search Teacher"
               value={searchText}

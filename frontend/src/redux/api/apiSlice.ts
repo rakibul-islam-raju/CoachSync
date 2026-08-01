@@ -1,4 +1,3 @@
- 
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { BASE_API_URL } from "../../config";
 import { axiosBaseQuery } from "../../utils/axios/axiosBaseQuery";
@@ -105,6 +104,10 @@ export const apiSlice = createApi({
     "StudentStats",
     "TransactionStats",
     "OrgStats",
+    "Organization",
+    "ExamType",
+    "Exam",
+    "Profile",
   ],
   endpoints: () => ({}),
 });

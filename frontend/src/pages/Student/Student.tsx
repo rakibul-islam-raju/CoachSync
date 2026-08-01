@@ -1,6 +1,6 @@
- 
 import AddIcon from "@mui/icons-material/Add";
 import TuneIcon from "@mui/icons-material/Tune";
+import DownloadIcon from "@mui/icons-material/Download";
 import { Divider, Stack, Typography } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import CustomBreadcrumb from "../../components/CustomBreadcrumb";
@@ -15,6 +15,7 @@ import { removeParam, setParams } from "../../redux/student/studentSlice";
 import StudentFilterForm from "./components/FilterForm/StudentFilterForm";
 import StudentForm from "./components/StudentForm/StudentForm";
 import StudentTable from "./components/StudentTable/StudentTable";
+import { axiosInstance } from "../../utils/axios/axiosInstance";
 
 const breadCrumbList = [
   {
@@ -52,6 +53,18 @@ export default function Student() {
     dispatch(removeParam("search"));
   };
 
+  const exportEnrollments = async () => {
+    const response = await axiosInstance.get("/students/enrolls/export", {
+      responseType: "blob",
+    });
+    const url = URL.createObjectURL(response.data);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "enrollments.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   useEffect(() => {
     if (debouncedSearchTerm) {
       dispatch(setParams({ search: debouncedSearchTerm }));
@@ -70,16 +83,18 @@ export default function Student() {
             justifyContent: "space-between",
             alignItems: "center",
             flexWrap: "wrap",
-            gap: 2
-          }}>
+            gap: 2,
+          }}
+        >
           <Typography variant="h4">Students</Typography>
           <Stack
             direction={"row"}
             sx={{
               alignItems: "center",
               gap: 1,
-              flexWrap: "wrap"
-            }}>
+              flexWrap: "wrap",
+            }}
+          >
             <SearchInput
               label="Search Student"
               value={searchText}
@@ -90,6 +105,9 @@ export default function Student() {
             />
             <CustomButton variant="contained" onClick={handleOpenCreateModal}>
               <AddIcon />
+            </CustomButton>
+            <CustomButton variant="outlined" onClick={exportEnrollments}>
+              <DownloadIcon /> Export enrollments
             </CustomButton>
             <CustomButton variant="contained" onClick={handleOpenDrawer}>
               <TuneIcon />

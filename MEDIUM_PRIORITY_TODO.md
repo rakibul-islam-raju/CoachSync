@@ -18,58 +18,58 @@ This tracker accompanies `MEDIUM_PRIORITY_REMEDIATION_PLAN.md`.
 
 ## 2. Organization Tenancy Foundation
 
-- [ ] Add organization and membership models.
-- [ ] Add organization ownership to tenant data.
-- [ ] Backfill a legacy organization using staged migrations.
-- [ ] Scope all querysets, relationships, and statistics.
-- [ ] Add tenant-isolation tests.
+- [x] Add organization and membership models.
+- [x] Add organization ownership to tenant data.
+- [x] Backfill a legacy organization using staged migrations.
+- [x] Scope all querysets, relationships, and statistics.
+- [x] Add tenant-isolation tests.
 
 ## 3. Data-Integrity Baseline
 
-- [ ] Add same-row database constraints.
-- [ ] Add cross-model serializer validation.
-- [ ] Make student and teacher creation atomic.
-- [ ] Queue registration email only after commit.
-- [ ] Add a pre-migration data-audit command.
+- [x] Add same-row database constraints.
+- [x] Add cross-model serializer validation.
+- [x] Make student and teacher creation atomic.
+- [x] Queue registration email only after commit.
+- [x] Add a pre-migration data-audit command.
 
 ## 4. Exam Management and Schedule Integration
 
-- [ ] Add dedicated exam write serializers and API filters.
-- [ ] Add exam and exam-type Redux APIs.
-- [ ] Add exam and exam-type management screens.
-- [ ] Connect explicit exam scheduling.
-- [ ] Add backend and frontend exam tests.
+- [x] Add dedicated exam write serializers and API filters.
+- [x] Add exam and exam-type Redux APIs.
+- [x] Add exam and exam-type management screens.
+- [x] Connect explicit exam scheduling.
+- [x] Add backend and frontend exam tests.
 
 ## 5. Enrollment Lifecycle and Financial Ledger
 
-- [ ] Repair enrollment update validation.
-- [ ] Add active/cancelled enrollment lifecycle.
-- [ ] Centralize net payable, paid, and balance calculations.
-- [ ] Enforce nested transaction enrollment IDs.
-- [ ] Add payment and reversal ledger entries.
-- [ ] Add correction, receipt, and CSV export workflows.
-- [ ] Add enrollment and finance tests.
+- [x] Repair enrollment update validation.
+- [x] Add active/cancelled enrollment lifecycle.
+- [x] Centralize net payable, paid, and balance calculations.
+- [x] Enforce nested transaction enrollment IDs.
+- [x] Add payment and reversal ledger entries.
+- [x] Add correction, receipt, and CSV export workflows.
+- [x] Add enrollment and finance tests.
 
 ## 6. Backend Schedule Conflict Engine
 
-- [ ] Add backend batch and teacher overlap checks.
-- [ ] Validate conflicts within bulk requests.
-- [ ] Make bulk creation atomic and concurrency-aware.
-- [ ] Connect exam selection in the schedule form.
-- [ ] Render an empty calendar state.
-- [ ] Add conflict and rollback tests.
+- [x] Add backend batch and teacher overlap checks.
+- [x] Validate conflicts within bulk requests.
+- [x] Make bulk creation atomic and concurrency-aware.
+- [x] Connect exam selection in the schedule form.
+- [x] Render an empty calendar state.
+- [x] Add conflict and rollback tests.
 
 ## 7. Profile and Placeholder Cleanup
 
-- [ ] Add self-profile update API.
-- [ ] Add the profile page and routes.
-- [ ] Remove placeholder message and notification controls.
-- [ ] Add profile authorization and UI tests.
+- [x] Add self-profile update API.
+- [x] Add the profile page and routes.
+- [x] Remove placeholder message and notification controls.
+- [x] Add profile authorization and UI tests.
 
 ## 8. Regression Suite and Rollout
 
-- [ ] Run the data audit and repair legacy violations.
-- [ ] Run backend checks, migrations, tests, and schema validation.
-- [ ] Run frontend formatting, lint, tests, and build.
+- [x] Run the data audit and repair legacy violations.
+- [x] Run backend checks, migrations, tests, and schema validation.
+- [x] Run frontend formatting, lint, tests, and build.
 - [ ] Complete two-organization staging smoke tests.
-- [ ] Record migration and rollout notes.
+- [x] Record migration and rollout notes.

@@ -151,3 +151,37 @@ class EmployeeAuthorizationApiTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.admin_staff.refresh_from_db()
         self.assertFalse(self.admin_staff.is_superuser)
+
+
+class SelfProfileApiTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            email="profile@example.com",
+            password="Password123!",
+            first_name="Old",
+            last_name="Name",
+            phone="01740000001",
+            role=ORG_STAFF,
+            is_active=True,
+        )
+        self.client.force_authenticate(self.user)
+
+    def test_user_can_update_only_own_safe_profile_fields(self):
+        response = self.client.patch(
+            "/api/v1/users/me",
+            {
+                "first_name": "New",
+                "email": "attacker@example.com",
+                "role": ADMIN,
+                "is_active": False,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, "New")
+        self.assertEqual(self.user.email, "profile@example.com")
+        self.assertEqual(self.user.role, ORG_STAFF)
+        self.assertTrue(self.user.is_active)

@@ -1,13 +1,14 @@
 import os
 from datetime import timedelta
-import environ
 from pathlib import Path
 
+import environ
 
 # env var casting
 env = environ.Env(
     DEBUG=(bool, False),
     CORS_ALLOW_ALL_ORIGINS=(bool, False),
+    DATABASE_ENGINE=(str, "sqlite"),
     CELERY_BROKER_URL=(str, "redis://redis:6379/0"),
     CELERY_RESULT_BACKEND=(str, "redis://redis:6379/0"),
 )
@@ -23,8 +24,10 @@ SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
+ENVIRONMENT = env("ENVIRONMENT", default="development")
+IS_PRODUCTION = ENVIRONMENT == "production"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 
 
 # Application definition
@@ -63,6 +66,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "utilities.middleware.logger.StatusCodeLoggerMiddleware",
 ]
+if IS_PRODUCTION:
+    MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
 
 ROOT_URLCONF = "backend.urls"
 
@@ -85,15 +90,40 @@ TEMPLATES = [
 WSGI_APPLICATION = "backend.wsgi.application"
 
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+# Database. DATABASE_URL takes precedence. DATABASE_ENGINE=postgresql enables
+# the explicit PG_* variables used by Compose; SQLite remains convenient for
+# an intentionally local, single-process development setup.
+DATABASE_URL = env("DATABASE_URL", default="")
+DATABASE_ENGINE = env("DATABASE_ENGINE")
+if DATABASE_URL:
+    database_config = env.db_url_config(DATABASE_URL)
+    database_config["CONN_MAX_AGE"] = env.int("DB_CONN_MAX_AGE", default=60)
+    database_config["CONN_HEALTH_CHECKS"] = True
+    DATABASES = {"default": database_config}
+elif DATABASE_ENGINE == "postgresql":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": env("PG_DB"),
+            "USER": env("PG_USER"),
+            "PASSWORD": env("PG_PASSWORD"),
+            "HOST": env("PG_HOST", default="db"),
+            "PORT": env.int("PG_PORT", default=5432),
+            "CONN_MAX_AGE": env.int("DB_CONN_MAX_AGE", default=60),
+            "CONN_HEALTH_CHECKS": True,
+        }
     }
-}
+    pg_sslmode = env("PG_SSLMODE", default="")
+    if pg_sslmode:
+        DATABASES["default"]["OPTIONS"] = {"sslmode": pg_sslmode}
+else:
+    sqlite_path = env("SQLITE_PATH", default=str(BASE_DIR / "db.sqlite3"))
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": sqlite_path,
+        }
+    }
 
 
 # Password validation
@@ -130,6 +160,14 @@ STATICFILES_DIRS = [
 ]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Default primary key field type
 
@@ -137,7 +175,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "user.User"
 
-PAGE_SIZE = env("PAGE_SIZE")
+PAGE_SIZE = env.int("PAGE_SIZE", default=20)
 
 # REST Framework configs
 REST_FRAMEWORK = {
@@ -154,7 +192,7 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "PAGE_SIZE": int(PAGE_SIZE),
+    "PAGE_SIZE": PAGE_SIZE,
 }
 
 # Spectacular configs
@@ -182,6 +220,8 @@ SIMPLE_JWT = {
 
 # cors headers
 CORS_ALLOW_ALL_ORIGINS = env("CORS_ALLOW_ALL_ORIGINS")
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 
 EMAIL_BACKEND = env(
     "EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
@@ -208,47 +248,48 @@ if not FRONTEND_BASE_URL.startswith(("http://", "https://")):
     FRONTEND_BASE_URL = f"http://{FRONTEND_BASE_URL}"
 FRONTEND_BASE_URL = FRONTEND_BASE_URL.rstrip("/")
 
-LOGGING_DIR = os.path.join(BASE_DIR, 'logs')
-if not os.path.exists(LOGGING_DIR):
-    os.makedirs(LOGGING_DIR)
+# Reverse-proxy and browser security. Production defaults are secure; local
+# development explicitly opts out through DEBUG=True or environment overrides.
+SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=IS_PRODUCTION)
+SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", default=IS_PRODUCTION)
+CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE", default=IS_PRODUCTION)
+SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=0)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool(
+    "SECURE_HSTS_INCLUDE_SUBDOMAINS", default=False
+)
+SECURE_HSTS_PRELOAD = env.bool("SECURE_HSTS_PRELOAD", default=False)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "same-origin"
+USE_X_FORWARDED_HOST = env.bool("USE_X_FORWARDED_HOST", default=False)
+if env.bool("TRUST_PROXY_HEADERS", default=False):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {message}',
-            'style': '{',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {name} {message}",
+            "style": "{",
         },
     },
-    'handlers': {
-        # Note: We may only need this on development mode
-
-        # 'file': {
-        #     'level': 'DEBUG',
-        #     'class': 'logging.FileHandler',
-        #     'filename': os.path.join(LOGGING_DIR, 'debug.log'),
-        #     'formatter': 'verbose',
-        # },
-        'status_code_file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(LOGGING_DIR, 'status_codes.log'),
-            'formatter': 'verbose',
+    "handlers": {
+        "console": {
+            "level": env("LOG_LEVEL", default="INFO"),
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
         },
     },
-    'loggers': {
-        # Note: We may only need this on development mode
-
-        # 'django': {
-        #     'handlers': ['file'],
-        #     'level': 'DEBUG',
-        #     'propagate': True,
-        # },
-        'status_logger': {
-            'handlers': ['status_code_file'],
-            'level': 'INFO',
-            'propagate': False,
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": env("LOG_LEVEL", default="INFO"),
+            "propagate": False,
+        },
+        "status_logger": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
         },
     },
 }

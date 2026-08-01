@@ -1,24 +1,21 @@
-# pull the base image
-FROM node:20-alpine
+FROM node:24-alpine AS builder
 
-# RUN addgroup app && adduser -S -G app app
-# USER app
-
-# set the working direction
 WORKDIR /app
+RUN corepack enable
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
-# install app dependencies
-COPY package*.json ./
+COPY . .
+ARG VITE_BASE_API_URL=http://localhost:8000/api/v1
+ARG VITE_BASE_URL=http://localhost:8000
+ENV VITE_BASE_API_URL=${VITE_BASE_API_URL} \
+    VITE_BASE_URL=${VITE_BASE_URL}
+RUN pnpm build
 
-COPY yarn.lock ./
+FROM nginx:stable-alpine AS runtime
 
-# rebuild node-sass
-# RUN yarn add node-sass
-
-RUN yarn install --force
-
-# add app
-COPY . ./
-
-# start app
-CMD ["yarn", "dev", "--host"]
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
+    CMD wget -q -O /dev/null http://127.0.0.1/health/live || exit 1

@@ -5,6 +5,7 @@ import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import SupervisedUserCircleIcon from "@mui/icons-material/SupervisedUserCircle";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
+import QuizIcon from "@mui/icons-material/Quiz";
 import { OPERATIONAL_ROLES, Role } from "../../../constants/roles.constants";
 
 export type IMenu = {
@@ -25,6 +26,12 @@ export const MAIN_MENUS: IMenu[] = [
     icon: <ScheduleIcon />,
     label: "Schedule",
     path: "/schedules",
+    allowedRoles: OPERATIONAL_ROLES,
+  },
+  {
+    icon: <QuizIcon />,
+    label: "Exams",
+    path: "/exams",
     allowedRoles: OPERATIONAL_ROLES,
   },
   {

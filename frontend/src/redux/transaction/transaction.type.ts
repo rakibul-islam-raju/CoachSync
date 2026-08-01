@@ -5,6 +5,16 @@ export interface ITransaction extends IEntityGenericProps {
   enroll: IEnroll;
   amount: number;
   remark: string;
+  transaction_type: "payment" | "reversal";
+  reversal_of?: number | null;
+  is_reversed: boolean;
+}
+
+export interface ITransactionReversalReqData {
+  enroll: number;
+  transaction: number;
+  remark: string;
+  replacement_amount?: number;
 }
 
 export interface ITransactionCreateReqData {

@@ -3,3 +3,6 @@
 data
 node_modules
 yarn.lock
+backups/
+backend/staticfiles/
+frontend/storybook-static/

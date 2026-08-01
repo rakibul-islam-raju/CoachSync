@@ -1,4 +1,3 @@
- 
 import { createZodResolver } from "../../../../utils/formResolver";
 import { Box, FormControl } from "@mui/material";
 import { FC, useEffect, useState } from "react";
@@ -95,8 +94,9 @@ const ClassForm: FC<ClassFormProps> = ({ onClose, defaultData }) => {
         sx={{
           display: "flex",
           flexDirection: "column",
-          gap: 2
-        }}>
+          gap: 2,
+        }}
+      >
         <FormControl fullWidth>
           <FormInputText
             name="name"

@@ -1,5 +1,3 @@
- 
-
 import { Paper } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableCell from "@mui/material/TableCell";

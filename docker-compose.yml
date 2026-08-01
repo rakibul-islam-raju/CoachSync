@@ -1,89 +1,154 @@
+name: coachsync
+
 services:
   redis:
-    image: redis:7.0.10-alpine
-    container_name: coaching_redis
-    ports:
-      - "6379:6379"
-    networks:
-      - coaching_management
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks: [coachsync]
 
   db:
-    image: postgres:15-alpine
-    container_name: coaching_db
-    ports:
-      - 5432:5432
+    image: postgres:17-alpine
+    restart: unless-stopped
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=admin
-      - POSTGRES_DB=coaching_management
+      POSTGRES_DB: ${POSTGRES_DB:-coaching_management}
+      POSTGRES_USER: ${POSTGRES_USER:-coachsync}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env file}
     volumes:
-      - ./data/db:/var/lib/postgresql/data
-    networks:
-      - coaching_management
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [coachsync]
 
   api:
-    container_name: coaching_api
-    build: ./backend
-    env_file:
-      - ./backend/.env
-    command: >
-      bash -c "python manage.py migrate &&
-               python manage.py load_users &&
-               python manage.py seed &&
-               python manage.py runserver 0.0.0.0:8000"
-    volumes:
-      - ./backend:/app
-    # develop:
-    #   watch:
-    #     - path: ./backend
-    #       target: /app
-    #       action: sync
+    image: ${API_IMAGE:-coachsync-api:local}
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment: &backend_environment
+      DEBUG: ${DEBUG:-False}
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in the root .env file}
+      DATABASE_ENGINE: postgresql
+      PG_DB: ${POSTGRES_DB:-coaching_management}
+      PG_USER: ${POSTGRES_USER:-coachsync}
+      PG_PASSWORD: ${POSTGRES_PASSWORD}
+      PG_HOST: db
+      PG_PORT: 5432
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1,api}
+      CORS_ALLOW_ALL_ORIGINS: ${CORS_ALLOW_ALL_ORIGINS:-False}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
+      CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-http://localhost:5173}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-http://localhost:5173}
+      SECURE_SSL_REDIRECT: ${SECURE_SSL_REDIRECT:-False}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-False}
+      CSRF_COOKIE_SECURE: ${CSRF_COOKIE_SECURE:-False}
+      TRUST_PROXY_HEADERS: ${TRUST_PROXY_HEADERS:-False}
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      EMAIL_BACKEND: ${EMAIL_BACKEND:-django.core.mail.backends.console.EmailBackend}
+      EMAIL_HOST: ${EMAIL_HOST:-}
+      EMAIL_PORT: ${EMAIL_PORT:-587}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS:-True}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER:-}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD:-}
+      DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-webmaster@localhost}
+      PAGE_SIZE: ${PAGE_SIZE:-20}
     ports:
       - "8000:8000"
+    volumes:
+      - media_data:/app/media
     depends_on:
-      - db
-      - redis
-    networks:
-      - coaching_management
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=2)",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks: [coachsync]
 
   celery:
-    container_name: coaching_celery
-    build: ./backend
-    env_file:
-      - ./backend/.env
-    command: celery -A backend worker -l INFO
+    image: ${API_IMAGE:-coachsync-api:local}
+    build:
+      context: ./backend
+    restart: unless-stopped
+    command: celery -A backend worker --loglevel=INFO
+    environment:
+      <<: *backend_environment
+      APPLY_MIGRATIONS: "false"
+      COLLECT_STATIC: "false"
     volumes:
-      - ./backend:/app
+      - media_data:/app/media
     depends_on:
-      - redis
-      - db
-      - api
-    networks:
-      - coaching_management
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A backend inspect ping -d celery@$${HOSTNAME}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks: [coachsync]
 
   web:
-    container_name: coaching_web
-    build: ./frontend
+    image: ${WEB_IMAGE:-coachsync-web:local}
+    build:
+      context: ./frontend
+      args:
+        VITE_BASE_API_URL: ${VITE_BASE_API_URL:-http://localhost:8000/api/v1}
+        VITE_BASE_URL: ${VITE_BASE_URL:-http://localhost:8000}
+    restart: unless-stopped
     ports:
-      - "5173:5173"
-    env_file:
-      - ./frontend/.env
-    volumes:
-      - ./frontend:/app
-    # develop:
-    #   watch:
-    #     - path: ./frontend/package.json
-    #       action: rebuild
-    #     - path: ./frontend/package-lock.json
-    #       action: rebuild
-    #     - path: ./frontend/yarn.lock
-    #       action: rebuild
-    #     - path: ./frontend
-    #       target: /app
-    #       action: sync
+      - "5173:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [coachsync]
 
-    networks:
-      - coaching_management
+  backup:
+    image: postgres:17-alpine
+    profiles: ["tools"]
+    user: "${BACKUP_UID:-1000}:${BACKUP_GID:-1000}"
+    command: /scripts/backup_database.sh
+    environment:
+      PGHOST: db
+      PGPORT: 5432
+      PGDATABASE: ${POSTGRES_DB:-coaching_management}
+      PGUSER: ${POSTGRES_USER:-coachsync}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      BACKUP_DIR: /backups
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+    volumes:
+      - ./backups:/backups
+      - ./backend/scripts:/scripts:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [coachsync]
+
+volumes:
+  postgres_data:
+  redis_data:
+  media_data:
 
 networks:
-  coaching_management:
+  coachsync:

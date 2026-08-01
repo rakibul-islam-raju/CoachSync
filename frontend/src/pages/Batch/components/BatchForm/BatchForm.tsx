@@ -1,4 +1,3 @@
- 
 import { createZodResolver } from "../../../../utils/formResolver";
 import { Box, Checkbox, FormControl, FormControlLabel } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
@@ -121,8 +120,9 @@ const BatchForm: FC<BatchFormProps> = ({ onClose, defaultData }) => {
       sx={{
         display: "flex",
         flexDirection: "column",
-        gap: 2
-      }}>
+        gap: 2,
+      }}
+    >
       <FormControl fullWidth required>
         <FormInputText
           name="name"

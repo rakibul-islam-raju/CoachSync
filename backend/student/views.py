@@ -1,42 +1,53 @@
+import csv
 from datetime import datetime
+from decimal import Decimal
+from io import StringIO
 
-from django.db.models import Sum
+from django.db import transaction
+from django.db.models import Case, DecimalField, F, Sum, Value, When
 from django.db.models.functions import ExtractMonth
-
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework.exceptions import ValidationError
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     ListAPIView,
     ListCreateAPIView,
-    RetrieveUpdateDestroyAPIView,
     RetrieveUpdateAPIView,
+    RetrieveUpdateDestroyAPIView,
 )
-from rest_framework.filters import SearchFilter, OrderingFilter
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .models import Student, Enroll, Transaction
+from organization.tenancy import TenantQuerysetMixin, resolve_request_organization
+from user.permissions import IsOrgStaff
+
+from .models import Enroll, Student, Transaction
 from .serializers import (
-    StudentSerializer,
     CreateStudentSerializer,
-    EnrollSerializer,
-    EnrollListSerializer,
     EnrollCreateSerializer,
-    TransactionSerializer,
+    EnrollmentCancellationSerializer,
+    EnrollListSerializer,
+    EnrollSerializer,
+    StudentSerializer,
     StudentsShortStatSerializer,
+    TransactionReversalSerializer,
+    TransactionSerializer,
     YearlyTransactionStatsSerializer,
 )
 
-from user.permissions import IsOrgStaff
 
-
-class StudentListView(ListCreateAPIView):
+class StudentListView(TenantQuerysetMixin, ListCreateAPIView):
     permission_classes = [IsOrgStaff]
     serializer_class = CreateStudentSerializer
-    queryset = Student.objects.all()
+    queryset = Student.objects.select_related("user", "organization")
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ["is_active", "blood_group"]
     search_fields = [
+        "student_id",
         "emergency_contact_no",
         "user__first_name",
         "user__last_name",
@@ -44,6 +55,7 @@ class StudentListView(ListCreateAPIView):
         "user__phone",
     ]
     ordering_fields = [
+        "student_id",
         "user__first_name",
         "user__last_name",
         "created_at",
@@ -51,66 +63,253 @@ class StudentListView(ListCreateAPIView):
     ]
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        organization = resolve_request_organization(
+            self.request, data=self.request.data, write=True
+        )
+        serializer.save(organization=organization, created_by=self.request.user)
 
 
-class StudentDetailView(RetrieveUpdateDestroyAPIView):
+class StudentDetailView(TenantQuerysetMixin, RetrieveUpdateDestroyAPIView):
     lookup_field = "student_id"
     lookup_url_kwarg = "student_id"
     permission_classes = [IsOrgStaff]
-    queryset = Student.objects.all()
+    queryset = Student.objects.select_related("user", "organization")
 
     def get_serializer_class(self):
-        if self.request.method == "PUT" or self.request.method == "PATCH":
+        if self.request.method in {"PUT", "PATCH"}:
             return CreateStudentSerializer
         return StudentSerializer
 
+    def perform_update(self, serializer):
+        organization = resolve_request_organization(
+            self.request, data=self.request.data, write=True
+        )
+        if serializer.instance.organization_id != organization.id:
+            raise ValidationError("The student belongs to another organization.")
+        serializer.save(organization=organization)
 
-class EnrollListCreateView(ListCreateAPIView):
+    def perform_destroy(self, instance):
+        if instance.enrolls.exists():
+            raise ValidationError(
+                "Students with enrollment history cannot be deleted; deactivate them instead."
+            )
+        instance.user.delete()
+
+
+class EnrollListCreateView(TenantQuerysetMixin, ListCreateAPIView):
     permission_classes = [IsOrgStaff]
-    queryset = Enroll.objects.all()
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_fields = ["batch"]
+    queryset = Enroll.objects.select_related("student__user", "batch", "organization")
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ["batch", "student", "status"]
     search_fields = [
+        "student__student_id",
         "student__emergency_contact_no",
         "student__user__first_name",
         "student__user__last_name",
         "student__user__email",
         "student__user__phone",
     ]
-    ordering_fields = [
-        "created_at",
-        "updated_at",
-    ]
+    ordering_fields = ["created_at", "updated_at", "total_amount", "discount_amount"]
 
     def get_serializer_class(self):
-        if self.request.method == "POST":
-            return EnrollCreateSerializer
-        return EnrollListSerializer
+        return EnrollCreateSerializer if self.request.method == "POST" else EnrollListSerializer
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        organization = resolve_request_organization(
+            self.request, data=self.request.data, write=True
+        )
+        serializer.save(organization=organization, created_by=self.request.user)
 
 
-class EnrollDetailView(RetrieveUpdateAPIView):
+class EnrollDetailView(TenantQuerysetMixin, RetrieveUpdateAPIView):
     permission_classes = [IsOrgStaff]
-    queryset = Enroll.objects.all()
+    queryset = Enroll.objects.select_related("student__user", "batch", "organization")
 
     def get_serializer_class(self):
-        if self.request.method == "PUT" or self.request.method == "PATCH":
+        if self.request.method in {"PUT", "PATCH"}:
             return EnrollCreateSerializer
         return EnrollSerializer
 
+    def perform_update(self, serializer):
+        organization = resolve_request_organization(
+            self.request, data=self.request.data, write=True
+        )
+        serializer.save(organization=organization)
 
-class TransactionListCreateView(ListCreateAPIView):
+
+class TransactionListCreateView(TenantQuerysetMixin, ListCreateAPIView):
     permission_classes = [IsOrgStaff]
-    queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_fields = ["enroll"]
+    queryset = Transaction.objects.select_related("enroll", "organization")
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ["transaction_type"]
+    ordering_fields = ["created_at", "amount"]
 
+    def get_enroll(self, *, lock=False):
+        organization = resolve_request_organization(self.request)
+        queryset = Enroll.objects.filter(organization=organization)
+        if lock:
+            queryset = queryset.select_for_update()
+        return get_object_or_404(queryset, pk=self.kwargs["pk"])
+
+    def get_queryset(self):
+        return super().get_queryset().filter(enroll_id=self.kwargs["pk"])
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["enroll"] = self.get_enroll()
+        return context
+
+    @transaction.atomic
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        organization = resolve_request_organization(
+            self.request, data=self.request.data, write=True
+        )
+        enroll = self.get_enroll(lock=True)
+        # Re-run balance validation after acquiring the enrollment lock.
+        serializer.context["enroll"] = enroll
+        serializer.validate(serializer.validated_data)
+        serializer.save(
+            organization=organization,
+            enroll=enroll,
+            transaction_type=Transaction.PAYMENT,
+            created_by=self.request.user,
+        )
+
+
+class TransactionReversalView(APIView):
+    permission_classes = [IsOrgStaff]
+    serializer_class = TransactionReversalSerializer
+
+    @transaction.atomic
+    def post(self, request, pk, transaction_pk):
+        organization = resolve_request_organization(request, data=request.data, write=True)
+        enroll = get_object_or_404(
+            Enroll.objects.select_for_update(), pk=pk, organization=organization
+        )
+        original = get_object_or_404(
+            Transaction.objects.select_for_update(),
+            pk=transaction_pk,
+            enroll=enroll,
+            organization=organization,
+            transaction_type=Transaction.PAYMENT,
+        )
+        if hasattr(original, "reversal"):
+            raise ValidationError("This payment has already been reversed.")
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        remark = serializer.validated_data["remark"]
+        reversal = Transaction.objects.create(
+            organization=organization,
+            enroll=enroll,
+            amount=original.amount,
+            transaction_type=Transaction.REVERSAL,
+            reversal_of=original,
+            remark=remark,
+            created_by=request.user,
+        )
+        replacement = None
+        replacement_amount = serializer.validated_data.get("replacement_amount")
+        if replacement_amount:
+            enroll.refresh_from_db()
+            if enroll.status != Enroll.ACTIVE:
+                raise ValidationError("Cancelled enrollments cannot receive replacement payments.")
+            if replacement_amount > enroll.balance:
+                raise ValidationError(
+                    {"replacement_amount": "Replacement exceeds the outstanding balance."}
+                )
+            replacement = Transaction.objects.create(
+                organization=organization,
+                enroll=enroll,
+                amount=replacement_amount,
+                transaction_type=Transaction.PAYMENT,
+                remark=f"Replacement for transaction #{original.pk}: {remark}",
+                created_by=request.user,
+            )
+        return Response(
+            {
+                "reversal": TransactionSerializer(reversal).data,
+                "replacement": TransactionSerializer(replacement).data if replacement else None,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class EnrollmentCancellationView(APIView):
+    permission_classes = [IsOrgStaff]
+    serializer_class = EnrollmentCancellationSerializer
+
+    @transaction.atomic
+    def post(self, request, pk):
+        organization = resolve_request_organization(request, data=request.data, write=True)
+        enroll = get_object_or_404(
+            Enroll.objects.select_for_update(), pk=pk, organization=organization
+        )
+        if enroll.status == Enroll.CANCELLED:
+            raise ValidationError("Enrollment is already cancelled.")
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        enroll.status = Enroll.CANCELLED
+        enroll.is_active = False
+        enroll.cancelled_at = timezone.now()
+        enroll.cancelled_by = request.user
+        enroll.cancellation_reason = serializer.validated_data["reason"]
+        enroll.save(
+            update_fields=[
+                "status",
+                "is_active",
+                "cancelled_at",
+                "cancelled_by",
+                "cancellation_reason",
+                "updated_at",
+            ]
+        )
+        return Response(EnrollSerializer(enroll).data)
+
+
+class EnrollmentExportView(APIView):
+    permission_classes = [IsOrgStaff]
+    serializer_class = EnrollListSerializer
+
+    def get(self, request):
+        organization = resolve_request_organization(request)
+        queryset = Enroll.objects.filter(organization=organization).select_related(
+            "student__user", "batch"
+        )
+        output = StringIO()
+        writer = csv.writer(output)
+        writer.writerow(
+            [
+                "Enrollment ID",
+                "Student ID",
+                "Student",
+                "Batch",
+                "Status",
+                "Total",
+                "Discount",
+                "Net payable",
+                "Paid",
+                "Balance",
+            ]
+        )
+        for enroll in queryset:
+            writer.writerow(
+                [
+                    enroll.pk,
+                    enroll.student.student_id,
+                    enroll.student.user.full_name(),
+                    enroll.batch.name,
+                    enroll.status,
+                    enroll.total_amount,
+                    enroll.discount_amount or 0,
+                    enroll.net_payable,
+                    enroll.total_paid,
+                    enroll.balance,
+                ]
+            )
+        response = HttpResponse(output.getvalue(), content_type="text/csv")
+        response["Content-Disposition"] = 'attachment; filename="enrollments.csv"'
+        return response
 
 
 class StudentShortStatsView(APIView):
@@ -118,31 +317,29 @@ class StudentShortStatsView(APIView):
     serializer_class = StudentsShortStatSerializer
 
     def get(self, request, *args, **kwargs):
-        # students
-        students = Student.objects.all().count()
-        active_students = Student.objects.filter(is_active=True).count()
-        inactive_students = students - active_students
-
-        # enrolls
-        enrolls = Enroll.objects.all().count()
-        paid_enrolls = Enroll.get_paid_enrolls().count()
-        due_enrolls = enrolls - paid_enrolls
+        organization = resolve_request_organization(request)
+        student_scope = Student.objects.all()
+        enroll_scope = Enroll.objects.all()
+        if organization is not None:
+            student_scope = student_scope.filter(organization=organization)
+            enroll_scope = enroll_scope.filter(organization=organization)
+        students = student_scope.count()
+        active_students = student_scope.filter(is_active=True).count()
+        enrolls = enroll_scope.count()
+        paid_enrolls = enroll_scope.filter(
+            pk__in=Enroll.get_paid_enrolls().values("pk")
+        ).count()
         data = {
             "students": students,
             "active_students": active_students,
-            "inactive_students": inactive_students,
+            "inactive_students": students - active_students,
             "enrolls": enrolls,
             "paid_enrolls": paid_enrolls,
-            "due_enrolls": due_enrolls,
+            "due_enrolls": enrolls - paid_enrolls,
         }
-
-        serializer = StudentsShortStatSerializer(data=data)
+        serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
-
-        return Response(
-            serializer.data,
-            status=status.HTTP_200_OK,
-        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TransactionStatsView(ListAPIView):
@@ -154,24 +351,28 @@ class TransactionStatsView(ListAPIView):
     def get(self, request, *args, **kwargs):
         current_year = datetime.today().year
         year = self.request.query_params.get("year", current_year)
-
+        organization = resolve_request_organization(request)
+        transactions = Transaction.objects.filter(created_at__year=year)
+        if organization is not None:
+            transactions = transactions.filter(organization=organization)
         transactions = (
-            Transaction.objects.filter(created_at__year=year)
-            .annotate(month=ExtractMonth("created_at"))
+            transactions.annotate(
+                signed_amount=Case(
+                    When(transaction_type=Transaction.PAYMENT, then=F("amount")),
+                    When(transaction_type=Transaction.REVERSAL, then=-F("amount")),
+                    default=Value(Decimal("0.00")),
+                    output_field=DecimalField(max_digits=12, decimal_places=2),
+                ),
+                month=ExtractMonth("created_at"),
+            )
             .values("month")
-            .annotate(total_amount=Sum("amount"))
+            .annotate(total_amount=Sum("signed_amount"))
         )
-
-        existing_month_data = {
-            item["month"]: item["total_amount"] for item in transactions
-        }
-
-        all_months_data = [
-            {"month": month, "total_amount": existing_month_data.get(month, 0)}
+        existing = {item["month"]: item["total_amount"] for item in transactions}
+        data = [
+            {"month": month, "total_amount": existing.get(month, 0)}
             for month in range(1, 13)
         ]
-
-        serializer = self.serializer_class(data=all_months_data, many=True)
+        serializer = self.serializer_class(data=data, many=True)
         serializer.is_valid(raise_exception=True)
-
         return Response(serializer.data, status=status.HTTP_200_OK)

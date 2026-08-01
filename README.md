@@ -1,41 +1,90 @@
-# Coaching-Management-System
+# CoachSync Coaching Management System
 
-## Installation
+CoachSync is a Django REST Framework and React/Vite application for managing
+organizations, employees, academic catalogs, students, enrollments, payments,
+exams, and schedules.
 
-Follow these steps to set up the Coaching Management System on your machine:
+## Run with Docker
 
-### Step 1: Clone the Repository
+Requirements: Docker Engine with the Compose plugin.
 
-Begin by cloning the repository to your local machine.
-
-### Step 2: Configure Environment Files
-
-Navigate to both the backend and frontend directories. You will find .env.example files in each of these directories. Copy the contents of .env.example and create a new .env file in the respective directories (backend and frontend). Paste the copied contents into these .env files.
-
-### Step 3: Docker Setup
-
-Make sure you have Docker and Docker Compose installed on your machine. If not, please install them first.
-
-Run the following command to start the development backend:
-
-```
- docker-compose up -d
+```bash
+cp .env.example .env
+# Replace POSTGRES_PASSWORD and SECRET_KEY in .env.
+docker compose up --build -d
+docker compose ps
 ```
 
-### Step 4: Access URLs
+The production-shaped Compose stack uses PostgreSQL, Redis, Gunicorn, Celery,
+and an Nginx-served frontend. It does not seed default credentials.
 
-Once the backend is up and running, you can access the following URLs:
+- Frontend: <http://localhost:5173>
+- API documentation: <http://localhost:8000>
+- ReDoc: <http://localhost:8000/redoc/>
+- API liveness: <http://localhost:8000/health/live>
+- API readiness: <http://localhost:8000/health/ready>
 
-- Frontend: https://localhost:5137
-- API Documentation: https://localhost:8000
+Create the first administrator explicitly:
 
-  That's it! You have successfully set up the Coaching Management System. You can now access the frontend interface and explore the API documentation.
+```bash
+docker compose exec api python manage.py createsuperuser
+```
 
-#### Super Admin Credential
+## Local development
 
-- Email: admin@coachsync.com
-- Password: admin
+Backend requirements are Python 3.14 and `uv`:
 
-## Contribute
+```bash
+cp backend/.env.example backend/.env
+cd backend
+uv sync
+uv run python manage.py migrate
+uv run python manage.py runserver
+```
 
-To contribute to this project, please follow the guidelines outlined in [CONTRIBUTING.md](.github/CONTRIBUTING.md).
+The backend example defaults to SQLite for deliberate local development. Set
+`DATABASE_ENGINE=postgresql` and the `PG_*` variables, or set `DATABASE_URL`, to
+develop against PostgreSQL.
+
+Frontend requirements are Node.js 24 and pnpm 10.26.2:
+
+```bash
+cp frontend/.env.example frontend/.env
+cd frontend
+corepack enable
+pnpm install --frozen-lockfile
+pnpm dev
+```
+
+## Verification
+
+```bash
+cd backend
+uv run python manage.py check
+uv run python manage.py makemigrations --check --dry-run
+uv run python manage.py test
+uv run python manage.py spectacular --file /tmp/openapi.yaml --validate
+
+cd ../frontend
+pnpm format:check
+pnpm lint
+pnpm test:run
+pnpm build
+pnpm build-storybook
+```
+
+CI runs these checks against PostgreSQL and Redis, then builds both production
+container images. Version tags publish API and web images to GitHub Container
+Registry.
+
+## Operations
+
+Deployment, security, migration, health-check, backup, restore, and rollback
+instructions are in [DEPLOYMENT.md](DEPLOYMENT.md). The organization-tenancy
+migration sequence is detailed in
+[MEDIUM_PRIORITY_ROLLOUT.md](MEDIUM_PRIORITY_ROLLOUT.md).
+
+## Contributing
+
+See [CONTRIBUTING.md](.github/CONTRIBUTING.md) and the repository `AGENTS.md`
+files for project conventions.

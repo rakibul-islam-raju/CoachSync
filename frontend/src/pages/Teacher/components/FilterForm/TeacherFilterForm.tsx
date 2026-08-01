@@ -43,9 +43,13 @@ const TeacherFilterForm: FC = () => {
         Filter Teachers
       </Typography>
       <Divider sx={{ my: 2 }} />
-      <Stack component={"form"} onSubmit={handleSubmit} sx={{
-        gap: 1
-      }}>
+      <Stack
+        component={"form"}
+        onSubmit={handleSubmit}
+        sx={{
+          gap: 1,
+        }}
+      >
         <FormControl fullWidth>
           <FormLabel id="ordering">Sort by</FormLabel>
           <Select
@@ -80,8 +84,9 @@ const TeacherFilterForm: FC = () => {
           sx={{
             mt: 2,
             gap: 1,
-            justifyContent: "flex-end"
-          }}>
+            justifyContent: "flex-end",
+          }}
+        >
           <CustomButton
             type="button"
             variant="outlined"

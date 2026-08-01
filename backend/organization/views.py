@@ -1,56 +1,85 @@
+from django.db import transaction
 from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from user.permissions import IsOrgStaff
+from user.permissions import IsAdminStaff, IsOrgStaff
 
 from .filters import ScheduleFilter
-from .models import Subject, Teacher, Classs, Batch, ExamType, Exam, Schedule
+from .models import Batch, Classs, Exam, ExamType, Organization, Schedule, Subject, Teacher
+from .scheduling import validate_schedule_conflicts
 from .serializers import (
-    SubjectSerializer,
-    TeacherSerializer,
-    TeacherCreateSerializer,
-    ClasssSerializer,
     BatchCreateSerializer,
     BatchSerializer,
-    ExamTypeCreateSerializer,
-    ExamTypeSerializer,
-    ExamCreateSerializer,
+    ClasssSerializer,
     ExamSerializer,
-    ScheduleCreateSerializer,
-    ScheduleSerializer,
+    ExamTypeSerializer,
+    ExamTypeWriteSerializer,
+    ExamWriteSerializer,
+    OrganizationSerializer,
     OrgShortInfoSerializer,
+    ScheduleSerializer,
+    ScheduleWriteSerializer,
+    SubjectSerializer,
+    TeacherCreateSerializer,
+    TeacherSerializer,
 )
+from .tenancy import TenantQuerysetMixin, resolve_request_organization
 
 
-class SubjectListCreateView(ListCreateAPIView):
-    queryset = Subject.objects.all()
-    permission_classes = [IsOrgStaff]
-    serializer_class = SubjectSerializer
-    filterset_fields = ["name", "code", "is_active"]
-    search_fields = [
-        "name",
-        "code",
-    ]
-    ordering_fields = ["name", "code", "created_at", "updated_at"]
+class TenantCreateMixin(TenantQuerysetMixin):
+    def perform_create(self, serializer):
+        organization = self.get_write_organization(self.request.data)
+        serializer.save(organization=organization, created_by=self.request.user)
+
+    def perform_update(self, serializer):
+        organization = self.get_write_organization(self.request.data)
+        if serializer.instance.organization_id != organization.id:
+            from rest_framework.exceptions import PermissionDenied
+
+            raise PermissionDenied("The object belongs to another organization.")
+        serializer.save(organization=organization)
+
+
+class OrganizationListCreateView(ListCreateAPIView):
+    permission_classes = [IsAdminStaff]
+    serializer_class = OrganizationSerializer
+    queryset = Organization.objects.all()
+    search_fields = ["name", "slug"]
+    ordering_fields = ["name", "created_at", "updated_at"]
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
 
 
-class SubjectDetailView(RetrieveUpdateDestroyAPIView):
+class OrganizationDetailView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAdminStaff]
+    serializer_class = OrganizationSerializer
+    queryset = Organization.objects.all()
+
+
+class SubjectListCreateView(TenantCreateMixin, ListCreateAPIView):
+    queryset = Subject.objects.all()
+    permission_classes = [IsOrgStaff]
+    serializer_class = SubjectSerializer
+    filterset_fields = ["name", "code", "is_active"]
+    search_fields = ["name", "code"]
+    ordering_fields = ["name", "code", "created_at", "updated_at"]
+
+
+class SubjectDetailView(TenantCreateMixin, RetrieveUpdateDestroyAPIView):
     queryset = Subject.objects.all()
     permission_classes = [IsOrgStaff]
     serializer_class = SubjectSerializer
 
 
-class TeacherListCreateView(ListCreateAPIView):
+class TeacherListCreateView(TenantCreateMixin, ListCreateAPIView):
     permission_classes = [IsOrgStaff]
-    queryset = Teacher.objects.all()
+    queryset = Teacher.objects.select_related("user", "organization")
     filterset_fields = ["is_active", "user__first_name", "user__last_name"]
     search_fields = [
         "user__first_name",
@@ -68,21 +97,15 @@ class TeacherListCreateView(ListCreateAPIView):
     ]
 
     def get_serializer_class(self):
-        if self.request.method == "POST":
-            return TeacherCreateSerializer
-        return TeacherSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        return TeacherCreateSerializer if self.request.method == "POST" else TeacherSerializer
 
 
-class TeacherDetailView(RetrieveUpdateDestroyAPIView):
-    queryset = Teacher.objects.all()
+class TeacherDetailView(TenantCreateMixin, RetrieveUpdateDestroyAPIView):
+    queryset = Teacher.objects.select_related("user", "organization")
     permission_classes = [IsOrgStaff]
-    serializer_class = TeacherSerializer
 
     def get_serializer_class(self):
-        if self.request.method == "PATCH" or self.request.method == "PUT":
+        if self.request.method in {"PATCH", "PUT"}:
             return TeacherCreateSerializer
         return TeacherSerializer
 
@@ -90,37 +113,26 @@ class TeacherDetailView(RetrieveUpdateDestroyAPIView):
         instance.user.delete()
 
 
-class ClasssListCreateView(ListCreateAPIView):
+class ClasssListCreateView(TenantCreateMixin, ListCreateAPIView):
     queryset = Classs.objects.all()
     serializer_class = ClasssSerializer
     permission_classes = [IsOrgStaff]
     filterset_fields = ["is_active"]
-    search_fields = [
-        "name",
-        "numeric",
-    ]
+    search_fields = ["name", "numeric"]
     ordering_fields = ["name", "numeric", "created_at", "updated_at"]
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
 
-
-class ClasssDetailView(RetrieveUpdateDestroyAPIView):
+class ClasssDetailView(TenantCreateMixin, RetrieveUpdateDestroyAPIView):
     queryset = Classs.objects.all()
     serializer_class = ClasssSerializer
     permission_classes = [IsOrgStaff]
 
 
-class BatchListCreateView(ListCreateAPIView):
+class BatchListCreateView(TenantCreateMixin, ListCreateAPIView):
     permission_classes = [IsOrgStaff]
-    queryset = Batch.objects.all()
+    queryset = Batch.objects.select_related("classs", "organization")
     filterset_fields = ["is_active", "classs"]
-    search_fields = [
-        "name",
-        "code",
-        "classs__name",
-        "classs__numeric",
-    ]
+    search_fields = ["name", "code", "classs__name", "classs__numeric"]
     ordering_fields = [
         "name",
         "code",
@@ -133,67 +145,67 @@ class BatchListCreateView(ListCreateAPIView):
     ]
 
     def get_serializer_class(self):
-        if self.request.method == "POST":
-            return BatchCreateSerializer
-        return BatchSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        return BatchCreateSerializer if self.request.method == "POST" else BatchSerializer
 
 
-class BatchDetailView(RetrieveUpdateDestroyAPIView):
+class BatchDetailView(TenantCreateMixin, RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOrgStaff]
-    queryset = Batch.objects.all()
-    serializer_class = BatchSerializer
+    queryset = Batch.objects.select_related("classs", "organization")
 
     def get_serializer_class(self):
-        if self.request.method == "PATCH" or self.request.method == "PUT":
+        if self.request.method in {"PATCH", "PUT"}:
             return BatchCreateSerializer
         return BatchSerializer
 
 
-class ExamTypeListCreateView(ListCreateAPIView):
+class ExamTypeListCreateView(TenantCreateMixin, ListCreateAPIView):
     permission_classes = [IsOrgStaff]
-    queryset = ExamType.objects.all()
+    queryset = ExamType.objects.select_related("batch", "organization")
+    filterset_fields = ["is_active", "batch", "start_date", "end_date"]
+    search_fields = ["name", "batch__name", "batch__code"]
+    ordering_fields = ["name", "start_date", "end_date", "created_at", "updated_at"]
 
     def get_serializer_class(self):
-        if self.request.method == "POST":
-            return ExamTypeCreateSerializer
+        return ExamTypeWriteSerializer if self.request.method == "POST" else ExamTypeSerializer
+
+
+class ExamTypeDetailView(TenantCreateMixin, RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsOrgStaff]
+    queryset = ExamType.objects.select_related("batch", "organization")
+
+    def get_serializer_class(self):
+        if self.request.method in {"PATCH", "PUT"}:
+            return ExamTypeWriteSerializer
         return ExamTypeSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
 
-
-class ExamTypeDetailView(RetrieveUpdateDestroyAPIView):
+class ExamListCreateView(TenantCreateMixin, ListCreateAPIView):
     permission_classes = [IsOrgStaff]
-    queryset = ExamType.objects.all()
-    serializer_class = ExamTypeSerializer
-
-
-class ExamListCreateView(ListCreateAPIView):
-    permission_classes = [IsOrgStaff]
-    queryset = Exam.objects.all()
+    queryset = Exam.objects.select_related("exam_type", "subject", "organization")
+    filterset_fields = ["is_active", "exam_type", "exam_type__batch", "subject", "date"]
+    search_fields = ["name", "exam_type__name", "subject__name", "subject__code"]
+    ordering_fields = ["name", "date", "pass_mark", "total_mark", "created_at", "updated_at"]
 
     def get_serializer_class(self):
-        if self.request.method == "POST":
-            return ExamCreateSerializer
+        return ExamWriteSerializer if self.request.method == "POST" else ExamSerializer
+
+
+class ExamDetailView(TenantCreateMixin, RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsOrgStaff]
+    queryset = Exam.objects.select_related("exam_type", "subject", "organization")
+
+    def get_serializer_class(self):
+        if self.request.method in {"PATCH", "PUT"}:
+            return ExamWriteSerializer
         return ExamSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
 
-
-class ExamDetailView(RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsOrgStaff]
-    queryset = Exam.objects.all()
-    serializer_class = ExamSerializer
-
-
-class ScheduleListCreateView(ListCreateAPIView):
+class ScheduleListCreateView(TenantQuerysetMixin, ListCreateAPIView):
     permission_classes = [IsOrgStaff]
     filterset_class = ScheduleFilter
-    queryset = Schedule.objects.all()
+    queryset = Schedule.objects.select_related(
+        "subject", "teacher__user", "batch__classs", "exam", "organization"
+    )
     search_fields = [
         "title",
         "subject__name",
@@ -204,48 +216,76 @@ class ScheduleListCreateView(ListCreateAPIView):
         "batch__code",
         "exam__name",
     ]
-    ordering_fields = [
-        "date",
-        "created_at",
-        "updated_at",
-    ]
+    ordering_fields = ["date", "time", "created_at", "updated_at"]
 
     def get_serializer_class(self):
-        if self.request.method == "POST":
-            return ScheduleCreateSerializer
-        return ScheduleSerializer
+        return ScheduleWriteSerializer if self.request.method == "POST" else ScheduleSerializer
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
-        serializer = ScheduleCreateSerializer(data=request.data, many=True)
+        if not isinstance(request.data, list) or not request.data:
+            return Response(
+                {"detail": "Submit a non-empty list of schedules."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        organization = resolve_request_organization(
+            request, data=request.data[0], write=True
+        )
+        serializer = ScheduleWriteSerializer(
+            data=request.data, many=True, context=self.get_serializer_context()
+        )
+        serializer.is_valid(raise_exception=True)
+        values = serializer.validated_data
+        Batch.objects.select_for_update().filter(
+            organization=organization,
+            pk__in={item["batch"].pk for item in values},
+        ).count()
+        Teacher.objects.select_for_update().filter(
+            organization=organization,
+            pk__in={item["teacher"].pk for item in values if item.get("teacher")},
+        ).count()
+        validate_schedule_conflicts(values, organization)
+        serializer.save(organization=organization, created_by=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        if serializer.is_valid():
-            serializer.save(created_by=self.request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class ScheduleDetailView(RetrieveUpdateDestroyAPIView):
+class ScheduleDetailView(TenantCreateMixin, RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOrgStaff]
-    queryset = Schedule.objects.all()
+    queryset = Schedule.objects.select_related(
+        "subject", "teacher__user", "batch__classs", "exam", "organization"
+    )
 
     def get_serializer_class(self):
-        if self.request.method in ["PUT", "PATCH"]:
-            return ScheduleCreateSerializer
+        if self.request.method in {"PUT", "PATCH"}:
+            return ScheduleWriteSerializer
         return ScheduleSerializer
+
+    @transaction.atomic
+    def perform_update(self, serializer):
+        organization = self.get_write_organization(self.request.data)
+        instance = serializer.instance
+        values = {
+            field: serializer.validated_data.get(field, getattr(instance, field))
+            for field in ["batch", "teacher", "date", "time", "duration"]
+        }
+        Batch.objects.select_for_update().filter(pk=values["batch"].pk).count()
+        if values["teacher"]:
+            Teacher.objects.select_for_update().filter(pk=values["teacher"].pk).count()
+        validate_schedule_conflicts([values], organization, instances=[instance])
+        serializer.save(organization=organization)
 
 
 class OrganizationShortInfoView(APIView):
+    permission_classes = [IsOrgStaff]
     serializer_class = OrgShortInfoSerializer
 
     def get(self, request, *args, **kwargs):
-        active_batches = Batch.objects.filter(is_active=True).count()
-        active_classes = Classs.objects.filter(is_active=True).count()
-        active_teachers = Teacher.objects.filter(is_active=True).count()
+        organization = resolve_request_organization(request)
+        scope = {} if organization is None else {"organization": organization}
         data = {
-            "active_batches": active_batches,
-            "active_classes": active_classes,
-            "active_teachers": active_teachers,
+            "active_batches": Batch.objects.filter(is_active=True, **scope).count(),
+            "active_classes": Classs.objects.filter(is_active=True, **scope).count(),
+            "active_teachers": Teacher.objects.filter(is_active=True, **scope).count(),
         }
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)

@@ -98,8 +98,9 @@ const SubjectForm: FC<SubjectFormProps> = ({ onClose, defaultData }) => {
         sx={{
           display: "flex",
           flexDirection: "column",
-          gap: 2
-        }}>
+          gap: 2,
+        }}
+      >
         <FormControl fullWidth>
           <FormInputText
             name="name"

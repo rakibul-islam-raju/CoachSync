@@ -1,4 +1,5 @@
 import PreviewIcon from "@mui/icons-material/Preview";
+import CancelIcon from "@mui/icons-material/Cancel";
 import {
   Box,
   Card,
@@ -14,6 +15,7 @@ import {
   IStudentDetails,
 } from "../../../../redux/student/student.type";
 import { formatDate } from "../../../../utils/formatDate";
+import { useCancelEnrollMutation } from "../../../../redux/enroll/enrollApi";
 import TransactionHistory from "../TransactionHistory/TransactionHistory";
 
 type Props = {
@@ -23,6 +25,7 @@ type Props = {
 const StudentEnrollments: FC<Props> = ({ studentData }) => {
   const [selectedEnroll, setSelectedEnroll] =
     useState<IEnrollsForStudentDetails | null>(null);
+  const [cancelEnroll] = useCancelEnrollMutation();
 
   const handleSelectEnroll = (data: IEnrollsForStudentDetails) =>
     setSelectedEnroll(data);
@@ -41,23 +44,42 @@ const StudentEnrollments: FC<Props> = ({ studentData }) => {
   return (
     <>
       <Box sx={{ maxHeight: 565, overflowY: "auto" }}>
-        <Stack sx={{
-          gap: 1
-        }}>
+        <Stack
+          sx={{
+            gap: 1,
+          }}
+        >
           {studentData.enrolls.map(enroll => (
             <Card key={enroll.id} variant="outlined">
               <CardContent>
-                <Stack direction={"row"} sx={{
-                  justifyContent: "space-between"
-                }}>
+                <Stack
+                  direction={"row"}
+                  sx={{
+                    justifyContent: "space-between",
+                  }}
+                >
                   <Typography variant="h6">{`Batch: ${enroll.batch.name} (${enroll.batch.classs.numeric})`}</Typography>
                   <IconButton onClick={() => handleSelectEnroll(enroll)}>
                     <PreviewIcon />
                   </IconButton>
+                  {enroll.status === "active" && (
+                    <IconButton
+                      aria-label="Cancel enrollment"
+                      onClick={() => {
+                        const reason = window.prompt("Cancellation reason");
+                        if (reason) cancelEnroll({ id: enroll.id, reason });
+                      }}
+                    >
+                      <CancelIcon />
+                    </IconButton>
+                  )}
                 </Stack>
-                <Stack direction={"row"} sx={{
-                  justifyContent: "space-between"
-                }}>
+                <Stack
+                  direction={"row"}
+                  sx={{
+                    justifyContent: "space-between",
+                  }}
+                >
                   <Box>
                     <Typography variant="body2">
                       Start Date:
@@ -74,7 +96,13 @@ const StudentEnrollments: FC<Props> = ({ studentData }) => {
                   </Box>
                   <Box>
                     <Typography variant="body2">
-                      Total: {enroll.total_amount}
+                      Net payable: {enroll.net_payable}
+                    </Typography>
+                    <Typography variant="body2">
+                      Balance: {enroll.balance}
+                    </Typography>
+                    <Typography variant="body2">
+                      Status: {enroll.status}
                     </Typography>
                     <Typography variant="body2">
                       Batch Fee: {enroll.batch.fee ?? "-"}

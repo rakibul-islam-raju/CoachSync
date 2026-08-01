@@ -1,9 +1,9 @@
- 
 import { createZodResolver } from "../../../../utils/formResolver";
 import { Box, FormControl } from "@mui/material";
 import { parse } from "date-fns";
 import dayjs, { Dayjs } from "dayjs";
 import { FC, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { CustomButton } from "../../../../components/CustomButton/CustomButton";
@@ -15,6 +15,7 @@ import TimeInput from "../../../../components/forms/TimeInput";
 import { IBatch } from "../../../../redux/batch/batch.type";
 import { useGetBatchesQuery } from "../../../../redux/batch/batchApi";
 import { IExam } from "../../../../redux/exam/exam.type";
+import { useGetExamsQuery } from "../../../../redux/exam/examApi";
 import { useAppDispatch } from "../../../../redux/hook";
 import {
   ISchedule,
@@ -49,12 +50,12 @@ const ScheduleAddForm: FC<Props> = ({
   edit = false,
 }) => {
   const dispatch = useAppDispatch();
+  const [searchParams] = useSearchParams();
 
   // Use the useForm hook with default values
   const methods = useForm<IScheduleCreateFormValues>({
-    resolver: createZodResolver<IScheduleCreateFormValues>(
-      scheduleCreateSchema,
-    ),
+    resolver:
+      createZodResolver<IScheduleCreateFormValues>(scheduleCreateSchema),
     defaultValues: {
       // Initialize default values based on editData
       title: editData?.title || "",
@@ -79,13 +80,14 @@ const ScheduleAddForm: FC<Props> = ({
   const { data: batches } = useGetBatchesQuery({ limit: 50, offset: 0 });
   const { data: subjects } = useGetSubjectsQuery({ limit: 50, offset: 0 });
   const { data: teachers } = useGetTeachersQuery({ limit: 50, offset: 0 });
+  const { data: exams } = useGetExamsQuery({ limit: 100, offset: 0 });
   const [updateSchedule, { isLoading, isError, error, isSuccess }] =
     useUpdateScheduleMutation();
 
   const [selectedSub, setSelectedSub] = useState<ISubject | null>(null);
   const [selectedBatch, setSelectedBatch] = useState<IBatch | null>(null);
   const [selectedTeacher, setSelectedTeacher] = useState<ITeacher | null>(null);
-  const [selectedExam] = useState<IExam | null>(null);
+  const [selectedExam, setSelectedExam] = useState<IExam | null>(null);
   const [date, setDate] = useState<Dayjs | null>(null);
   const [time, setTime] = useState<Dayjs | null>(null);
 
@@ -169,8 +171,15 @@ const ScheduleAddForm: FC<Props> = ({
       setSelectedTeacher(nteacher || null);
     }
     if (exam) {
-      // const xm = teachers?.results.find(b => b.id === teacher);
-      // setSelectedExam(xm ?? null);
+      const selected = exams?.results.find(item => item.id === exam) ?? null;
+      setSelectedExam(selected);
+      if (selected) {
+        setValue("batch", selected.exam_type.batch.id);
+        setValue("subject", selected.subject.id);
+        setValue("date", selected.date);
+        setValue("title", selected.name);
+        setDate(dayjs(selected.date));
+      }
     }
   }, [
     batch,
@@ -180,7 +189,16 @@ const ScheduleAddForm: FC<Props> = ({
     batches?.results,
     subjects?.results,
     teachers?.results,
+    exams?.results,
+    setValue,
   ]);
+
+  useEffect(() => {
+    const examId = Number(searchParams.get("exam"));
+    if (examId && exams?.results.some(item => item.id === examId)) {
+      setValue("exam", examId);
+    }
+  }, [exams?.results, searchParams, setValue]);
 
   useEffect(() => {
     if (isSuccess) {
@@ -200,8 +218,19 @@ const ScheduleAddForm: FC<Props> = ({
         sx={{
           display: "flex",
           flexDirection: "column",
-          gap: 2
-        }}>
+          gap: 2,
+        }}
+      >
+        <FormSelectInput
+          name="exam"
+          label="Select Exam (optional)"
+          options={exams?.results.map(option => ({
+            label: `${option.name} — ${option.date}`,
+            value: option.id,
+          }))}
+          error={!!errors.exam}
+          helperText={errors.exam?.message}
+        />
         <FormSelectInput
           name="batch"
           label="Select Batch"

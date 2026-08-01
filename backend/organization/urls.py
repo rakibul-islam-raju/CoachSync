@@ -1,6 +1,8 @@
 from django.urls import path
 
 from .views import (
+    OrganizationListCreateView,
+    OrganizationDetailView,
     SubjectListCreateView,
     SubjectDetailView,
     TeacherListCreateView,
@@ -19,6 +21,8 @@ from .views import (
 )
 
 urlpatterns = [
+    path("tenants", OrganizationListCreateView.as_view(), name="organization-list"),
+    path("tenants/<int:pk>", OrganizationDetailView.as_view(), name="organization-detail"),
     path("subjects", SubjectListCreateView.as_view(), name="subjects-list-create"),
     path(
         "subjects/<pk>",

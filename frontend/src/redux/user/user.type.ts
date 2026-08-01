@@ -14,6 +14,12 @@ export type IUserUpdateData = {
   user: Partial<IUser>;
 };
 
+export type IProfileUpdateData = {
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+};
+
 export interface IUserParams {
   limit: number;
   offset: number;

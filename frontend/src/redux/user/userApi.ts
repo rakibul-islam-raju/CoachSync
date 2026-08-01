@@ -2,7 +2,12 @@
 import { apiSlice } from "../api/apiSlice";
 import type { RootState } from "../store";
 import { setUserInfo } from "../auth/authSlice";
-import { IUserCreateData, IUserParams, IUserUpdateData } from "./user.type";
+import {
+  IProfileUpdateData,
+  IUserCreateData,
+  IUserParams,
+  IUserUpdateData,
+} from "./user.type";
 
 export const userApi = apiSlice.injectEndpoints({
   endpoints: builder => ({
@@ -39,6 +44,19 @@ export const userApi = apiSlice.injectEndpoints({
           ];
         }
         return ["User"];
+      },
+    }),
+
+    updateProfile: builder.mutation<IUser, IProfileUpdateData>({
+      query: data => ({ url: "/users/me", method: "PATCH", data }),
+      invalidatesTags: ["Me", "Profile"],
+      async onQueryStarted(_data, { queryFulfilled, dispatch }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setUserInfo(data));
+        } catch {
+          // Error is rendered by the profile form.
+        }
       },
     }),
 
@@ -136,6 +154,7 @@ export const userApi = apiSlice.injectEndpoints({
 export const {
   useGetMeQuery,
   useGetUsersQuery,
+  useUpdateProfileMutation,
   useCreateUserMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,

@@ -52,8 +52,9 @@ export default function Login() {
         <Stack
           sx={{
             rowGap: 3,
-            mt: 4
-          }}>
+            mt: 4,
+          }}
+        >
           <FormControl fullWidth>
             <FormInputText
               name="email"

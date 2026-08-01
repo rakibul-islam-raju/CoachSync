@@ -34,6 +34,8 @@ const ChangePassword = lazy(
   () => import("../pages/ChangePassword/ChangePassword"),
 );
 const Unauthorized = lazy(() => import("../pages/Unauthorized/Unauthorized"));
+const Profile = lazy(() => import("../pages/Profile/Profile"));
+const ExamManagement = lazy(() => import("../pages/Exam/ExamManagement"));
 
 const lazyElement = (Component: LazyExoticComponent<ComponentType<object>>) => (
   <Suspense fallback={<Loader />}>
@@ -104,6 +106,14 @@ export const router = createBrowserRouter([
               {
                 path: "change-password",
                 element: lazyElement(ChangePassword),
+              },
+              {
+                path: "profile",
+                element: lazyElement(Profile),
+              },
+              {
+                path: "exams",
+                element: lazyElement(ExamManagement),
               },
             ],
           },

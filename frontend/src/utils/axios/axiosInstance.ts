@@ -67,6 +67,10 @@ axiosInstance.interceptors.request.use(
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
+    const organizationId = localStorage.getItem("cms_organization_id");
+    if (organizationId) {
+      config.headers["X-Organization-ID"] = organizationId;
+    }
 
     return config;
   },

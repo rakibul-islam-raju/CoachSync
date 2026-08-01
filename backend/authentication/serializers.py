@@ -27,6 +27,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             "is_active": user.is_active,
             "is_staff": user.is_staff,
             "is_superuser": user.is_superuser,
+            "organizations": list(
+                user.organization_memberships.filter(is_active=True).values_list(
+                    "organization_id", flat=True
+                )
+            ),
         }
         token["user"] = user_info
 

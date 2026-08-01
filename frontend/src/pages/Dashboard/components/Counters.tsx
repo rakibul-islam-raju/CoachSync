@@ -18,8 +18,9 @@ const Counters = () => {
         <Grid
           size={{
             xs: 12,
-            md: 4
-          }}>
+            md: 4,
+          }}
+        >
           <CountCard
             count={data.active_batches}
             label="Active Batches"
@@ -29,8 +30,9 @@ const Counters = () => {
         <Grid
           size={{
             xs: 12,
-            md: 4
-          }}>
+            md: 4,
+          }}
+        >
           <CountCard
             count={data.active_classes}
             label="Active Classes"
@@ -40,8 +42,9 @@ const Counters = () => {
         <Grid
           size={{
             xs: 12,
-            md: 4
-          }}>
+            md: 4,
+          }}
+        >
           <CountCard
             count={data.active_teachers}
             label="Active Teachers"

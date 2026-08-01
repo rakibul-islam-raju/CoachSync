@@ -69,16 +69,18 @@ export default function Subject() {
             justifyContent: "space-between",
             alignItems: "center",
             flexWrap: "wrap",
-            gap: 2
-          }}>
+            gap: 2,
+          }}
+        >
           <Typography variant="h4">Subjects</Typography>
           <Stack
             direction={"row"}
             sx={{
               alignItems: "center",
               gap: 1,
-              flexWrap: "wrap"
-            }}>
+              flexWrap: "wrap",
+            }}
+          >
             <SearchInput
               label="Search Subject"
               value={searchText}

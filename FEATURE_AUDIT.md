@@ -1,6 +1,6 @@
 # Feature Audit and Roadmap
 
-_Audited: July 26, 2026_
+_Audited and remediated: August 1, 2026_
 
 ## Scope and Status
 
@@ -15,15 +15,18 @@ This inventory is based on the Django models, serializers, views, URLs, settings
 | Area | Current capability |
 | --- | --- |
 | Authentication | Email/password login, JWT issuance/persistence/rotation, automatic token refresh, authenticated route guard, current-user lookup, logout, password-reset email requests, token-based password setup, and authenticated password changes. |
-| Users and roles | Custom users with admin, admin staff, organization admin/staff, student, and teacher roles. Employee listing, search, filters, creation, editing, deletion UI, and account activation fields exist. |
-| Academic catalog | Subject, class, teacher, and batch list/create/update/delete APIs and management screens. Lists support pagination, search, ordering, and status filters. |
+| Users and roles | Custom users with admin, admin staff, organization admin/staff, student, and teacher roles. A shared capability matrix controls employee API access, navigation, direct routes, and action visibility. Self-profile editing exposes only safe fields. |
+| Organization tenancy | Organization and membership models, explicit platform tenant selection, tenant ownership for operational records, tenant-scoped querysets/statistics/searches, cross-tenant relationship validation, and staged legacy backfill migrations. |
+| Academic catalog | Tenant-scoped subject, class, teacher, and batch list/create/update/delete APIs and management screens. Lists support pagination, search, ordering, and status filters. |
 | Batch management | Batch dates, fee, class association, detail page, and a paginated list of enrolled students. |
 | Student management | Student creation, generated student ID, list/search/filter/order, detail view, personal data, active status, and enrollment summary. |
-| Enrollment and payments | Batch enrollment, duplicate-enrollment validation, discount/reference fields, payment entry, transaction history, and paid/due summary counts. |
-| Scheduling | Schedule list, search, filters, bulk draft creation, editing, deletion, and month/week/day calendar views with event details. |
-| Dashboard | Active batch/class/teacher counters, student and enrollment charts, and yearly monthly-transaction chart. |
-| Backend utilities | Django admin, Swagger/ReDoc schema pages, seed commands, initial super-admin creation, status-code logging, Redis/Celery worker, and configurable console/SMTP email delivery. |
+| Exams | Complete exam-type and exam CRUD APIs and management screens with filters, search, ordering, dedicated write serializers, and an explicit “Schedule exam” workflow. |
+| Enrollment and payments | Active/cancelled enrollment lifecycle, duplicate-active-enrollment enforcement, discount-aware net payable/paid/balance calculations, positive decimal payments, immutable reversals and corrections, printable receipts, and enrollment CSV export. |
+| Scheduling | Schedule list, search, filters, bulk draft creation, editing, deletion, explicit exam selection, month/week/day calendar views, and a backend batch/teacher interval-conflict engine with atomic bulk creation. |
+| Dashboard | Tenant-scoped active batch/class/teacher counters, student and enrollment charts, and reversal-aware yearly monthly-transaction chart. |
+| Backend utilities | Django admin, clean Swagger/ReDoc schema generation, seed and data-audit commands, initial super-admin creation, status-code logging, Redis/Celery worker, and configurable console/SMTP email delivery. |
 | UI foundation | Reusable forms, tables, pagination, drawers, modals, error/loading states, responsive navigation, Storybook stories, and Material UI theming. |
+| Engineering and deployment | PostgreSQL-backed production settings, non-root multi-stage API/web images, Gunicorn/Nginx runtime, health/readiness probes, PostgreSQL backup and guarded restore tooling, immutable release images, and full backend/frontend/container CI gates. |
 
 ## Completed High-Priority Remediation
 
@@ -35,48 +38,66 @@ The high-priority findings from the original audit were implemented on July 26, 
 4. Student detail, update, delete, and batch-enrollment links now consistently use `student_id`; partial student updates and ID generation were also repaired.
 5. The Celery worker is enabled in Compose. Email backend credentials and frontend reset-link origin are environment-driven, with safe console-email development defaults and SMTP support.
 
-## Remaining Incomplete or Defective Features
+## Completed Medium-Priority Remediation
 
-### Medium priority: feature exists but is incomplete or unsafe
+The medium-priority remediation plan was implemented on August 1, 2026:
 
-1. **Role behavior is inconsistent.** All authenticated users see the same admin menu, while APIs require organization-staff privileges. Employee edit/delete APIs are superuser-only even though lower roles see the controls. The organization user filter calls `exclude()` without assigning its result, allowing admin-level rows to remain visible.
-2. **Organization tenancy is only nominal.** There is no organization/branch model or row-level organization ownership; users, students, teachers, schedules, and statistics are global.
-3. **Exam management is backend-only.** Exam type and exam models/APIs exist, but there are no frontend pages or Redux endpoints. The schedule form contains commented exam-selection logic, and the model TODO for automatically creating exam schedules is unresolved. Exam/exam-type update views also use nested read serializers instead of dedicated update serializers.
-4. **Enrollment editing is unreliable.** Duplicate validation does not exclude the current enrollment, so an update retaining the same student and batch can reject itself. Enrollments have no delete/cancel lifecycle.
-5. **Payment rules are incomplete.** Discounts do not reduce the paid/due calculation. The backend accepts negative or over-limit transactions, and the enrollment ID in a transaction URL is not enforced against the request body/queryset. Payments cannot be corrected, reversed, deleted, receipted, or exported.
-6. **Schedule conflict protection is client-only.** Drafts reject duplicate batch/date/time entries in local state, but the backend does not prevent teacher or batch collisions. Exam selection is unavailable, and the calendar silently renders nothing when a month has no events.
-7. **Profile, account, messages, and notifications are placeholders.** Profile/My Account menu items only close the menu. Mail and notification icons use hard-coded counts and have no routes or APIs.
-8. **Data integrity needs hardening.** Class-name case-insensitive uniqueness remains a TODO. Student/teacher user creation is not wrapped in a database transaction and cleanup can reference variables that were never created. Date ranges, pass marks, total marks, discounts, and several cross-model relationships lack business validation.
+1. Role behavior is enforced consistently through backend permissions, tenant-aware employee querysets, serializer validation, JWT claims, navigation metadata, direct-route guards, and action visibility.
+2. Organization tenancy now covers academic, student, enrollment, payment, exam, schedule, user-membership, and statistics data. Platform writes require an explicit target organization and cross-organization references fail validation.
+3. Integrity constraints cover case-insensitive uniqueness, date ordering, positive monetary values/durations, discounts, and exam marks. Compound student/teacher creation is atomic and registration email is queued after commit.
+4. Exam types and exams have complete backend and frontend CRUD workflows and can explicitly prefill a schedule request.
+5. Enrollment updates exclude the current row, one active enrollment per student/batch is enforced, cancellation preserves history, and financially relevant enrollment deletion is not exposed.
+6. Payments use an immutable positive-decimal payment/reversal ledger. Nested enrollment IDs are authoritative, overpayments and cancelled-enrollment payments are rejected, and correction, receipt, and CSV export workflows are available.
+7. Schedule writes reject batch and teacher interval overlaps both within bulk requests and against stored schedules. Bulk creation locks affected resources and rolls back atomically; the calendar includes an empty state.
+8. Self-profile editing is implemented with security-sensitive fields read-only, and placeholder message/notification controls were removed.
 
-### Engineering and deployment gaps
+Staged migrations and the strict integrity audit passed against a copy of the existing repository database. Automated tests exercise two-organization isolation, but the external two-organization staging smoke test remains a release activity.
 
-- Django is configured for SQLite even though Compose starts PostgreSQL and supplies unused `PG_*` variables. `ALLOWED_HOSTS`, email settings, and `FRONTEND_BASE_URL` also ignore their environment values.
-- Frontend dependency workflows disagree: local guidance/lockfile use pnpm, the Dockerfile uses Yarn, and CI uses npm with old Node/Python versions. The README also advertises incorrect HTTPS URLs/ports.
-- Automated coverage remains limited to **6 backend tests** and **13 frontend tests across 6 files**. Core catalog CRUD, payments, schedules, permissions, and broader API integration are still untested.
-- OpenAPI generation completes with no errors but retains three warnings around user/enrollment schema fields. CI formats code but does not run builds, migrations, backend tests, or frontend tests.
-- Generated `storybook-static/` output is tracked, while production/deployment automation, health checks, backups, and environment-specific settings are absent.
+## Completed Engineering and Deployment Remediation
+
+The engineering and deployment findings were implemented and live-tested on August 1, 2026:
+
+1. Production uses environment-selected PostgreSQL with persistent connections, health checks, optional SSL mode, configurable hosts/origins/security headers, and deliberate SQLite-only local-development fallback.
+2. The API runs as a non-root user under Gunicorn from a Python 3.14 multi-stage image. The frontend is built with Node 24 and pnpm 10.26.2, then served by an Nginx runtime with SPA fallback, cache/security headers, and a health endpoint.
+3. Compose now coordinates PostgreSQL 17, Redis 7.4, API, Celery, and web services through dependency and runtime health checks, persistent volumes, required secrets, and image overrides for immutable releases.
+4. Local, Docker, and CI dependency workflows consistently use locked `uv` and pnpm installs. The consolidated CI workflow runs system/security checks, migration drift and PostgreSQL migrations, the integrity audit, **29 backend tests**, OpenAPI validation, static collection, formatting, linting, **21 frontend tests across 11 files**, production builds, Storybook, Compose validation, both image builds, and a live all-service health/integrity smoke test.
+5. Tagged releases publish versioned API and web images to GitHub Container Registry. Deployment prerequisites, migration sequencing, TLS settings, smoke tests, rollback, and off-host backup expectations are documented.
+6. Liveness and readiness endpoints cover the API process, PostgreSQL, Redis, and Nginx; Compose also probes Celery. A local production-shaped deployment reached healthy status for all five long-running services.
+7. PostgreSQL backup tooling creates restricted custom-format dumps, portable SHA-256 manifests, retention cleanup, and guarded restores. A real backup was checksum-verified, restored into the validation database, and followed by successful readiness and data-integrity checks.
+8. Generated Storybook output was removed from version control and ignored. Obsolete Yarn/legacy CI paths and incorrect README URLs were removed.
+
+## Remaining Acceptance Work
+
+- Run the documented organization A, organization B, and platform-admin smoke test in the actual staging environment before release.
+- Add browser-level end-to-end tests and platform-specific deployment tests. These are coverage improvements, not confirmed feature defects.
 
 ## Possible Future Features
 
 | Product area | Potential additions |
 | --- | --- |
 | Learning operations | Attendance, rooms, recurring schedules, teacher availability, substitutions, homework, materials, and class announcements. |
-| Exams and outcomes | Exam UI, marks entry, grade rules, report cards, rankings, promotion history, and downloadable results. |
-| Finance | Invoices, receipts, payment methods, installments, discounts/scholarships, refunds, expense tracking, cash reconciliation, and overdue reminders. |
-| Self-service portals | Role-specific student, teacher, and guardian dashboards with profile management, schedules, balances, attendance, and results. |
+| Exams and outcomes | Marks entry, grade rules, report cards, rankings, promotion history, and downloadable results. |
+| Finance | Invoices, payment methods, installments, scholarships, expenses, cash reconciliation, and overdue reminders. |
+| Self-service portals | Role-specific student, teacher, and guardian dashboards with schedules, balances, attendance, and results. |
 | Communication | Real notifications, in-app messaging, email/SMS templates, delivery tracking, and event/payment reminders. |
-| Organization management | Multi-branch tenancy, academic sessions, permissions by branch, data isolation, and branch-level dashboards. |
-| Reporting | CSV/PDF export, advanced filters, enrollment/revenue trends, audit history, and scheduled reports. |
-| Platform maturity | API version lifecycle, background-job monitoring, observability, rate limiting, secure production settings, CI/CD, backups, and accessibility/end-to-end testing. |
+| Organization management | Multi-branch support within organizations, academic sessions, permissions by branch, and branch-level dashboards. |
+| Reporting | PDF export, advanced filters, enrollment/revenue trends, audit history, and scheduled reports. |
+| Platform maturity | API version lifecycle, background-job monitoring, centralized observability, rate limiting, automated staging promotion, and accessibility/end-to-end testing. |
 
 ## Verification Snapshot
 
 - `pnpm lint`: passed.
-- `pnpm test -- --run`: 6 files and 13 tests passed.
+- `pnpm format:check`: passed after repository-wide frontend normalization.
+- `pnpm test:run`: 11 files and 21 tests passed.
 - `pnpm build`: passed.
-- `python manage.py check`: passed.
-- `python manage.py makemigrations --check --dry-run`: no changes detected.
-- `python manage.py test`: 6 tests passed.
-- `python manage.py spectacular --validate`: generated a schema with no errors and three warnings.
+- `pnpm build-storybook`: passed; output remains untracked and ignored.
+- `uv run python manage.py check`: passed.
+- `uv run python manage.py makemigrations --check --dry-run`: no changes detected.
+- `uv run python manage.py test`: 29 tests passed.
+- `uv run python manage.py spectacular --validate`: generated and validated the schema without warnings or errors.
+- Staged migrations plus `audit_data_integrity --fail-on-error`: passed against a copy of the existing database; the workspace database was not modified.
+- `docker compose config --quiet` and production API/web image builds: passed.
+- PostgreSQL, Redis, Gunicorn API, Celery, and Nginx web containers: all reached healthy status; API and web liveness plus API readiness returned HTTP 200.
+- A custom-format PostgreSQL backup was created, checksum-verified, restored into the disposable validation database, and passed readiness plus the strict integrity audit afterward.
 
-The next recommended implementation order is: align permissions and role-specific navigation; complete exam management; harden finance and schedule conflicts; switch deployment to the intended database; then expand automated tests and deployment safeguards.
+The engineering and deployment gaps listed in the original audit are resolved. The next release activities are the external two-organization staging smoke test, configuring encrypted off-host backup retention and monitoring in the target platform, and adding browser-level end-to-end coverage.

@@ -1,4 +1,3 @@
- 
 import { createZodResolver } from "../../../../utils/formResolver";
 import { Box, FormControl } from "@mui/material";
 import { FC, useEffect } from "react";
@@ -139,8 +138,9 @@ const EnrollForm: FC<EnrollFormProps> = ({
         sx={{
           display: "flex",
           flexDirection: "column",
-          gap: 2
-        }}>
+          gap: 2,
+        }}
+      >
         {/* TODO:autocomplete */}
         <FormControl fullWidth>
           <FormSelectInput

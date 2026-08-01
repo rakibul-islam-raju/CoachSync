@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Alert, Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import {
   addMinutes,
@@ -110,20 +110,22 @@ const Calender = () => {
     <Box>
       {isLoading ? (
         <LoadingSkeleton rows={7} cols={7} />
+      ) : mappedEvents.length ? (
+        <BigCalendar
+          localizer={localizer}
+          events={mappedEvents}
+          startAccessor="start"
+          endAccessor="end"
+          style={{ height: 750 }}
+          onSelectEvent={handleEventClick}
+          onNavigate={handleNavigate}
+          eventPropGetter={eventStyleGetter}
+          views={["month", "week", "day"]}
+        />
       ) : (
-        !!mappedEvents?.length && (
-          <BigCalendar
-            localizer={localizer}
-            events={mappedEvents}
-            startAccessor="start"
-            endAccessor="end"
-            style={{ height: 750 }}
-            onSelectEvent={handleEventClick}
-            onNavigate={handleNavigate}
-            eventPropGetter={eventStyleGetter}
-            views={["month", "week", "day"]}
-          />
-        )
+        <Alert severity="info" data-testid="calendar-empty-state">
+          No schedules for this month.
+        </Alert>
       )}
 
       {selectedEvent && (

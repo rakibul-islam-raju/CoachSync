@@ -23,9 +23,12 @@ const EventDetails: FC<Props> = ({ event }) => {
       <Grid container spacing={1}>
         {Object.keys(eventInfo).map(item => (
           <Grid key={item} size={12}>
-            <Stack direction={"row"} sx={{
-              gap: 2
-            }}>
+            <Stack
+              direction={"row"}
+              sx={{
+                gap: 2,
+              }}
+            >
               <Typography variant="body1">{item}:</Typography>
               <Typography variant="body1" color={"gray"}>
                 {eventInfo[item]}

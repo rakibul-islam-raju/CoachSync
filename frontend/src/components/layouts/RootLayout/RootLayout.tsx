@@ -1,11 +1,9 @@
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import MailIcon from "@mui/icons-material/Mail";
 import MenuIcon from "@mui/icons-material/Menu";
 import MoreIcon from "@mui/icons-material/MoreVert";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import { Badge, Menu, MenuItem } from "@mui/material";
+import { Menu, MenuItem, Select } from "@mui/material";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -27,6 +25,7 @@ import { drawerWidth } from "../../../config";
 import { isRole } from "../../../constants/roles.constants";
 import { useLogoutMutation } from "../../../redux/auth/authApi";
 import { useAppSelector } from "../../../redux/hook";
+import { useGetOrganizationsQuery } from "../../../redux/organization/organizationApi";
 import ErrorDisplay from "../../ErrorDisplay/ErrorDisplay";
 import Modal from "../../Modal/Modal";
 import Calender from "../../calender/Calender";
@@ -105,6 +104,12 @@ export default function RootLayout() {
   const navigate = useNavigate();
 
   const { refresh, user } = useAppSelector(state => state.auth);
+  const isPlatformUser = user?.role === "admin" || user?.role === "admin_staff";
+  const { data: organizations } = useGetOrganizationsQuery(undefined, {
+    skip: !isPlatformUser,
+  });
+  const selectedOrganization =
+    localStorage.getItem("cms_organization_id") ?? "";
   const visibleMenus = React.useMemo(
     () =>
       MAIN_MENUS.filter(
@@ -185,7 +190,14 @@ export default function RootLayout() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+      <MenuItem
+        onClick={() => {
+          handleMenuClose();
+          navigate("/profile");
+        }}
+      >
+        Profile
+      </MenuItem>
       <MenuItem
         onClick={() => {
           handleMenuClose();
@@ -219,26 +231,6 @@ export default function RootLayout() {
         <IconButton size="large" color="inherit" onClick={showScheduleCalendar}>
           <CalendarMonthIcon />
         </IconButton>
-      </MenuItem>
-      <MenuItem>
-        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="error">
-            <MailIcon />
-          </Badge>
-        </IconButton>
-        <p>Messages</p>
-      </MenuItem>
-      <MenuItem>
-        <IconButton
-          size="large"
-          aria-label="show 17 new notifications"
-          color="inherit"
-        >
-          <Badge badgeContent={17} color="error">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-        <p>Notifications</p>
       </MenuItem>
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton
@@ -277,30 +269,37 @@ export default function RootLayout() {
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
+            {isPlatformUser && (
+              <Select
+                size="small"
+                value={selectedOrganization}
+                displayEmpty
+                aria-label="Active organization"
+                sx={{ minWidth: 180, mr: 1, color: "inherit" }}
+                onChange={event => {
+                  localStorage.setItem(
+                    "cms_organization_id",
+                    String(event.target.value),
+                  );
+                  window.location.reload();
+                }}
+              >
+                <MenuItem value="" disabled>
+                  Select organization
+                </MenuItem>
+                {organizations?.results.map(organization => (
+                  <MenuItem key={organization.id} value={organization.id}>
+                    {organization.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            )}
             <IconButton
               size="large"
               color="inherit"
               onClick={showScheduleCalendar}
             >
               <CalendarMonthIcon />
-            </IconButton>
-            <IconButton
-              size="large"
-              aria-label="show 4 new mails"
-              color="inherit"
-            >
-              <Badge badgeContent={4} color="error">
-                <MailIcon />
-              </Badge>
-            </IconButton>
-            <IconButton
-              size="large"
-              aria-label="show 17 new notifications"
-              color="inherit"
-            >
-              <Badge badgeContent={17} color="error">
-                <NotificationsIcon />
-              </Badge>
             </IconButton>
             <IconButton
               data-testid="account-menu-button"

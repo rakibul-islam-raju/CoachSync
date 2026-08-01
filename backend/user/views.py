@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
@@ -9,16 +10,28 @@ from rest_framework.response import Response
 
 from .models import User, ADMIN, ADMIN_STAFF, ORG_ADMIN, ORG_STAFF
 from .permissions import EmployeePermission
-from .serializers import UserSerializer
+from .serializers import SelfProfileSerializer, UserSerializer
+from organization.tenancy import is_platform_user, organization_ids_for_user
 
 
 class MeApiView(APIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = UserSerializer
+    serializer_class = SelfProfileSerializer
 
     def get(self, request):
         user = get_object_or_404(User, id=self.request.user.id)
         serializer = self.serializer_class(user, context={"request": request})
+        return Response(serializer.data)
+
+    def patch(self, request):
+        serializer = self.serializer_class(
+            request.user,
+            data=request.data,
+            partial=True,
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data)
 
 
@@ -42,10 +55,16 @@ class UserListCreateView(ListCreateAPIView):
         user = self.request.user
         queryset = User.get_non_student_teacher_users()
 
-        if user.role in {ADMIN_STAFF, ORG_ADMIN, ORG_STAFF}:
-            queryset = queryset.exclude(role__in=[ADMIN, ADMIN_STAFF])
+        if not is_platform_user(user):
+            organization_ids = organization_ids_for_user(user)
+            queryset = queryset.exclude(role__in=[ADMIN, ADMIN_STAFF]).filter(
+                Q(organization_memberships__organization_id__in=organization_ids)
+                | Q(organization_memberships__isnull=True)
+            )
+        elif user.role == ADMIN_STAFF:
+            queryset = queryset.exclude(role=ADMIN)
 
-        return queryset
+        return queryset.distinct()
 
 
 class UserDetailView(RetrieveUpdateDestroyAPIView):
@@ -60,6 +79,12 @@ class UserDetailView(RetrieveUpdateDestroyAPIView):
         user = self.request.user
         queryset = User.get_non_student_teacher_users()
 
-        if user.role in {ADMIN_STAFF, ORG_ADMIN, ORG_STAFF}:
-            return queryset.exclude(role__in=[ADMIN, ADMIN_STAFF])
-        return queryset
+        if not is_platform_user(user):
+            organization_ids = organization_ids_for_user(user)
+            queryset = queryset.exclude(role__in=[ADMIN, ADMIN_STAFF]).filter(
+                Q(organization_memberships__organization_id__in=organization_ids)
+                | Q(organization_memberships__isnull=True)
+            )
+        elif user.role == ADMIN_STAFF:
+            queryset = queryset.exclude(role=ADMIN)
+        return queryset.distinct()

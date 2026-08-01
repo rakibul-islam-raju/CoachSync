@@ -1,4 +1,3 @@
- 
 import { createZodResolver } from "../../../../utils/formResolver";
 import { Box, FormControl } from "@mui/material";
 import { FC, useEffect, useState } from "react";
@@ -45,8 +44,6 @@ const TransactionForm: FC<TransactionFormProps> = ({ onClose, enrollData }) => {
 
   const transactionAmount = watch("amount");
 
-  console.log("transactionAmount =>", transactionAmount);
-
   const [createTransaction, { isLoading, isError, isSuccess, error }] =
     useCreategetTransactionMutation();
 
@@ -68,11 +65,12 @@ const TransactionForm: FC<TransactionFormProps> = ({ onClose, enrollData }) => {
     if (
       enrollData &&
       isEnrollsForStudentDetails(enrollData) &&
-      enrollData?.total_amount &&
-      enrollData?.total_paid
+      enrollData?.net_payable !== undefined &&
+      enrollData?.total_paid !== undefined
     ) {
       const amount =
-        enrollData?.total_amount - (transactionAmount + enrollData?.total_paid);
+        enrollData.net_payable -
+        (transactionAmount + (enrollData.total_paid ?? 0));
 
       setDueAmount(amount);
     }
@@ -87,8 +85,9 @@ const TransactionForm: FC<TransactionFormProps> = ({ onClose, enrollData }) => {
         sx={{
           display: "flex",
           flexDirection: "column",
-          gap: 2
-        }}>
+          gap: 2,
+        }}
+      >
         <FormControl fullWidth required>
           <FormInputText
             name="amount"

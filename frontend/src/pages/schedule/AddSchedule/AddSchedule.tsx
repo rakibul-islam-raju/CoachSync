@@ -43,8 +43,9 @@ const AddSchedule = () => {
           <Grid
             size={{
               xs: 12,
-              md: 6
-            }}>
+              md: 6,
+            }}
+          >
             <Typography variant="h5" gutterBottom>
               Add Schedules
             </Typography>
@@ -57,8 +58,9 @@ const AddSchedule = () => {
           <Grid
             size={{
               xs: 12,
-              md: 6
-            }}>
+              md: 6,
+            }}
+          >
             <NewScheduleList handleAddToEdit={handleAddToEdit} />
           </Grid>
         </Grid>

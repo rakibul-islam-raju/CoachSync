@@ -19,6 +19,11 @@ export interface IEnrollsForStudentDetails extends IEntityGenericProps {
   discount_amount: number;
   reference_by: IUser;
   total_paid?: number;
+  net_payable: number;
+  balance: number;
+  status: "active" | "cancelled";
+  cancelled_at?: string | null;
+  cancellation_reason?: string;
 }
 
 export interface IStudentDetails extends IStudent {

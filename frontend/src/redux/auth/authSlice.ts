@@ -49,6 +49,16 @@ const authSlice = createSlice({
       state.refresh = action.payload.refresh;
       state.user = decodedtoken.user;
 
+      if (decodedtoken.user.organizations?.length) {
+        const selected = localStorage.getItem("cms_organization_id");
+        if (!selected) {
+          localStorage.setItem(
+            "cms_organization_id",
+            String(decodedtoken.user.organizations[0]),
+          );
+        }
+      }
+
       if (state.access && state.refresh) {
         const auth = {
           access: state.access,
@@ -64,6 +74,7 @@ const authSlice = createSlice({
       state.user = null;
 
       localStorage.removeItem("cms_auth");
+      localStorage.removeItem("cms_organization_id");
     },
     setUserInfo(state, action: PayloadAction<IUser>) {
       state.user = action.payload;

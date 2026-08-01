@@ -1,11 +1,13 @@
 from datetime import date
+from decimal import Decimal
 from functools import cached_property
 
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Case, DecimalField, F, Sum, Value, When
+from django.db.models.functions import Coalesce
 
 from user.models import User
-from organization.models import Batch
+from organization.models import Batch, Organization, get_legacy_organization_pk
 from utilities.models import BaseModel
 
 BLOOD_GROUPS = (
@@ -21,9 +23,15 @@ BLOOD_GROUPS = (
 
 
 class Student(BaseModel):
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.PROTECT,
+        related_name="students",
+        default=get_legacy_organization_pk,
+    )
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     student_id = models.CharField(
-        max_length=50, db_index=True, unique=True, blank=True, null=False
+        max_length=50, db_index=True, blank=True, null=False
     )
     emergency_contact_no = models.CharField(max_length=11, null=True)
     date_of_birth = models.DateField(null=True)
@@ -37,6 +45,12 @@ class Student(BaseModel):
 
     class Meta:
         ordering = ["-id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["organization", "student_id"],
+                name="unique_student_id_per_org",
+            )
+        ]
 
     def __str__(self):
         return self.student_id
@@ -56,12 +70,34 @@ class Student(BaseModel):
 
 
 class Enroll(BaseModel):
+    ACTIVE = "active"
+    CANCELLED = "cancelled"
+    STATUS_CHOICES = ((ACTIVE, "Active"), (CANCELLED, "Cancelled"))
+
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.PROTECT,
+        related_name="enrollments",
+        default=get_legacy_organization_pk,
+    )
     student = models.ForeignKey(
         Student, on_delete=models.CASCADE, related_name="enrolls"
     )
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE, related_name="enrolls")
-    total_amount = models.PositiveIntegerField()
-    discount_amount = models.PositiveIntegerField(default=0, blank=True, null=True)
+    total_amount = models.DecimalField(max_digits=12, decimal_places=2)
+    discount_amount = models.DecimalField(
+        max_digits=12, decimal_places=2, default=Decimal("0.00"), blank=True, null=True
+    )
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=ACTIVE)
+    cancelled_at = models.DateTimeField(blank=True, null=True)
+    cancelled_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="cancelled_enrollments",
+    )
+    cancellation_reason = models.CharField(max_length=255, blank=True)
     reference_by = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -74,42 +110,145 @@ class Enroll(BaseModel):
 
     class Meta:
         ordering = ["-id"]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(total_amount__gt=0),
+                name="enrollment_total_positive",
+            ),
+            models.CheckConstraint(
+                condition=(
+                    models.Q(discount_amount__isnull=True)
+                    | models.Q(discount_amount__gte=0)
+                ),
+                name="enrollment_discount_non_negative",
+            ),
+            models.CheckConstraint(
+                condition=(
+                    models.Q(discount_amount__isnull=True)
+                    | models.Q(discount_amount__lte=models.F("total_amount"))
+                ),
+                name="enrollment_discount_not_above_total",
+            ),
+            models.UniqueConstraint(
+                fields=["organization", "student", "batch"],
+                condition=models.Q(status="active"),
+                name="unique_active_student_batch_enrollment",
+            ),
+        ]
 
     def __str__(self):
         return self.student.student_id
 
     @cached_property
     def total_paid(self):
-        return (
-            self.transactions.aggregate(total_amount=Sum("amount"))["total_amount"] or 0
-        )
+        money = DecimalField(max_digits=12, decimal_places=2)
+        return self.transactions.aggregate(
+            total=Coalesce(
+                Sum(
+                    Case(
+                        When(transaction_type=Transaction.PAYMENT, then=F("amount")),
+                        When(transaction_type=Transaction.REVERSAL, then=-F("amount")),
+                        default=Value(Decimal("0.00")),
+                        output_field=money,
+                    )
+                ),
+                Value(Decimal("0.00")),
+                output_field=money,
+            )
+        )["total"]
+
+    @property
+    def net_payable(self):
+        return self.total_amount - (self.discount_amount or 0)
+
+    @property
+    def balance(self):
+        return self.net_payable - self.total_paid
 
     @classmethod
     def get_paid_enrolls(cls):
-        # Get all enrolls where the total paid amount is equal to or greater than the total amount
-        return cls.objects.annotate(
-            total_paid_amount=Sum("transactions__amount")
-        ).filter(total_paid_amount__gte=models.F("total_amount"))
+        return cls.with_financials().filter(balance_amount__lte=0)
 
     @classmethod
     def get_due_enrolls(cls):
-        # Get all enrolls where the total paid amount is less than the total amount
+        return cls.with_financials().filter(balance_amount__gt=0)
+
+    @classmethod
+    def with_financials(cls):
+        money = DecimalField(max_digits=12, decimal_places=2)
         return cls.objects.annotate(
-            total_paid_amount=Sum("transactions__amount")
-        ).filter(total_paid_amount__lt=models.F("total_amount"))
+            paid_amount=Coalesce(
+                Sum(
+                    Case(
+                        When(
+                            transactions__transaction_type=Transaction.PAYMENT,
+                            then=F("transactions__amount"),
+                        ),
+                        When(
+                            transactions__transaction_type=Transaction.REVERSAL,
+                            then=-F("transactions__amount"),
+                        ),
+                        default=Value(Decimal("0.00")),
+                        output_field=money,
+                    )
+                ),
+                Value(Decimal("0.00")),
+                output_field=money,
+            )
+        ).annotate(
+            net_payable_amount=F("total_amount")
+            - Coalesce(
+                F("discount_amount"),
+                Value(Decimal("0.00")),
+                output_field=money,
+            ),
+            balance_amount=F("net_payable_amount") - F("paid_amount"),
+        )
 
 
 class Transaction(BaseModel):
-    amount = models.IntegerField()
+    PAYMENT = "payment"
+    REVERSAL = "reversal"
+    TYPE_CHOICES = ((PAYMENT, "Payment"), (REVERSAL, "Reversal"))
+
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.PROTECT,
+        related_name="transactions",
+        default=get_legacy_organization_pk,
+    )
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    transaction_type = models.CharField(
+        max_length=10, choices=TYPE_CHOICES, default=PAYMENT
+    )
     enroll = models.ForeignKey(
         Enroll, on_delete=models.CASCADE, related_name="transactions"
     )
     remark = models.CharField(max_length=100, blank=True, null=True)
+    reversal_of = models.OneToOneField(
+        "self",
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        related_name="reversal",
+    )
 
     objects = models.Manager()
 
     class Meta:
         ordering = ["-id"]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(amount__gt=0), name="transaction_amount_positive"
+            ),
+            models.CheckConstraint(
+                condition=(
+                    models.Q(transaction_type="payment", reversal_of__isnull=True)
+                    | models.Q(transaction_type="reversal", reversal_of__isnull=False)
+                ),
+                name="reversal_requires_original_transaction",
+            ),
+        ]
 
     def __str__(self):
         return self.enroll.student.student_id
