@@ -27,6 +27,7 @@ urlpatterns = [
     path("api/v1/students/", include("student.urls")),
     # finance (manual/offline collections only)
     path("api/v1/finance/", include("finance.urls")),
+    path("api/v1/assessments/", include("assessment.urls")),
 ]
 
 if settings.DEBUG:

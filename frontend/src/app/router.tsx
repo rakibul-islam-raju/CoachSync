@@ -9,6 +9,7 @@ import RoleProtectedLayout from "../components/layouts/ProtectedLayout/RoleProte
 import { OPERATIONAL_ROLES } from "../constants/roles.constants";
 
 const Dashboard = lazy(() => import("../pages/Dashboard/Dashboard"));
+const RoleHome = lazy(() => import("../pages/Dashboard/RoleHome"));
 const Schedule = lazy(() => import("../pages/schedule/schedule"));
 const AddSchedule = lazy(
   () => import("../pages/schedule/AddSchedule/AddSchedule"),
@@ -36,6 +37,9 @@ const ChangePassword = lazy(
 const Unauthorized = lazy(() => import("../pages/Unauthorized/Unauthorized"));
 const Profile = lazy(() => import("../pages/Profile/Profile"));
 const ExamManagement = lazy(() => import("../pages/Exam/ExamManagement"));
+const MarkEntry = lazy(() => import("../pages/Exam/MarkEntry"));
+const ResultReview = lazy(() => import("../pages/Exam/ResultReview"));
+const MyResults = lazy(() => import("../pages/Exam/MyResults"));
 const FinanceManagement = lazy(
   () => import("../pages/Finance/FinanceManagement"),
 );
@@ -56,14 +60,26 @@ export const router = createBrowserRouter([
         element: lazyElement(Unauthorized),
       },
       {
-        element: <RoleProtectedLayout allowedRoles={OPERATIONAL_ROLES} />,
+        path: "/",
+        element: <RootLayout />,
         children: [
           {
-            path: "/",
-            element: <RootLayout />,
+            index: true,
+            element: lazyElement(RoleHome),
+          },
+          {
+            path: "change-password",
+            element: lazyElement(ChangePassword),
+          },
+          {
+            path: "profile",
+            element: lazyElement(Profile),
+          },
+          {
+            element: <RoleProtectedLayout allowedRoles={OPERATIONAL_ROLES} />,
             children: [
               {
-                index: true,
+                path: "dashboard",
                 element: lazyElement(Dashboard),
               },
               {
@@ -107,20 +123,31 @@ export const router = createBrowserRouter([
                 element: lazyElement(Employee),
               },
               {
-                path: "change-password",
-                element: lazyElement(ChangePassword),
-              },
-              {
-                path: "profile",
-                element: lazyElement(Profile),
-              },
-              {
                 path: "exams",
                 element: lazyElement(ExamManagement),
               },
               {
+                path: "exams/:examTypeId/marks",
+                element: lazyElement(MarkEntry),
+              },
+              {
+                path: "exams/:examTypeId/results",
+                element: lazyElement(ResultReview),
+              },
+              {
                 path: "finance",
                 element: lazyElement(FinanceManagement),
+              },
+            ],
+          },
+          {
+            element: (
+              <RoleProtectedLayout allowedRoles={["student", "guardian"]} />
+            ),
+            children: [
+              {
+                path: "results",
+                element: lazyElement(MyResults),
               },
             ],
           },

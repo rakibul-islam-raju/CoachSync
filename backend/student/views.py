@@ -25,7 +25,7 @@ from rest_framework.views import APIView
 from organization.tenancy import TenantQuerysetMixin, resolve_request_organization
 from user.permissions import IsOrgStaff
 
-from .models import Enroll, Student, Transaction
+from .models import Enroll, Student, StudentGuardian, Transaction
 from .serializers import (
     CreateStudentSerializer,
     EnrollCreateSerializer,
@@ -33,11 +33,46 @@ from .serializers import (
     EnrollListSerializer,
     EnrollSerializer,
     StudentSerializer,
+    StudentGuardianCreateSerializer,
+    StudentGuardianSerializer,
     StudentsShortStatSerializer,
     TransactionReversalSerializer,
     TransactionSerializer,
     YearlyTransactionStatsSerializer,
 )
+
+
+class StudentGuardianListCreateView(TenantQuerysetMixin, ListCreateAPIView):
+    permission_classes = [IsOrgStaff]
+    queryset = StudentGuardian.objects.select_related("guardian", "student")
+
+    def get_student(self):
+        organization = resolve_request_organization(self.request)
+        return get_object_or_404(
+            Student,
+            organization=organization,
+            student_id=self.kwargs["student_id"],
+        )
+
+    def get_queryset(self):
+        return super().get_queryset().filter(student=self.get_student())
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return StudentGuardianCreateSerializer
+        return StudentGuardianSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["student"] = self.get_student()
+        return context
+
+
+class StudentGuardianDetailView(TenantQuerysetMixin, RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsOrgStaff]
+    serializer_class = StudentGuardianSerializer
+    queryset = StudentGuardian.objects.select_related("guardian", "student")
+    http_method_names = ["get", "delete", "head", "options"]
 
 
 class StudentListView(TenantQuerysetMixin, ListCreateAPIView):

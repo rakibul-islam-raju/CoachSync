@@ -11,6 +11,8 @@ from .views import (
     EnrollmentExportView,
     StudentShortStatsView,
     TransactionStatsView,
+    StudentGuardianListCreateView,
+    StudentGuardianDetailView,
 )
 
 urlpatterns = [
@@ -39,5 +41,15 @@ urlpatterns = [
         name="student-enroll-cancel",
     ),
     path("enrolls/<int:pk>", EnrollDetailView.as_view(), name="student-enroll-details"),
+    path(
+        "<str:student_id>/guardians",
+        StudentGuardianListCreateView.as_view(),
+        name="student-guardian-list",
+    ),
+    path(
+        "guardians/<int:pk>",
+        StudentGuardianDetailView.as_view(),
+        name="student-guardian-detail",
+    ),
     path("<str:student_id>", StudentDetailView.as_view(), name="student-details"),
 ]

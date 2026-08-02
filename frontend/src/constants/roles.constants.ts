@@ -5,6 +5,7 @@ export enum ROLES {
   org_staff = "Organization Staff",
   student = "student",
   teacher = "teacher",
+  guardian = "guardian",
 }
 
 export type Role = keyof typeof ROLES;
@@ -35,6 +36,7 @@ export const VISIBLE_EMPLOYEE_ROLES: Record<Role, Role[]> = {
   org_staff: ["org_admin", "org_staff"],
   student: [],
   teacher: [],
+  guardian: [],
 };
 
 export const MANAGEABLE_EMPLOYEE_ROLES: Record<Role, Role[]> = {
@@ -44,6 +46,7 @@ export const MANAGEABLE_EMPLOYEE_ROLES: Record<Role, Role[]> = {
   org_staff: [],
   student: [],
   teacher: [],
+  guardian: [],
 };
 
 export function isRole(role?: string): role is Role {

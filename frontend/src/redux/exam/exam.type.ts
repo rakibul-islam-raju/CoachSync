@@ -25,6 +25,7 @@ export interface IExam extends IEntityGenericProps {
   date: string;
   pass_mark: number;
   total_mark: number;
+  is_required: boolean;
 }
 
 export interface IExamWrite {
@@ -34,6 +35,7 @@ export interface IExamWrite {
   date: string;
   pass_mark: number;
   total_mark: number;
+  is_required?: boolean;
   is_active?: boolean;
 }
 

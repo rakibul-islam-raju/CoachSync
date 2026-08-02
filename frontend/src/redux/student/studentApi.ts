@@ -9,6 +9,8 @@ import {
   IStudentParams,
   IStudentShortStats,
   IStudentUpdateReqData,
+  IStudentGuardian,
+  IStudentGuardianWrite,
 } from "./student.type";
 
 export const studentApi = apiSlice.injectEndpoints({
@@ -159,6 +161,34 @@ export const studentApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["StudentStats"],
     }),
+    getStudentGuardians: builder.query<
+      IPaginatedData<IStudentGuardian[]>,
+      string
+    >({
+      query: studentId => ({
+        url: `/students/${studentId}/guardians`,
+        method: "GET",
+      }),
+      providesTags: ["Guardian"],
+    }),
+    createStudentGuardian: builder.mutation<
+      IStudentGuardian,
+      { studentId: string; data: IStudentGuardianWrite }
+    >({
+      query: ({ studentId, data }) => ({
+        url: `/students/${studentId}/guardians`,
+        method: "POST",
+        data,
+      }),
+      invalidatesTags: ["Guardian"],
+    }),
+    deleteStudentGuardian: builder.mutation<void, number>({
+      query: id => ({
+        url: `/students/guardians/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Guardian"],
+    }),
   }),
 });
 
@@ -169,4 +199,7 @@ export const {
   useUpdateStudentMutation,
   useDeleteStudentMutation,
   useGetStudentShortStatsQuery,
+  useGetStudentGuardiansQuery,
+  useCreateStudentGuardianMutation,
+  useDeleteStudentGuardianMutation,
 } = studentApi;

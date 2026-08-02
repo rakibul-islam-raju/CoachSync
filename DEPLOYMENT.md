@@ -19,8 +19,9 @@ after HTTPS is confirmed across every relevant host.
 
 1. Back up PostgreSQL and verify the generated checksum.
 2. Pull the versioned API and web images published by the release workflow.
-3. Review the migration history in `FEATURE_AUDIT.md` and the finance backfill
-   notes in `FINANCE.md` before upgrading an older database.
+3. Review the migration history in `FEATURE_AUDIT.md`, finance backfill notes in
+   `FINANCE.md`, and assessment rollout notes in `ASSESSMENTS.md` before
+   upgrading an older database.
 4. Apply migrations once from the API image.
 5. Start API and worker containers, then wait for `/health/ready`.
 6. Start the web container and verify its `/health/live` endpoint.
@@ -28,6 +29,9 @@ after HTTPS is confirmed across every relevant host.
 8. In each selected organization, verify an invoice and manual payment. In a
    non-production test organization, also verify an expense void, daily
    reconciliation, and overdue-reminder delivery through Celery.
+9. In a non-production organization, generate an exam roster, enter and verify
+   marks, publish a result, and confirm both student and guardian access plus
+   Celery email delivery.
 
 The API container runs migrations by default. Set `APPLY_MIGRATIONS=false` when
 the deployment platform runs migrations as a separate release job. Celery never

@@ -194,6 +194,7 @@ class Exam(TenantModel):
     date = models.DateField()
     pass_mark = models.PositiveBigIntegerField()
     total_mark = models.PositiveBigIntegerField()
+    is_required = models.BooleanField(default=True)
 
     objects = models.Manager()
 

@@ -1,5 +1,7 @@
 from decimal import Decimal
+import secrets
 
+from django.conf import settings
 from django.db import transaction
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -8,11 +10,11 @@ from rest_framework import serializers
 from organization.models import OrganizationMembership
 from organization.serializers import BatchSerializer
 from organization.tenancy import resolve_request_organization, validate_same_organization
-from user.models import STUDENT, User
+from user.models import GUARDIAN, STUDENT, User
 from user.serializers import ExtendedUserSerializer
 from utilities.tasks import send_email
 
-from .models import Enroll, Student, Transaction
+from .models import Enroll, Student, StudentGuardian, Transaction
 
 
 def _organization_for_serializer(serializer, attrs):
@@ -32,17 +34,36 @@ def _organization_for_serializer(serializer, attrs):
 
 
 def _queue_student_registration(user):
-    message = (
-        "Congratulations!\nYou have been registered as a student."
-        "\nRegards\nCoachSync"
-    )
+    token = secrets.token_urlsafe(64)
+    user.password_reset_token = token
+    user.save(update_fields=["password_reset_token"])
+    reset_url = f"{settings.FRONTEND_BASE_URL}/set-password/{token}"
     html_content = render_to_string(
-        "registration_confirmation.html", {"user": user, "message": message}
+        "set_password_email.html", {"user": user, "reset_url": reset_url}
     )
     plain_message = strip_tags(html_content)
     transaction.on_commit(
         lambda: send_email.delay(
-            subject="Student registration",
+            subject="Set up your student account",
+            to_email=[user.email],
+            html_content=html_content,
+            plain_message=plain_message,
+        )
+    )
+
+
+def _queue_guardian_invitation(user):
+    token = secrets.token_urlsafe(64)
+    user.password_reset_token = token
+    user.save(update_fields=["password_reset_token"])
+    reset_url = f"{settings.FRONTEND_BASE_URL}/set-password/{token}"
+    html_content = render_to_string(
+        "set_password_email.html", {"user": user, "reset_url": reset_url}
+    )
+    plain_message = strip_tags(html_content)
+    transaction.on_commit(
+        lambda: send_email.delay(
+            subject="Set up your guardian account",
             to_email=[user.email],
             html_content=html_content,
             plain_message=plain_message,
@@ -112,6 +133,95 @@ class CreateStudentSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
+
+
+class GuardianUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "first_name", "last_name", "email", "phone", "is_active"]
+
+
+class StudentGuardianSerializer(serializers.ModelSerializer):
+    guardian = GuardianUserSerializer(read_only=True)
+
+    class Meta:
+        model = StudentGuardian
+        fields = [
+            "id",
+            "student",
+            "guardian",
+            "relationship",
+            "is_primary",
+            "result_email_enabled",
+            "is_active",
+            "created_at",
+        ]
+
+
+class StudentGuardianCreateSerializer(serializers.Serializer):
+    first_name = serializers.CharField(max_length=30)
+    last_name = serializers.CharField(max_length=30)
+    email = serializers.EmailField()
+    phone = serializers.CharField(max_length=11)
+    relationship = serializers.ChoiceField(choices=StudentGuardian.RELATIONSHIPS)
+    is_primary = serializers.BooleanField(default=False)
+    result_email_enabled = serializers.BooleanField(default=True)
+
+    def validate(self, attrs):
+        existing_email = User.objects.filter(email=attrs["email"]).first()
+        existing_phone = User.objects.filter(phone=attrs["phone"]).first()
+        existing = existing_email or existing_phone
+        if existing_email and existing_phone and existing_email != existing_phone:
+            raise serializers.ValidationError(
+                "The email and phone belong to different existing accounts."
+            )
+        if existing and existing.role != GUARDIAN:
+            raise serializers.ValidationError(
+                "The existing account is not a guardian account."
+            )
+        attrs["_existing_user"] = existing
+        return attrs
+
+    @transaction.atomic
+    def create(self, validated_data):
+        student = self.context["student"]
+        organization = student.organization
+        actor = self.context["request"].user
+        existing = validated_data.pop("_existing_user")
+        relationship = validated_data.pop("relationship")
+        is_primary = validated_data.pop("is_primary")
+        result_email_enabled = validated_data.pop("result_email_enabled")
+        if existing:
+            guardian = existing
+        else:
+            guardian = User.objects.create(role=GUARDIAN, **validated_data)
+            _queue_guardian_invitation(guardian)
+        OrganizationMembership.objects.update_or_create(
+            organization=organization,
+            user=guardian,
+            defaults={"is_default": True, "created_by": actor},
+        )
+        link, created = StudentGuardian.objects.get_or_create(
+            organization=organization,
+            student=student,
+            guardian=guardian,
+            defaults={
+                "relationship": relationship,
+                "is_primary": is_primary,
+                "result_email_enabled": result_email_enabled,
+                "created_by": actor,
+            },
+        )
+        if not created:
+            raise serializers.ValidationError("This guardian is already linked.")
+        if is_primary:
+            StudentGuardian.objects.filter(
+                organization=organization, student=student, is_primary=True
+            ).exclude(pk=link.pk).update(is_primary=False)
+        return link
+
+    def to_representation(self, instance):
+        return StudentGuardianSerializer(instance, context=self.context).data
 
 
 class EnrollCreateSerializer(serializers.ModelSerializer):

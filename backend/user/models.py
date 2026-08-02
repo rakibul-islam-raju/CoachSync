@@ -10,6 +10,7 @@ ORG_ADMIN = "org_admin"
 ORG_STAFF = "org_staff"
 STUDENT = "student"
 TEACHER = "teacher"
+GUARDIAN = "guardian"
 
 
 ROLES = (
@@ -19,6 +20,7 @@ ROLES = (
     (ORG_STAFF, "Organization Staff"),
     (STUDENT, "student"),
     (TEACHER, "teacher"),
+    (GUARDIAN, "guardian"),
 )
 
 
@@ -61,4 +63,4 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @classmethod
     def get_non_student_teacher_users(cls):
-        return cls.objects.exclude(role__in=[STUDENT, TEACHER])
+        return cls.objects.exclude(role__in=[STUDENT, TEACHER, GUARDIAN])

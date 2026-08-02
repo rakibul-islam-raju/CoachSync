@@ -7,6 +7,7 @@ import SupervisedUserCircleIcon from "@mui/icons-material/SupervisedUserCircle";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
 import QuizIcon from "@mui/icons-material/Quiz";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
+import GradingIcon from "@mui/icons-material/Grading";
 import { OPERATIONAL_ROLES, Role } from "../../../constants/roles.constants";
 
 export type IMenu = {
@@ -20,8 +21,14 @@ export const MAIN_MENUS: IMenu[] = [
   {
     icon: <DashboardIcon />,
     label: "Dashboard",
-    path: "/",
+    path: "/dashboard",
     allowedRoles: OPERATIONAL_ROLES,
+  },
+  {
+    icon: <GradingIcon />,
+    label: "Results",
+    path: "/results",
+    allowedRoles: ["student", "guardian"],
   },
   {
     icon: <ScheduleIcon />,

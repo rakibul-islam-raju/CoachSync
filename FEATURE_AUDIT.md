@@ -15,12 +15,12 @@ This inventory is based on the Django models, serializers, views, URLs, settings
 | Area | Current capability |
 | --- | --- |
 | Authentication | Email/password login, JWT issuance/persistence/rotation, automatic token refresh, authenticated route guard, current-user lookup, logout, password-reset email requests, token-based password setup, and authenticated password changes. |
-| Users and roles | Custom users with admin, admin staff, organization admin/staff, student, and teacher roles. A shared capability matrix controls employee API access, navigation, direct routes, and action visibility. Self-profile editing exposes only safe fields. |
+| Users and roles | Custom users with admin, admin staff, organization admin/staff, student, teacher, and guardian roles. A shared capability matrix controls employee API access, navigation, direct routes, and action visibility. Self-profile editing exposes only safe fields. |
 | Organization tenancy | Organization and membership models, explicit platform tenant selection, tenant ownership for operational records, tenant-scoped querysets/statistics/searches, cross-tenant relationship validation, and staged legacy backfill migrations. |
 | Academic catalog | Tenant-scoped subject, class, teacher, and batch list/create/update/delete APIs and management screens. Lists support pagination, search, ordering, and status filters. |
 | Batch management | Batch dates, fee, class association, detail page, and a paginated list of enrolled students. |
 | Student management | Student creation, generated student ID, list/search/filter/order, detail view, personal data, active status, and enrollment summary. |
-| Exams | Complete exam-type and exam CRUD APIs and management screens with filters, search, ordering, dedicated write serializers, and an explicit “Schedule exam” workflow. |
+| Exams and outcomes | Exam setup and scheduling plus frozen candidate rosters, decimal mark entry, absent/exempt states, staff submission, admin verification, organization-defined grade scales, atomic versioned publication, correction reopening, rankings, printable report cards, and tenant-safe student/guardian portals. |
 | Enrollment and payments | Active/cancelled enrollment lifecycle, duplicate-active-enrollment enforcement, discount-aware net payable/paid/balance calculations, positive decimal payments, immutable reversals and corrections, printable receipts, and enrollment CSV export. |
 | Finance | Automatically issued enrollment invoices, manual payment methods and references, installment schedules, traceable scholarship awards, immutable expense/void records, close-time cash reconciliation snapshots, overdue email/manual reminders, printable invoices, and tenant-scoped finance summaries. No payment gateway, checkout, webhook, or provider dependency is used. |
 | Scheduling | Schedule list, search, filters, bulk draft creation, editing, deletion, explicit exam selection, month/week/day calendar views, and a backend batch/teacher interval-conflict engine with atomic bulk creation. |
@@ -87,13 +87,16 @@ documented in [FINANCE.md](FINANCE.md).
 - Run the documented organization A, organization B, and platform-admin smoke test in the actual staging environment before release.
 - Add browser-level end-to-end tests and platform-specific deployment tests. These are coverage improvements, not confirmed feature defects.
 
+Assessment behavior, role rules, APIs, publication semantics, and rollout notes
+are documented in [ASSESSMENTS.md](ASSESSMENTS.md).
+
 ## Possible Future Features
 
 | Product area | Potential additions |
 | --- | --- |
 | Learning operations | Attendance, rooms, recurring schedules, teacher availability, substitutions, homework, materials, and class announcements. |
-| Exams and outcomes | Marks entry, grade rules, report cards, rankings, promotion history, and downloadable results. |
-| Self-service portals | Role-specific student, teacher, and guardian dashboards with schedules, balances, attendance, and results. |
+| Exams and outcomes | Promotion history, transcript-style multi-session reporting, CSV mark import/export, and fixed-layout PDF generation. |
+| Self-service portals | Teacher dashboards plus student/guardian schedules, balances, and attendance. Result portals are implemented. |
 | Communication | Real notifications, in-app messaging, email/SMS templates, delivery tracking, and event/payment reminders. |
 | Organization management | Multi-branch support within organizations, academic sessions, permissions by branch, and branch-level dashboards. |
 | Reporting | PDF export, advanced filters, enrollment/revenue trends, audit history, and scheduled reports. |
@@ -103,12 +106,12 @@ documented in [FINANCE.md](FINANCE.md).
 
 - `pnpm lint`: passed.
 - `pnpm format:check`: passed after repository-wide frontend normalization.
-- `pnpm test:run`: 12 files and 22 tests passed.
+- `pnpm test:run`: 13 files and 23 tests passed.
 - `pnpm build`: passed.
 - `pnpm build-storybook`: passed; output remains untracked and ignored.
 - `uv run python manage.py check`: passed.
 - `uv run python manage.py makemigrations --check --dry-run`: no changes detected.
-- `uv run python manage.py test`: 35 tests passed.
+- `uv run python manage.py test`: 39 tests passed.
 - `uv run python manage.py spectacular --validate`: generated and validated the schema without warnings or errors.
 - Staged migrations plus `audit_data_integrity --fail-on-error`: passed against a copy of the existing database; the workspace database was not modified.
 - `docker compose config --quiet` and production API/web image builds: passed.

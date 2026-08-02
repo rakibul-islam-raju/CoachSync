@@ -72,3 +72,31 @@ export interface IStudentShortStats {
 
   [key: string]: number;
 }
+
+export interface IStudentGuardian {
+  id: number;
+  student: number;
+  guardian: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone: string;
+    is_active: boolean;
+  };
+  relationship: "father" | "mother" | "guardian" | "other";
+  is_primary: boolean;
+  result_email_enabled: boolean;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface IStudentGuardianWrite {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  relationship: "father" | "mother" | "guardian" | "other";
+  is_primary: boolean;
+  result_email_enabled: boolean;
+}

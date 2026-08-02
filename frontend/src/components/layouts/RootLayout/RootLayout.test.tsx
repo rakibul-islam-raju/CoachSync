@@ -50,10 +50,12 @@ describe("Login Page", () => {
     expect(screen.getByText("CoachSync")).toBeInTheDocument();
 
     // Check if main menus are rendered
-    MAIN_MENUS.forEach(item => {
-      const menuItem = screen.getByText(item.label);
-      expect(menuItem).toBeInTheDocument();
-    });
+    MAIN_MENUS.filter(item => item.allowedRoles.includes("org_staff")).forEach(
+      item => {
+        const menuItem = screen.getByText(item.label);
+        expect(menuItem).toBeInTheDocument();
+      },
+    );
   });
 
   it("should toggle the drawer", () => {
@@ -105,8 +107,11 @@ describe("Login Page", () => {
 
     renderRootLayout();
 
-    MAIN_MENUS.forEach(item => {
-      expect(screen.queryByText(item.label)).not.toBeInTheDocument();
-    });
+    MAIN_MENUS.filter(item => !item.allowedRoles.includes("student")).forEach(
+      item => {
+        expect(screen.queryByText(item.label)).not.toBeInTheDocument();
+      },
+    );
+    expect(screen.getByText("Results")).toBeInTheDocument();
   });
 });

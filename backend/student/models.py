@@ -69,6 +69,47 @@ class Student(BaseModel):
         super().save(*args, **kwargs)
 
 
+class StudentGuardian(BaseModel):
+    RELATIONSHIPS = (
+        ("father", "Father"),
+        ("mother", "Mother"),
+        ("guardian", "Guardian"),
+        ("other", "Other"),
+    )
+
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.PROTECT,
+        related_name="student_guardians",
+        default=get_legacy_organization_pk,
+    )
+    student = models.ForeignKey(
+        Student, on_delete=models.CASCADE, related_name="guardian_links"
+    )
+    guardian = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="student_links"
+    )
+    relationship = models.CharField(
+        max_length=16, choices=RELATIONSHIPS, default="guardian"
+    )
+    is_primary = models.BooleanField(default=False)
+    result_email_enabled = models.BooleanField(default=True)
+
+    objects = models.Manager()
+
+    class Meta:
+        ordering = ["-is_primary", "guardian__first_name", "guardian__last_name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["organization", "student", "guardian"],
+                name="unique_guardian_link_per_student",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.guardian.full_name()} — {self.student.student_id}"
+
+
 class Enroll(BaseModel):
     ACTIVE = "active"
     CANCELLED = "cancelled"

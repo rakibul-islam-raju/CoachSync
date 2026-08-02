@@ -22,7 +22,10 @@ import * as React from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { drawerWidth } from "../../../config";
-import { isRole } from "../../../constants/roles.constants";
+import {
+  hasOperationalAccess,
+  isRole,
+} from "../../../constants/roles.constants";
 import { useLogoutMutation } from "../../../redux/auth/authApi";
 import { useAppSelector } from "../../../redux/hook";
 import { useGetOrganizationsQuery } from "../../../redux/organization/organizationApi";
@@ -105,6 +108,7 @@ export default function RootLayout() {
 
   const { refresh, user } = useAppSelector(state => state.auth);
   const isPlatformUser = user?.role === "admin" || user?.role === "admin_staff";
+  const isOperationalUser = hasOperationalAccess(user?.role);
   const { data: organizations } = useGetOrganizationsQuery(undefined, {
     skip: !isPlatformUser,
   });
@@ -227,11 +231,17 @@ export default function RootLayout() {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <MenuItem>
-        <IconButton size="large" color="inherit" onClick={showScheduleCalendar}>
-          <CalendarMonthIcon />
-        </IconButton>
-      </MenuItem>
+      {isOperationalUser && (
+        <MenuItem>
+          <IconButton
+            size="large"
+            color="inherit"
+            onClick={showScheduleCalendar}
+          >
+            <CalendarMonthIcon />
+          </IconButton>
+        </MenuItem>
+      )}
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton
           size="large"
@@ -294,13 +304,15 @@ export default function RootLayout() {
                 ))}
               </Select>
             )}
-            <IconButton
-              size="large"
-              color="inherit"
-              onClick={showScheduleCalendar}
-            >
-              <CalendarMonthIcon />
-            </IconButton>
+            {isOperationalUser && (
+              <IconButton
+                size="large"
+                color="inherit"
+                onClick={showScheduleCalendar}
+              >
+                <CalendarMonthIcon />
+              </IconButton>
+            )}
             <IconButton
               data-testid="account-menu-button"
               size="large"
@@ -383,13 +395,15 @@ export default function RootLayout() {
         <Outlet />
       </Box>
 
-      <Modal
-        title="Schedules"
-        open={showCalendar}
-        onClose={closeScheduleCalendar}
-        content={<Calender />}
-        fullScreen
-      />
+      {isOperationalUser && (
+        <Modal
+          title="Schedules"
+          open={showCalendar}
+          onClose={closeScheduleCalendar}
+          content={<Calender />}
+          fullScreen
+        />
+      )}
     </Box>
   );
 }

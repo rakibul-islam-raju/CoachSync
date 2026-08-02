@@ -1,3 +1,6 @@
+import secrets
+
+from django.conf import settings
 from django.db import transaction
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -38,18 +41,17 @@ def _organization_for_serializer(serializer, attrs):
 
 
 def _queue_registration_email(user, kind):
-    subject = f"{kind} registration"
-    message = (
-        f"Congratulations!\nYou have been registered as a {kind.lower()}."
-        "\nRegards\nCoachSync"
-    )
+    token = secrets.token_urlsafe(64)
+    user.password_reset_token = token
+    user.save(update_fields=["password_reset_token"])
+    reset_url = f"{settings.FRONTEND_BASE_URL}/set-password/{token}"
     html_content = render_to_string(
-        "registration_confirmation.html", {"user": user, "message": message}
+        "set_password_email.html", {"user": user, "reset_url": reset_url}
     )
     plain_message = strip_tags(html_content)
     transaction.on_commit(
         lambda: send_email.delay(
-            subject=subject,
+            subject=f"Set up your {kind.lower()} account",
             to_email=[user.email],
             html_content=html_content,
             plain_message=plain_message,
@@ -230,6 +232,7 @@ class ExamWriteSerializer(serializers.ModelSerializer):
             "date",
             "pass_mark",
             "total_mark",
+            "is_required",
             "is_active",
         ]
         read_only_fields = ["id"]

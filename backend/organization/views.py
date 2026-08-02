@@ -178,6 +178,15 @@ class ExamTypeDetailView(TenantCreateMixin, RetrieveUpdateDestroyAPIView):
             return ExamTypeWriteSerializer
         return ExamTypeSerializer
 
+    def perform_destroy(self, instance):
+        if instance.candidates.exists() or instance.result_publications.exists():
+            from rest_framework.exceptions import ValidationError
+
+            raise ValidationError(
+                "Exam periods with assessment history cannot be deleted; deactivate them instead."
+            )
+        instance.delete()
+
 
 class ExamListCreateView(TenantCreateMixin, ListCreateAPIView):
     permission_classes = [IsOrgStaff]
@@ -198,6 +207,15 @@ class ExamDetailView(TenantCreateMixin, RetrieveUpdateDestroyAPIView):
         if self.request.method in {"PATCH", "PUT"}:
             return ExamWriteSerializer
         return ExamSerializer
+
+    def perform_destroy(self, instance):
+        if instance.marks.exists():
+            from rest_framework.exceptions import ValidationError
+
+            raise ValidationError(
+                "Exams with mark history cannot be deleted; deactivate them instead."
+            )
+        instance.delete()
 
 
 class ScheduleListCreateView(TenantQuerysetMixin, ListCreateAPIView):

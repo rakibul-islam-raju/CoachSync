@@ -2,6 +2,8 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import EventIcon from "@mui/icons-material/Event";
+import GradingIcon from "@mui/icons-material/Grading";
+import AssessmentIcon from "@mui/icons-material/Assessment";
 import {
   Box,
   Divider,
@@ -64,6 +66,7 @@ const emptyExam: IExamWrite = {
   date: "",
   pass_mark: 1,
   total_mark: 100,
+  is_required: true,
   is_active: true,
 };
 
@@ -121,6 +124,7 @@ export default function ExamManagement() {
       date: item.date,
       pass_mark: item.pass_mark,
       total_mark: item.total_mark,
+      is_required: item.is_required,
       is_active: item.is_active,
     });
   };
@@ -203,6 +207,22 @@ export default function ExamManagement() {
                         {item.start_date} – {item.end_date}
                       </TableCell>
                       <TableCell>
+                        <Tooltip title="Enter marks">
+                          <IconButton
+                            onClick={() => navigate(`/exams/${item.id}/marks`)}
+                          >
+                            <GradingIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Review and publish results">
+                          <IconButton
+                            onClick={() =>
+                              navigate(`/exams/${item.id}/results`)
+                            }
+                          >
+                            <AssessmentIcon />
+                          </IconButton>
+                        </Tooltip>
                         <Tooltip title="Edit">
                           <IconButton onClick={() => editExamType(item)}>
                             <EditIcon />
@@ -437,6 +457,20 @@ export default function ExamManagement() {
                     required
                   />
                 </Stack>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={examForm.is_required ?? true}
+                      onChange={event =>
+                        setExamForm({
+                          ...examForm,
+                          is_required: event.target.checked,
+                        })
+                      }
+                    />
+                  }
+                  label="Required to pass overall"
+                />
                 <FormControlLabel
                   control={
                     <Switch

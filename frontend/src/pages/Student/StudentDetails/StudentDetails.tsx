@@ -21,6 +21,7 @@ import { formatDateTime } from "../../../utils/formatDateTime";
 import EnrollToTransactionSwitch from "../components/EnrollToTransactionSwitch";
 import StudentEnrollments from "../components/StudentEnrollments/StudentEnrollments";
 import StudentForm from "../components/StudentForm/StudentForm";
+import StudentGuardians from "../components/StudentGuardians/StudentGuardians";
 
 const breadCrumbList = [
   {
@@ -234,6 +235,12 @@ const StudentDetails: FC = () => {
             )}
           </Grid>
         </Grid>
+        {student?.student_id && (
+          <Box sx={{ mt: 3 }}>
+            <Divider sx={{ mb: 2 }} />
+            <StudentGuardians studentId={student.student_id} />
+          </Box>
+        )}
       </PageContainer>
       {/* enroll modal */}
       {enrollModal && (

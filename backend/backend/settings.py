@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "organization.apps.OrganizationConfig",
     "student.apps.StudentConfig",
     "finance.apps.FinanceConfig",
+    "assessment.apps.AssessmentConfig",
     "utilities.apps.UtilitiesConfig",
 ]
 

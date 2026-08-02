@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Student, Enroll, Transaction
+from .models import Student, Enroll, StudentGuardian, Transaction
 
 
 @admin.register(Student)
@@ -65,3 +65,15 @@ class TransactionAdmin(admin.ModelAdmin):
         "enroll__batch__code",
     ]
     date_hierarchy = "created_at"
+
+
+@admin.register(StudentGuardian)
+class StudentGuardianAdmin(admin.ModelAdmin):
+    list_display = ["student", "guardian", "relationship", "is_primary", "is_active"]
+    list_filter = ["relationship", "is_primary", "is_active"]
+    search_fields = [
+        "student__student_id",
+        "guardian__email",
+        "guardian__first_name",
+        "guardian__last_name",
+    ]
