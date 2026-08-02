@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "authentication.apps.AuthenticationConfig",
     "organization.apps.OrganizationConfig",
     "student.apps.StudentConfig",
+    "finance.apps.FinanceConfig",
     "utilities.apps.UtilitiesConfig",
 ]
 
@@ -202,6 +203,11 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SCHEMA_PATH_PREFIX": "/api/v[0-9]",
+    "ENUM_NAME_OVERRIDES": {
+        "EnrollmentStatusEnum": "student.models.Enroll.STATUS_CHOICES",
+        "ExpenseStatusEnum": "finance.models.Expense.STATUS_CHOICES",
+        "ReminderStatusEnum": "finance.models.OverdueReminder.STATUS_CHOICES",
+    },
 }
 
 # jwt configs

@@ -6,6 +6,11 @@ import { toast } from "react-toastify";
 import { CustomButton } from "../../../../components/CustomButton/CustomButton";
 import ErrorDisplay from "../../../../components/ErrorDisplay/ErrorDisplay";
 import { FormInputText } from "../../../../components/forms/FormInputText";
+import FormSelectInput from "../../../../components/forms/FormSelectInput";
+import {
+  useGetInvoicesQuery,
+  useGetPaymentMethodsQuery,
+} from "../../../../redux/finance/financeApi";
 import { IEnroll } from "../../../../redux/enroll/enroll.type";
 import { IEnrollsForStudentDetails } from "../../../../redux/student/student.type";
 import { ITransactionCreateReqData } from "../../../../redux/transaction/transaction.type";
@@ -32,12 +37,16 @@ const TransactionForm: FC<TransactionFormProps> = ({ onClose, enrollData }) => {
       enroll: enrollData?.id,
       amount: 0,
       remark: null,
+      payment_method: 0,
+      installment: 0,
+      reference_number: "",
     },
   });
 
   const {
     handleSubmit,
     reset,
+    setValue,
     watch,
     formState: { errors },
   } = methods;
@@ -48,10 +57,29 @@ const TransactionForm: FC<TransactionFormProps> = ({ onClose, enrollData }) => {
     useCreategetTransactionMutation();
 
   const [dueAmount, setDueAmount] = useState<number | undefined>();
+  const { data: paymentMethods } = useGetPaymentMethodsQuery({
+    limit: 100,
+    is_active: true,
+  });
+  const { data: invoices } = useGetInvoicesQuery(
+    { limit: 1, enroll: enrollData?.id },
+    { skip: !enrollData?.id },
+  );
+  const installments = invoices?.results[0]?.installments ?? [];
 
   const onSubmit = (data: ITransactionFormValues) => {
-    createTransaction(data);
+    createTransaction({
+      ...data,
+      payment_method: data.payment_method || undefined,
+      installment: data.installment || undefined,
+    });
   };
+
+  useEffect(() => {
+    if (paymentMethods?.results[0]) {
+      setValue("payment_method", paymentMethods.results[0].id);
+    }
+  }, [paymentMethods, setValue]);
 
   useEffect(() => {
     if (isSuccess) {
@@ -96,6 +124,43 @@ const TransactionForm: FC<TransactionFormProps> = ({ onClose, enrollData }) => {
             label="Amount"
             error={!!errors.amount || (!!dueAmount && dueAmount < 0)}
             helperText={errors.amount?.message || `Total Due: ${dueAmount}`}
+          />
+        </FormControl>
+        <FormControl fullWidth>
+          <FormSelectInput
+            name="payment_method"
+            label="Payment Method"
+            options={paymentMethods?.results.map(method => ({
+              value: method.id,
+              label: method.name,
+            }))}
+          />
+        </FormControl>
+        {installments.length > 0 && (
+          <FormControl fullWidth>
+            <FormSelectInput
+              name="installment"
+              label="Installment (optional)"
+              options={[
+                { value: 0, label: "No specific installment" },
+                ...installments
+                  .filter(installment => installment.balance > 0)
+                  .map(installment => ({
+                    value: installment.id,
+                    label: `${installment.title} — due ${installment.balance}`,
+                  })),
+              ]}
+            />
+          </FormControl>
+        )}
+        <FormControl fullWidth>
+          <FormInputText
+            name="reference_number"
+            type="text"
+            placeholder="Receipt, bank, or mobile reference"
+            label="Reference Number"
+            error={!!errors.reference_number}
+            helperText={errors.reference_number?.message}
           />
         </FormControl>
         <FormControl fullWidth>

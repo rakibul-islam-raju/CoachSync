@@ -43,6 +43,9 @@ export const TransactionSchema = z.object({
   enroll: z.number(),
   amount: z.number({ error: "Amount is required" }).min(10),
   remark: z.string().optional().nullable(),
+  payment_method: z.number().nonnegative().optional(),
+  installment: z.number().nonnegative().optional(),
+  reference_number: z.string().optional(),
 });
 
 export type ITransactionFormValues = z.infer<typeof TransactionSchema>;

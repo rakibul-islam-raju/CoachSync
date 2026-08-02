@@ -1,6 +1,6 @@
 # Feature Audit and Roadmap
 
-_Audited and remediated: August 1, 2026_
+_Audited and remediated: August 2, 2026_
 
 ## Scope and Status
 
@@ -22,6 +22,7 @@ This inventory is based on the Django models, serializers, views, URLs, settings
 | Student management | Student creation, generated student ID, list/search/filter/order, detail view, personal data, active status, and enrollment summary. |
 | Exams | Complete exam-type and exam CRUD APIs and management screens with filters, search, ordering, dedicated write serializers, and an explicit “Schedule exam” workflow. |
 | Enrollment and payments | Active/cancelled enrollment lifecycle, duplicate-active-enrollment enforcement, discount-aware net payable/paid/balance calculations, positive decimal payments, immutable reversals and corrections, printable receipts, and enrollment CSV export. |
+| Finance | Automatically issued enrollment invoices, manual payment methods and references, installment schedules, traceable scholarship awards, immutable expense/void records, close-time cash reconciliation snapshots, overdue email/manual reminders, printable invoices, and tenant-scoped finance summaries. No payment gateway, checkout, webhook, or provider dependency is used. |
 | Scheduling | Schedule list, search, filters, bulk draft creation, editing, deletion, explicit exam selection, month/week/day calendar views, and a backend batch/teacher interval-conflict engine with atomic bulk creation. |
 | Dashboard | Tenant-scoped active batch/class/teacher counters, student and enrollment charts, and reversal-aware yearly monthly-transaction chart. |
 | Backend utilities | Django admin, clean Swagger/ReDoc schema generation, seed and data-audit commands, initial super-admin creation, status-code logging, Redis/Celery worker, and configurable console/SMTP email delivery. |
@@ -60,11 +61,26 @@ The engineering and deployment findings were implemented and live-tested on Augu
 1. Production uses environment-selected PostgreSQL with persistent connections, health checks, optional SSL mode, configurable hosts/origins/security headers, and deliberate SQLite-only local-development fallback.
 2. The API runs as a non-root user under Gunicorn from a Python 3.14 multi-stage image. The frontend is built with Node 24 and pnpm 10.26.2, then served by an Nginx runtime with SPA fallback, cache/security headers, and a health endpoint.
 3. Compose now coordinates PostgreSQL 17, Redis 7.4, API, Celery, and web services through dependency and runtime health checks, persistent volumes, required secrets, and image overrides for immutable releases.
-4. Local, Docker, and CI dependency workflows consistently use locked `uv` and pnpm installs. The consolidated CI workflow runs system/security checks, migration drift and PostgreSQL migrations, the integrity audit, **29 backend tests**, OpenAPI validation, static collection, formatting, linting, **21 frontend tests across 11 files**, production builds, Storybook, Compose validation, both image builds, and a live all-service health/integrity smoke test.
+4. Local, Docker, and CI dependency workflows consistently use locked `uv` and pnpm installs. The consolidated CI workflow runs system/security checks, migration drift and PostgreSQL migrations, the integrity audit, **35 backend tests**, OpenAPI validation, static collection, formatting, linting, **22 frontend tests across 12 files**, production builds, Storybook, Compose validation, both image builds, and a live all-service health/integrity smoke test.
 5. Tagged releases publish versioned API and web images to GitHub Container Registry. Deployment prerequisites, migration sequencing, TLS settings, smoke tests, rollback, and off-host backup expectations are documented.
 6. Liveness and readiness endpoints cover the API process, PostgreSQL, Redis, and Nginx; Compose also probes Celery. A local production-shaped deployment reached healthy status for all five long-running services.
 7. PostgreSQL backup tooling creates restricted custom-format dumps, portable SHA-256 manifests, retention cleanup, and guarded restores. A real backup was checksum-verified, restored into the validation database, and followed by successful readiness and data-integrity checks.
 8. Generated Storybook output was removed from version control and ignored. Obsolete Yarn/legacy CI paths and incorrect README URLs were removed.
+
+## Completed Finance Roadmap
+
+The finance roadmap was implemented on August 2, 2026 as an internal, payment-gateway-free workflow:
+
+Operational behavior, accounting rules, API endpoints, and rollout notes are
+documented in [FINANCE.md](FINANCE.md).
+
+1. Every new enrollment receives a tenant-scoped invoice automatically; existing enrollments are backfilled during migration. Staff can update due dates, add installment schedules, review balances and statuses, and print invoices.
+2. Payments remain in the existing immutable transaction ledger and now record an organization-owned manual payment method, optional installment allocation, and receipt/bank/mobile reference. Legacy clients safely default omitted methods to Cash.
+3. Scholarship programs and enrollment awards calculate fixed or percentage discounts, validate dates and paid balances, and retain an audit record.
+4. Expenses are categorized and posted against manual payment methods. Corrections use immutable void records rather than destructive edits or deletes.
+5. Daily reconciliation stores opening balance, collections, posted expenses, expected balance, counted balance, and variance as a close-time snapshot.
+6. Staff can queue overdue email reminders through the configured email worker or record manual guardian contact, with pending/sent/failed status history.
+7. The protected Finance workspace follows the existing breadcrumb, page, table, modal, role, tenant-selection, loading, error, and notification patterns.
 
 ## Remaining Acceptance Work
 
@@ -77,7 +93,6 @@ The engineering and deployment findings were implemented and live-tested on Augu
 | --- | --- |
 | Learning operations | Attendance, rooms, recurring schedules, teacher availability, substitutions, homework, materials, and class announcements. |
 | Exams and outcomes | Marks entry, grade rules, report cards, rankings, promotion history, and downloadable results. |
-| Finance | Invoices, payment methods, installments, scholarships, expenses, cash reconciliation, and overdue reminders. |
 | Self-service portals | Role-specific student, teacher, and guardian dashboards with schedules, balances, attendance, and results. |
 | Communication | Real notifications, in-app messaging, email/SMS templates, delivery tracking, and event/payment reminders. |
 | Organization management | Multi-branch support within organizations, academic sessions, permissions by branch, and branch-level dashboards. |
@@ -88,12 +103,12 @@ The engineering and deployment findings were implemented and live-tested on Augu
 
 - `pnpm lint`: passed.
 - `pnpm format:check`: passed after repository-wide frontend normalization.
-- `pnpm test:run`: 11 files and 21 tests passed.
+- `pnpm test:run`: 12 files and 22 tests passed.
 - `pnpm build`: passed.
 - `pnpm build-storybook`: passed; output remains untracked and ignored.
 - `uv run python manage.py check`: passed.
 - `uv run python manage.py makemigrations --check --dry-run`: no changes detected.
-- `uv run python manage.py test`: 29 tests passed.
+- `uv run python manage.py test`: 35 tests passed.
 - `uv run python manage.py spectacular --validate`: generated and validated the schema without warnings or errors.
 - Staged migrations plus `audit_data_integrity --fail-on-error`: passed against a copy of the existing database; the workspace database was not modified.
 - `docker compose config --quiet` and production API/web image builds: passed.

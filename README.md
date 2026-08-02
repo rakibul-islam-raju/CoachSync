@@ -1,8 +1,14 @@
 # CoachSync Coaching Management System
 
 CoachSync is a Django REST Framework and React/Vite application for managing
-organizations, employees, academic catalogs, students, enrollments, payments,
-exams, and schedules.
+organizations, employees, academic catalogs, students, enrollments, manual
+payments, invoices, scholarships, expenses, cash reconciliation, exams, and
+schedules.
+
+Finance is intentionally payment-gateway-free. Staff record payments received
+through offline methods such as cash, bank transfer, or mobile banking. See
+[FINANCE.md](FINANCE.md) for the finance workflow, accounting rules, API, and
+migration notes.
 
 ## Run with Docker
 
@@ -81,8 +87,8 @@ Registry.
 
 Deployment, security, migration, health-check, backup, restore, and rollback
 instructions are in [DEPLOYMENT.md](DEPLOYMENT.md). The organization-tenancy
-migration sequence is detailed in
-[MEDIUM_PRIORITY_ROLLOUT.md](MEDIUM_PRIORITY_ROLLOUT.md).
+migration history and current capability status are documented in
+[FEATURE_AUDIT.md](FEATURE_AUDIT.md).
 
 ## Contributing
 

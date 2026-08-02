@@ -19,12 +19,15 @@ after HTTPS is confirmed across every relevant host.
 
 1. Back up PostgreSQL and verify the generated checksum.
 2. Pull the versioned API and web images published by the release workflow.
-3. Follow the staged tenancy migration boundary in
-   `MEDIUM_PRIORITY_ROLLOUT.md` when upgrading a pre-tenancy database.
+3. Review the migration history in `FEATURE_AUDIT.md` and the finance backfill
+   notes in `FINANCE.md` before upgrading an older database.
 4. Apply migrations once from the API image.
 5. Start API and worker containers, then wait for `/health/ready`.
 6. Start the web container and verify its `/health/live` endpoint.
 7. Complete organization A, organization B, and platform-admin smoke tests.
+8. In each selected organization, verify an invoice and manual payment. In a
+   non-production test organization, also verify an expense void, daily
+   reconciliation, and overdue-reminder delivery through Celery.
 
 The API container runs migrations by default. Set `APPLY_MIGRATIONS=false` when
 the deployment platform runs migrations as a separate release job. Celery never

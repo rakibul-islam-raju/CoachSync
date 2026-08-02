@@ -49,6 +49,7 @@ class TransactionAdmin(admin.ModelAdmin):
     list_display = [
         "enroll",
         "amount",
+        "payment_method",
         "remark",
         "created_at",
     ]

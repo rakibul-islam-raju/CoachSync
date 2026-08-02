@@ -210,6 +210,9 @@ class EnrollListSerializer(serializers.ModelSerializer):
 
 class TransactionSerializer(serializers.ModelSerializer):
     is_reversed = serializers.SerializerMethodField()
+    payment_method_name = serializers.CharField(
+        source="payment_method.name", read_only=True
+    )
 
     class Meta:
         model = Transaction
@@ -220,6 +223,10 @@ class TransactionSerializer(serializers.ModelSerializer):
             "amount",
             "transaction_type",
             "remark",
+            "payment_method",
+            "payment_method_name",
+            "installment",
+            "reference_number",
             "reversal_of",
             "created_by",
             "created_at",
@@ -252,6 +259,26 @@ class TransactionSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"amount": f"Payment exceeds the outstanding balance of {enroll.balance}."}
             )
+        payment_method = attrs.get("payment_method")
+        if payment_method:
+            if payment_method.organization_id != enroll.organization_id:
+                raise serializers.ValidationError(
+                    {"payment_method": "The selected method belongs to another organization."}
+                )
+            if not payment_method.is_active:
+                raise serializers.ValidationError(
+                    {"payment_method": "Select an active payment method."}
+                )
+        installment = attrs.get("installment")
+        if installment:
+            if installment.invoice.enroll_id != enroll.id:
+                raise serializers.ValidationError(
+                    {"installment": "The selected installment belongs to another enrollment."}
+                )
+            if amount > installment.balance:
+                raise serializers.ValidationError(
+                    {"amount": f"Payment exceeds the installment balance of {installment.balance}."}
+                )
         return attrs
 
 

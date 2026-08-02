@@ -44,7 +44,14 @@ export const transactionApi = apiSlice.injectEndpoints({
         method: "POST",
         data,
       }),
-      invalidatesTags: ["TransactionStats", "Student"],
+      invalidatesTags: [
+        "TransactionStats",
+        "Student",
+        "Invoice",
+        "Installment",
+        "FinanceSummary",
+        "Reconciliation",
+      ],
 
       // pessimistically update cache
       async onQueryStarted(_data, { dispatch, queryFulfilled, getState }) {
@@ -86,7 +93,16 @@ export const transactionApi = apiSlice.injectEndpoints({
         method: "POST",
         data,
       }),
-      invalidatesTags: ["Transaction", "TransactionStats", "Student", "Enroll"],
+      invalidatesTags: [
+        "Transaction",
+        "TransactionStats",
+        "Student",
+        "Enroll",
+        "Invoice",
+        "Installment",
+        "FinanceSummary",
+        "Reconciliation",
+      ],
     }),
   }),
 });

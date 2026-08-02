@@ -6,6 +6,7 @@ import ScheduleIcon from "@mui/icons-material/Schedule";
 import SupervisedUserCircleIcon from "@mui/icons-material/SupervisedUserCircle";
 import ViewModuleIcon from "@mui/icons-material/ViewModule";
 import QuizIcon from "@mui/icons-material/Quiz";
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import { OPERATIONAL_ROLES, Role } from "../../../constants/roles.constants";
 
 export type IMenu = {
@@ -38,6 +39,12 @@ export const MAIN_MENUS: IMenu[] = [
     icon: <PeopleIcon />,
     label: "Student",
     path: "/students",
+    allowedRoles: OPERATIONAL_ROLES,
+  },
+  {
+    icon: <AccountBalanceIcon />,
+    label: "Finance",
+    path: "/finance",
     allowedRoles: OPERATIONAL_ROLES,
   },
   {

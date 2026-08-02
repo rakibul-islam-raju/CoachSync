@@ -162,6 +162,8 @@ class TransactionListCreateView(TenantQuerysetMixin, ListCreateAPIView):
 
     @transaction.atomic
     def perform_create(self, serializer):
+        from finance.models import PaymentMethod
+
         organization = resolve_request_organization(
             self.request, data=self.request.data, write=True
         )
@@ -169,10 +171,18 @@ class TransactionListCreateView(TenantQuerysetMixin, ListCreateAPIView):
         # Re-run balance validation after acquiring the enrollment lock.
         serializer.context["enroll"] = enroll
         serializer.validate(serializer.validated_data)
+        payment_method = serializer.validated_data.get("payment_method")
+        if payment_method is None:
+            payment_method = PaymentMethod.objects.filter(
+                organization=organization,
+                method_type=PaymentMethod.CASH,
+                is_active=True,
+            ).first()
         serializer.save(
             organization=organization,
             enroll=enroll,
             transaction_type=Transaction.PAYMENT,
+            payment_method=payment_method,
             created_by=self.request.user,
         )
 
@@ -205,6 +215,9 @@ class TransactionReversalView(APIView):
             amount=original.amount,
             transaction_type=Transaction.REVERSAL,
             reversal_of=original,
+            payment_method=original.payment_method,
+            installment=original.installment,
+            reference_number=original.reference_number,
             remark=remark,
             created_by=request.user,
         )
@@ -223,6 +236,9 @@ class TransactionReversalView(APIView):
                 enroll=enroll,
                 amount=replacement_amount,
                 transaction_type=Transaction.PAYMENT,
+                payment_method=original.payment_method,
+                installment=original.installment,
+                reference_number=original.reference_number,
                 remark=f"Replacement for transaction #{original.pk}: {remark}",
                 created_by=request.user,
             )

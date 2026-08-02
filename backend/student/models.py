@@ -232,6 +232,21 @@ class Transaction(BaseModel):
         null=True,
         related_name="reversal",
     )
+    payment_method = models.ForeignKey(
+        "finance.PaymentMethod",
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        related_name="transactions",
+    )
+    installment = models.ForeignKey(
+        "finance.Installment",
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        related_name="transactions",
+    )
+    reference_number = models.CharField(max_length=100, blank=True)
 
     objects = models.Manager()
 

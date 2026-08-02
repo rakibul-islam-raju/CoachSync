@@ -67,6 +67,8 @@ function printReceipt(
     `Date: ${formatDateTime(transaction.created_at)}`,
     `Type: ${transaction.transaction_type}`,
     `Amount: ${transaction.amount}`,
+    `Payment method: ${transaction.payment_method_name || "—"}`,
+    `Reference: ${transaction.reference_number || "—"}`,
     `Remark: ${transaction.remark || "—"}`,
   ].forEach(value => {
     const line = receipt.document.createElement("p");

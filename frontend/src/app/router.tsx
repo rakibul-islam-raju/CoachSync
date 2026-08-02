@@ -36,6 +36,9 @@ const ChangePassword = lazy(
 const Unauthorized = lazy(() => import("../pages/Unauthorized/Unauthorized"));
 const Profile = lazy(() => import("../pages/Profile/Profile"));
 const ExamManagement = lazy(() => import("../pages/Exam/ExamManagement"));
+const FinanceManagement = lazy(
+  () => import("../pages/Finance/FinanceManagement"),
+);
 
 const lazyElement = (Component: LazyExoticComponent<ComponentType<object>>) => (
   <Suspense fallback={<Loader />}>
@@ -114,6 +117,10 @@ export const router = createBrowserRouter([
               {
                 path: "exams",
                 element: lazyElement(ExamManagement),
+              },
+              {
+                path: "finance",
+                element: lazyElement(FinanceManagement),
               },
             ],
           },
